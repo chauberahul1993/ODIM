@@ -17,6 +17,7 @@ package handle
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	log "github.com/sirupsen/logrus"
@@ -47,6 +48,7 @@ type AggregatorRPCs struct {
 	SetDefaultBootOrderAggregateElementsRPC func(aggregatorproto.AggregatorRequest) (*aggregatorproto.AggregatorResponse, error)
 	GetAllConnectionMethodsRPC              func(aggregatorproto.AggregatorRequest) (*aggregatorproto.AggregatorResponse, error)
 	GetConnectionMethodRPC                  func(aggregatorproto.AggregatorRequest) (*aggregatorproto.AggregatorResponse, error)
+	GetResetActionInfoRPC                   func(aggregatorproto.AggregatorRequest) (*aggregatorproto.AggregatorResponse, error)
 }
 
 // GetAggregationService is the handler for getting AggregationService details
@@ -787,4 +789,36 @@ func (a *AggregatorRPCs) GetConnectionMethod(ctx iris.Context) {
 	common.SetResponseHeader(ctx, resp.Header)
 	ctx.StatusCode(int(resp.StatusCode))
 	ctx.Write(resp.Body)
+}
+func (a *AggregatorRPCs) GetResetActionInfoService(ctx iris.Context) {
+	defer ctx.Next()
+
+	fmt.Println("Action Info is called 111111111111111111  ************ ")
+	req := aggregatorproto.AggregatorRequest{
+		SessionToken: ctx.Request().Header.Get("X-Auth-Token"),
+	}
+	if req.SessionToken == "" {
+		errorMessage := "no X-Auth-Token found in request header"
+		response := common.GeneralError(http.StatusUnauthorized, response.NoValidSession, errorMessage, nil, nil)
+		common.SetResponseHeader(ctx, response.Header)
+		ctx.StatusCode(http.StatusUnauthorized)
+		ctx.JSON(&response.Body)
+		return
+	}
+	resp, err := a.GetResetActionInfoRPC(req)
+	if err != nil {
+		errorMessage := "something went wrong with the RPC calls: " + err.Error()
+		log.Error(errorMessage)
+		response := common.GeneralError(http.StatusInternalServerError, response.InternalError, errorMessage, nil, nil)
+		common.SetResponseHeader(ctx, response.Header)
+		ctx.StatusCode(http.StatusInternalServerError)
+		ctx.JSON(&response.Body)
+		return
+	}
+
+	ctx.ResponseWriter().Header().Set("Allow", "GET")
+	common.SetResponseHeader(ctx, resp.Header)
+	ctx.StatusCode(int(resp.StatusCode))
+	ctx.Write(resp.Body)
+
 }

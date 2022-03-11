@@ -18,12 +18,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"net"
 	"net/http"
 	"runtime"
 	"strings"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/ODIM-Project/ODIM/lib-utilities/common"
 	"github.com/ODIM-Project/ODIM/lib-utilities/config"
@@ -75,10 +76,12 @@ func (a *Aggregator) GetAggregationService(ctx context.Context, req *aggregatorp
 		OdataID:      "/redfish/v1/AggregationService",
 		Actions: agresponse.Actions{
 			Reset: agresponse.Action{
-				Target: "/redfish/v1/AggregationService/Actions/AggregationService.Reset/",
+				Target:     "/redfish/v1/AggregationService/Actions/AggregationService.Reset/",
+				ActionInfo: "",
 			},
 			SetDefaultBootOrder: agresponse.Action{
-				Target: "/redfish/v1/AggregationService/Actions/AggregationService.SetDefaultBootOrder/",
+				Target:     "/redfish/v1/AggregationService/Actions/AggregationService.SetDefaultBootOrder/",
+				ActionInfo: "",
 			},
 		},
 		Aggregates: agresponse.OdataID{

@@ -41,6 +41,22 @@ func DoGetAggregationService(req aggregatorproto.AggregatorRequest) (*aggregator
 
 	return resp, err
 }
+func DoRestActionInfoService(req aggregatorproto.AggregatorRequest) (*aggregatorproto.AggregatorResponse, error) {
+	fmt.Println("Action Info is called 22222222 RPC is called   ************ ")
+	conn, err := services.ODIMService.Client(services.Aggregator)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to create client connection: %v", err)
+	}
+	defer conn.Close()
+	aggregator := aggregatorproto.NewAggregatorClient(conn)
+
+	resp, err := aggregator.GetAggregationService(context.TODO(), &req)
+	if err != nil {
+		return nil, fmt.Errorf("error: RPC error: %v", err)
+	}
+
+	return resp, err
+}
 
 // DoResetRequest defines the RPC call function for
 // the Reset from aggregator micro service
