@@ -141,37 +141,12 @@ func (a *Aggregator) GetRestActionInfoService(ctx context.Context, req *aggregat
 
 	aggregationServiceResponse, _ := json.Marshal(agresponse.AggregationServiceResponse{
 		OdataType:    common.AggregationServiceType,
-		ID:           "AggregationService",
-		Name:         "AggregationService",
+		Name:         "RestTestInfoAggregate",
 		Description:  "AggregationService",
-		OdataContext: "/redfish/v1/$metadata#AggregationService.AggregationService",
-		OdataID:      "/redfish/v1/AggregationService",
-		Actions: agresponse.Actions{
-			Reset: agresponse.Action{
-				Target:     "/redfish/v1/AggregationService/Actions/AggregationService.Reset/",
-				ActionInfo: "",
-			},
-			SetDefaultBootOrder: agresponse.Action{
-				Target:     "/redfish/v1/AggregationService/Actions/AggregationService.SetDefaultBootOrder/",
-				ActionInfo: "",
-			},
-		},
-		Aggregates: agresponse.OdataID{
-			OdataID: "/redfish/v1/AggregationService/Aggregates",
-		},
-		AggregationSources: agresponse.OdataID{
-			OdataID: "/redfish/v1/AggregationService/AggregationSources",
-		},
-		ConnectionMethods: agresponse.OdataID{
-			OdataID: "/redfish/v1/AggregationService/ConnectionMethods",
-		},
-		ServiceEnabled: isServiceEnabled,
-		Status: agresponse.Status{
-			State:        serviceState,
-			HealthRollup: "OK",
-			Health:       "OK",
-		},
+		OdataContext: "Rahul Rockes",
+		OdataID:      "TestingIs Going One is here ",
 	})
+	fmt.Println("Response Is Sent  ***************** ")
 	resp.StatusCode = http.StatusOK
 	resp.StatusMessage = response.Success
 	resp.Body = aggregationServiceResponse
