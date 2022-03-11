@@ -50,7 +50,7 @@ func DoRestActionInfoService(req aggregatorproto.AggregatorRequest) (*aggregator
 	defer conn.Close()
 	aggregator := aggregatorproto.NewAggregatorClient(conn)
 
-	resp, err := aggregator.GetAggregationService(context.TODO(), &req)
+	resp, err := aggregator.GetRestActionInfoService(context.TODO(), &req)
 	if err != nil {
 		return nil, fmt.Errorf("error: RPC error: %v", err)
 	}

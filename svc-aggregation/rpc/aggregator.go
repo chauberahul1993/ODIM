@@ -77,6 +77,78 @@ func (a *Aggregator) GetAggregationService(ctx context.Context, req *aggregatorp
 		Actions: agresponse.Actions{
 			Reset: agresponse.Action{
 				Target:     "/redfish/v1/AggregationService/Actions/AggregationService.Reset/",
+				ActionInfo: "/redfish/v1/AggregationService/ResetActionInfo",
+			},
+			SetDefaultBootOrder: agresponse.Action{
+				Target:     "/redfish/v1/AggregationService/Actions/AggregationService.SetDefaultBootOrder/",
+				ActionInfo: "/redfish/v1/AggregationService/SetDefaultBootOrderActionInfo",
+			},
+		},
+		Aggregates: agresponse.OdataID{
+			OdataID: "/redfish/v1/AggregationService/Aggregates",
+		},
+		AggregationSources: agresponse.OdataID{
+			OdataID: "/redfish/v1/AggregationService/AggregationSources",
+		},
+		ConnectionMethods: agresponse.OdataID{
+			OdataID: "/redfish/v1/AggregationService/ConnectionMethods",
+		},
+		ServiceEnabled: isServiceEnabled,
+		Status: agresponse.Status{
+			State:        serviceState,
+			HealthRollup: "OK",
+			Health:       "OK",
+		},
+	})
+	resp.StatusCode = http.StatusOK
+	resp.StatusMessage = response.Success
+	resp.Body = aggregationServiceResponse
+	return resp, nil
+}
+
+func (a *Aggregator) GetRestActionInfoService(ctx context.Context, req *aggregatorproto.AggregatorRequest) (
+	*aggregatorproto.AggregatorResponse, error) {
+
+	fmt.Println("Reset Action Info Aggreaget Service **************  ")
+	resp := &aggregatorproto.AggregatorResponse{}
+	// Fill the response header first
+	resp.Header = map[string]string{
+		"Date": time.Now().Format(http.TimeFormat),
+		"Link": "</redfish/v1/SchemaStore/en/AggregationService.json>; rel=describedby",
+	}
+	// Validate the token, if user has Login priielege then proceed.
+	//Else send 401 Unauthorised
+	var oemprivileges []string
+	privileges := []string{common.PrivilegeLogin}
+	authResp := a.connector.Auth(req.SessionToken, privileges, oemprivileges)
+	if authResp.StatusCode != http.StatusOK {
+		generateResponse(authResp, resp)
+		return resp, nil
+	}
+	// Check whether the Aggregation Service is enbaled in configuration file.
+	//If so set ServiceEnabled to true.
+	isServiceEnabled := false
+	serviceState := "Disabled"
+	for _, service := range config.Data.EnabledServices {
+		if service == "AggregationService" {
+			isServiceEnabled = true
+			serviceState = "Enabled"
+			break
+		}
+
+	}
+	// Construct the response below
+
+	aggregationServiceResponse, _ := json.Marshal(agresponse.AggregationServiceResponse{
+		OdataType:    common.AggregationServiceType,
+		ID:           "AggregationService",
+		Name:         "AggregationService",
+		Description:  "AggregationService",
+		OdataContext: "/redfish/v1/$metadata#AggregationService.AggregationService",
+		OdataID:      "/redfish/v1/AggregationService",
+		Actions: agresponse.Actions{
+			Reset: agresponse.Action{
+				Target:     "/redfish/v1/AggregationService/Actions/AggregationService.Reset/",
 				ActionInfo: "",
 			},
 			SetDefaultBootOrder: agresponse.Action{
