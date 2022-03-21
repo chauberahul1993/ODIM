@@ -17,6 +17,7 @@ package common
 
 import (
 	"fmt"
+
 	"github.com/ODIM-Project/ODIM/lib-persistence-manager/persistencemgr"
 	"github.com/ODIM-Project/ODIM/lib-utilities/errors"
 )
@@ -36,7 +37,7 @@ const (
 // dbFlag:
 //	InMemory:	returns In-Memory DB connection pool
 //	OnDsik:  	returns On-Disk DB connection pool
-func GetDBConnection(dbFlag DbType) (*persistencemgr.ConnPool, *errors.Error) {
+func getDBConnection(dbFlag DbType) (*persistencemgr.ConnPool, *errors.Error) {
 	switch dbFlag {
 	case InMemory:
 		pool, err := persistencemgr.GetDBConnection(persistencemgr.InMemory)
@@ -55,7 +56,7 @@ func GetDBConnection(dbFlag DbType) (*persistencemgr.ConnPool, *errors.Error) {
 //    InMemory: Truncates InMemory DB
 //    OnDisk: Truncates OnDisk DB
 func TruncateDB(dbFlag DbType) *errors.Error {
-	conn, err := GetDBConnection(dbFlag)
+	conn, err := getDBConnection(dbFlag)
 	if err != nil {
 		return errors.PackError(err.ErrNo(), "unable to connect DB: ", err.Error())
 	}
@@ -69,11 +70,11 @@ func TruncateDB(dbFlag DbType) *errors.Error {
 // CheckDBConnection will check both inMemory and onDisk DB connections
 // This function is expected to be called at each service startup
 func CheckDBConnection() error {
-	inMemConn, err := GetDBConnection(InMemory)
+	inMemConn, err := getDBConnection(InMemory)
 	if err != nil {
 		return fmt.Errorf("unable to create InMemory DB connection: %v", err)
 	}
-	onDiskConn, err := GetDBConnection(OnDisk)
+	onDiskConn, err := getDBConnection(OnDisk)
 	if err != nil {
 		return fmt.Errorf("unable to create OnDisk DB connection: %v", err)
 	}
