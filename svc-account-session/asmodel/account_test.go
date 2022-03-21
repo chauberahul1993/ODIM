@@ -31,7 +31,7 @@ var user = User{
 }
 
 func mockData(dbType common.DbType, table, id string, data interface{}) {
-	connPool, _ := common.GetDBConnection(dbType)
+	connPool, _ := common.getDBConnection(dbType)
 	connPool.Create(table, id, data)
 }
 

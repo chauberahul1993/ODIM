@@ -165,7 +165,7 @@ type PluginContactRequest struct {
 
 //GetResource fetches a resource from database using table and key
 func GetResource(Table, key string) (string, *errors.Error) {
-	conn, err := common.GetDBConnection(common.InMemory)
+	conn, err := common.getDBConnection(common.InMemory)
 	if err != nil {
 		return "", errors.PackError(err.ErrNo(), err)
 	}
@@ -183,7 +183,7 @@ func GetResource(Table, key string) (string, *errors.Error) {
 // Create connects to the persistencemgr and creates a system in db
 func (system *SaveSystem) Create(systemID string) *errors.Error {
 
-	conn, err := common.GetDBConnection(common.OnDisk)
+	conn, err := common.getDBConnection(common.OnDisk)
 	if err != nil {
 		log.Error("error while trying to get Db connection : " + err.Error())
 		return err
@@ -202,7 +202,7 @@ func (system *SaveSystem) Create(systemID string) *errors.Error {
 func GetPluginData(pluginID string) (Plugin, *errors.Error) {
 	var plugin Plugin
 
-	conn, err := common.GetDBConnection(common.OnDisk)
+	conn, err := common.getDBConnection(common.OnDisk)
 	if err != nil {
 		return plugin, errors.PackError(err.ErrNo(), "error while trying to connect to DB: ", err.Error())
 	}
@@ -229,7 +229,7 @@ func GetPluginData(pluginID string) (Plugin, *errors.Error) {
 func GetComputeSystem(deviceUUID string) (dmtfmodel.ComputerSystem, error) {
 	var compute dmtfmodel.ComputerSystem
 
-	conn, err := common.GetDBConnection(common.InMemory)
+	conn, err := common.getDBConnection(common.InMemory)
 	if err != nil {
 		log.Error("GetComputeSystem : error while trying to get db conenction : " + err.Error())
 		return compute, err
@@ -275,7 +275,7 @@ func SaveChassis(chassis dmtfmodel.Chassis, deviceUUID string) error {
 // GenericSave will save any resource data into the database
 func GenericSave(body []byte, table string, key string) error {
 
-	connPool, err := common.GetDBConnection(common.InMemory)
+	connPool, err := common.getDBConnection(common.InMemory)
 	if err != nil {
 		log.Error("GenericSave : error while trying to get DB Connection : " + err.Error())
 		return fmt.Errorf("error while trying to connecting to DB: %v", err.Error())
@@ -290,7 +290,7 @@ func GenericSave(body []byte, table string, key string) error {
 //SaveRegistryFile will save any Registry file in database OnDisk DB
 func SaveRegistryFile(body []byte, table string, key string) error {
 
-	connPool, err := common.GetDBConnection(common.OnDisk)
+	connPool, err := common.getDBConnection(common.OnDisk)
 	if err != nil {
 		return fmt.Errorf("error while trying to connecting to DB: %v", err.Error())
 	}
@@ -306,7 +306,7 @@ func SaveRegistryFile(body []byte, table string, key string) error {
 
 //GetRegistryFile from Onisk DB
 func GetRegistryFile(Table, key string) (string, *errors.Error) {
-	conn, err := common.GetDBConnection(common.OnDisk)
+	conn, err := common.getDBConnection(common.OnDisk)
 	if err != nil {
 		return "", errors.PackError(err.ErrNo(), err)
 	}
@@ -323,7 +323,7 @@ func GetRegistryFile(Table, key string) (string, *errors.Error) {
 
 //DeleteComputeSystem will delete the compute system
 func DeleteComputeSystem(index int, key string) *errors.Error {
-	connPool, err := common.GetDBConnection(common.InMemory)
+	connPool, err := common.getDBConnection(common.InMemory)
 	if err != nil {
 		return errors.PackError(err.ErrNo(), "error while trying to connecting to DB: ", err.Error())
 	}
@@ -380,7 +380,7 @@ func deletefilteredkeys(key string) error {
 	if jsonErr != nil {
 		return fmt.Errorf("fatal: error while trying to fetch search/filter schema json: %v", jsonErr)
 	}
-	conn, err := common.GetDBConnection(common.InMemory)
+	conn, err := common.getDBConnection(common.InMemory)
 	if err != nil {
 		return fmt.Errorf("error while trying to connecting to DB: %v", err)
 	}
@@ -418,7 +418,7 @@ func deletefilteredkeys(key string) error {
 
 //DeleteSystem will delete the system from OnDisk
 func DeleteSystem(key string) *errors.Error {
-	connPool, err := common.GetDBConnection(common.OnDisk)
+	connPool, err := common.getDBConnection(common.OnDisk)
 	if err != nil {
 		return errors.PackError(err.ErrNo(), "error while trying to connecting to DB: ", err.Error())
 	}
@@ -439,7 +439,7 @@ func DeleteSystem(key string) *errors.Error {
 //GetTarget fetches the System(Target Device Credentials) table details
 func GetTarget(deviceUUID string) (*Target, error) {
 	var target Target
-	conn, err := common.GetDBConnection(common.OnDisk)
+	conn, err := common.getDBConnection(common.OnDisk)
 	if err != nil {
 		return nil, err
 	}
@@ -458,7 +458,7 @@ func GetTarget(deviceUUID string) (*Target, error) {
 
 //SaveIndex is used to create a
 func SaveIndex(searchForm map[string]interface{}, table, uuid, bmcAddress string) error {
-	conn, err := common.GetDBConnection(common.InMemory)
+	conn, err := common.getDBConnection(common.InMemory)
 	if err != nil {
 		return fmt.Errorf("error while trying to connecting to DB: %v", err)
 	}
@@ -476,7 +476,7 @@ func SaveIndex(searchForm map[string]interface{}, table, uuid, bmcAddress string
 //SavePluginData will saves plugin on disk
 func SavePluginData(plugin Plugin) *errors.Error {
 
-	conn, err := common.GetDBConnection(common.OnDisk)
+	conn, err := common.getDBConnection(common.OnDisk)
 	if err != nil {
 		return err
 	}
@@ -490,7 +490,7 @@ func SavePluginData(plugin Plugin) *errors.Error {
 
 // GetAllSystems extracts all the computer systems saved in ondisk
 func GetAllSystems() ([]Target, *errors.Error) {
-	conn, err := common.GetDBConnection(common.OnDisk)
+	conn, err := common.getDBConnection(common.OnDisk)
 	if err != nil {
 		return nil, err
 	}
@@ -516,7 +516,7 @@ func GetAllSystems() ([]Target, *errors.Error) {
 
 //DeletePluginData will delete the plugin entry from the database based on the uuid
 func DeletePluginData(key, table string) *errors.Error {
-	conn, err := common.GetDBConnection(common.OnDisk)
+	conn, err := common.getDBConnection(common.OnDisk)
 	if err != nil {
 		return err
 	}
@@ -528,7 +528,7 @@ func DeletePluginData(key, table string) *errors.Error {
 
 //DeleteManagersData will delete the table entry from the database based on the uuid
 func DeleteManagersData(key, table string) *errors.Error {
-	conn, err := common.GetDBConnection(common.InMemory)
+	conn, err := common.getDBConnection(common.InMemory)
 	if err != nil {
 		return err
 	}
@@ -540,7 +540,7 @@ func DeleteManagersData(key, table string) *errors.Error {
 
 //UpdateIndex is used for updating an existing index
 func UpdateIndex(searchForm map[string]interface{}, table, uuid, bmcAddress string) error {
-	conn, err := common.GetDBConnection(common.InMemory)
+	conn, err := common.getDBConnection(common.InMemory)
 	if err != nil {
 		return fmt.Errorf("error while trying to connecting to DB: %v", err)
 	}
@@ -557,7 +557,7 @@ func UpdateIndex(searchForm map[string]interface{}, table, uuid, bmcAddress stri
 
 //UpdateComputeSystem is used for updating ComputerSystem table
 func UpdateComputeSystem(key string, computeData interface{}) error {
-	conn, err := common.GetDBConnection(common.InMemory)
+	conn, err := common.getDBConnection(common.InMemory)
 	if err != nil {
 		return err
 	}
@@ -573,7 +573,7 @@ func UpdateComputeSystem(key string, computeData interface{}) error {
 
 //GetResourceDetails fetches a resource from database using key
 func GetResourceDetails(key string) (string, *errors.Error) {
-	conn, err := common.GetDBConnection(common.InMemory)
+	conn, err := common.getDBConnection(common.InMemory)
 	if err != nil {
 		return "", errors.PackError(err.ErrNo(), err)
 	}
@@ -594,7 +594,7 @@ func GetResourceDetails(key string) (string, *errors.Error) {
 2. match is the value to match with
 */
 func GetString(index, match string) ([]string, error) {
-	conn, dberr := common.GetDBConnection(common.InMemory)
+	conn, dberr := common.getDBConnection(common.InMemory)
 	if dberr != nil {
 		return nil, fmt.Errorf("error while trying to connecting to DB: %v", dberr.Error())
 	}
@@ -612,7 +612,7 @@ func GetString(index, match string) ([]string, error) {
 */
 func (system *SystemOperation) AddSystemOperationInfo(systemID string) *errors.Error {
 
-	conn, err := common.GetDBConnection(common.InMemory)
+	conn, err := common.getDBConnection(common.InMemory)
 	if err != nil {
 		return err
 	}
@@ -632,7 +632,7 @@ func (system *SystemOperation) AddSystemOperationInfo(systemID string) *errors.E
 func GetSystemOperationInfo(systemURI string) (SystemOperation, *errors.Error) {
 	var systemOperation SystemOperation
 
-	conn, err := common.GetDBConnection(common.InMemory)
+	conn, err := common.getDBConnection(common.InMemory)
 	if err != nil {
 		return systemOperation, err
 	}
@@ -650,7 +650,7 @@ func GetSystemOperationInfo(systemURI string) (SystemOperation, *errors.Error) {
 
 //DeleteSystemOperationInfo will delete the system operation entry from the database based on the systemURI
 func DeleteSystemOperationInfo(systemURI string) *errors.Error {
-	conn, err := common.GetDBConnection(common.InMemory)
+	conn, err := common.getDBConnection(common.InMemory)
 	if err != nil {
 		return err
 	}
@@ -667,7 +667,7 @@ func DeleteSystemOperationInfo(systemURI string) *errors.Error {
 */
 func AddSystemResetInfo(systemID, resetType string) *errors.Error {
 
-	conn, err := common.GetDBConnection(common.InMemory)
+	conn, err := common.getDBConnection(common.InMemory)
 	if err != nil {
 		return err
 	}
@@ -689,7 +689,7 @@ func AddSystemResetInfo(systemID, resetType string) *errors.Error {
 func GetSystemResetInfo(systemURI string) (map[string]string, *errors.Error) {
 	var resetInfo map[string]string
 
-	conn, err := common.GetDBConnection(common.InMemory)
+	conn, err := common.getDBConnection(common.InMemory)
 	if err != nil {
 		return resetInfo, err
 	}
@@ -707,7 +707,7 @@ func GetSystemResetInfo(systemURI string) (map[string]string, *errors.Error) {
 
 //DeleteSystemResetInfo will delete the system reset entry from the database based on the systemURI
 func DeleteSystemResetInfo(systemURI string) *errors.Error {
-	conn, err := common.GetDBConnection(common.InMemory)
+	conn, err := common.getDBConnection(common.InMemory)
 	if err != nil {
 		return err
 	}
@@ -723,7 +723,7 @@ func DeleteSystemResetInfo(systemURI string) *errors.Error {
 2.aggregationSourceURI : uri of AggregationSource
 */
 func AddAggregationSource(req AggregationSource, aggregationSourceURI string) *errors.Error {
-	conn, err := common.GetDBConnection(common.OnDisk)
+	conn, err := common.getDBConnection(common.OnDisk)
 	if err != nil {
 		return err
 	}
@@ -740,7 +740,7 @@ func AddAggregationSource(req AggregationSource, aggregationSourceURI string) *e
 func GetAggregationSourceInfo(aggregationSourceURI string) (AggregationSource, *errors.Error) {
 	var aggregationSource AggregationSource
 
-	conn, err := common.GetDBConnection(common.OnDisk)
+	conn, err := common.getDBConnection(common.OnDisk)
 	if err != nil {
 		return aggregationSource, err
 	}
@@ -758,7 +758,7 @@ func GetAggregationSourceInfo(aggregationSourceURI string) (AggregationSource, *
 
 // UpdateSystemData updates the bmc details
 func UpdateSystemData(system SaveSystem, key string) *errors.Error {
-	conn, err := common.GetDBConnection(common.OnDisk)
+	conn, err := common.getDBConnection(common.OnDisk)
 	if err != nil {
 		return err
 	}
@@ -770,7 +770,7 @@ func UpdateSystemData(system SaveSystem, key string) *errors.Error {
 
 // UpdatePluginData updates the plugin details
 func UpdatePluginData(plugin Plugin, key string) *errors.Error {
-	conn, err := common.GetDBConnection(common.OnDisk)
+	conn, err := common.getDBConnection(common.OnDisk)
 	if err != nil {
 		return err
 	}
@@ -782,7 +782,7 @@ func UpdatePluginData(plugin Plugin, key string) *errors.Error {
 
 // UpdateAggregtionSource updates the aggregation details
 func UpdateAggregtionSource(aggregationSource AggregationSource, key string) *errors.Error {
-	conn, err := common.GetDBConnection(common.OnDisk)
+	conn, err := common.getDBConnection(common.OnDisk)
 	if err != nil {
 		return err
 	}
@@ -794,7 +794,7 @@ func UpdateAggregtionSource(aggregationSource AggregationSource, key string) *er
 
 //GetAllMatchingDetails accepts the table name ,pattern and DB type and return all the keys which mathces the pattern
 func GetAllMatchingDetails(table, pattern string, dbtype common.DbType) ([]string, *errors.Error) {
-	conn, err := common.GetDBConnection(dbtype)
+	conn, err := common.getDBConnection(dbtype)
 	if err != nil {
 		return []string{}, err
 	}
@@ -803,7 +803,7 @@ func GetAllMatchingDetails(table, pattern string, dbtype common.DbType) ([]strin
 
 //DeleteAggregationSource will delete the AggregationSource entry from the database based on the aggregtionSourceURI
 func DeleteAggregationSource(aggregtionSourceURI string) *errors.Error {
-	conn, err := common.GetDBConnection(common.OnDisk)
+	conn, err := common.getDBConnection(common.OnDisk)
 	if err != nil {
 		return err
 	}
@@ -816,7 +816,7 @@ func DeleteAggregationSource(aggregtionSourceURI string) *errors.Error {
 //GetComputerSystem fetches computer system details by UUID from database
 func GetComputerSystem(systemid string) (string, *errors.Error) {
 	var system string
-	conn, err := common.GetDBConnection(common.InMemory)
+	conn, err := common.getDBConnection(common.InMemory)
 	if err != nil {
 		// connection error
 		return system, err
@@ -834,7 +834,7 @@ func GetComputerSystem(systemid string) (string, *errors.Error) {
 //CreateAggregate will create aggregate on disk
 func CreateAggregate(aggregate Aggregate, aggregateURI string) *errors.Error {
 
-	conn, err := common.GetDBConnection(common.OnDisk)
+	conn, err := common.getDBConnection(common.OnDisk)
 	if err != nil {
 		return err
 	}
@@ -850,7 +850,7 @@ func CreateAggregate(aggregate Aggregate, aggregateURI string) *errors.Error {
 func GetAggregate(aggregateURI string) (Aggregate, *errors.Error) {
 	var aggregate Aggregate
 
-	conn, err := common.GetDBConnection(common.OnDisk)
+	conn, err := common.getDBConnection(common.OnDisk)
 	if err != nil {
 		return aggregate, err
 	}
@@ -868,7 +868,7 @@ func GetAggregate(aggregateURI string) (Aggregate, *errors.Error) {
 
 //DeleteAggregate will delete the aggregate
 func DeleteAggregate(key string) *errors.Error {
-	conn, err := common.GetDBConnection(common.OnDisk)
+	conn, err := common.getDBConnection(common.OnDisk)
 	if err != nil {
 		return err
 	}
@@ -881,7 +881,7 @@ func DeleteAggregate(key string) *errors.Error {
 
 //GetAllKeysFromTable retrun all matching data give table name
 func GetAllKeysFromTable(table string) ([]string, error) {
-	conn, err := common.GetDBConnection(common.OnDisk)
+	conn, err := common.getDBConnection(common.OnDisk)
 	if err != nil {
 		return nil, err
 	}
@@ -894,7 +894,7 @@ func GetAllKeysFromTable(table string) ([]string, error) {
 
 //AddElementsToAggregate add elements to the aggregate
 func AddElementsToAggregate(aggregate Aggregate, aggregateURL string) *errors.Error {
-	conn, err := common.GetDBConnection(common.OnDisk)
+	conn, err := common.getDBConnection(common.OnDisk)
 	if err != nil {
 		return err
 	}
@@ -912,7 +912,7 @@ func AddElementsToAggregate(aggregate Aggregate, aggregateURL string) *errors.Er
 
 //RemoveElementsFromAggregate remove elements from an aggregate
 func RemoveElementsFromAggregate(aggregate Aggregate, aggregateURL string) *errors.Error {
-	conn, err := common.GetDBConnection(common.OnDisk)
+	conn, err := common.getDBConnection(common.OnDisk)
 	if err != nil {
 		return err
 	}
@@ -951,7 +951,7 @@ func removeElements(requestElements, presentElements []string) []string {
 
 //AddConnectionMethod will add connection methods on disk
 func AddConnectionMethod(connectionMethod ConnectionMethod, connectionMethodURI string) *errors.Error {
-	conn, err := common.GetDBConnection(common.OnDisk)
+	conn, err := common.getDBConnection(common.OnDisk)
 	if err != nil {
 		return err
 	}
@@ -967,7 +967,7 @@ func AddConnectionMethod(connectionMethod ConnectionMethod, connectionMethodURI 
 func GetConnectionMethod(connectionMethodURI string) (ConnectionMethod, *errors.Error) {
 	var connectionMethod ConnectionMethod
 
-	conn, err := common.GetDBConnection(common.OnDisk)
+	conn, err := common.getDBConnection(common.OnDisk)
 	if err != nil {
 		return connectionMethod, err
 	}
@@ -985,7 +985,7 @@ func GetConnectionMethod(connectionMethodURI string) (ConnectionMethod, *errors.
 
 // Delete will delete the data from the provided db with the provided table and key data
 func Delete(table, key string, dbtype common.DbType) *errors.Error {
-	conn, err := common.GetDBConnection(dbtype)
+	conn, err := common.getDBConnection(dbtype)
 	if err != nil {
 		return err
 	}
@@ -997,7 +997,7 @@ func Delete(table, key string, dbtype common.DbType) *errors.Error {
 
 // UpdateConnectionMethod updates the Connection Method details
 func UpdateConnectionMethod(connectionMethod ConnectionMethod, key string) *errors.Error {
-	conn, err := common.GetDBConnection(common.OnDisk)
+	conn, err := common.getDBConnection(common.OnDisk)
 	if err != nil {
 		return err
 	}
@@ -1011,7 +1011,7 @@ func UpdateConnectionMethod(connectionMethod ConnectionMethod, key string) *erro
 // It will return true if there is an active request or false if not
 // It will also through an error if any DB connection issues arise
 func CheckActiveRequest(key string) (bool, *errors.Error) {
-	conn, err := common.GetDBConnection(common.InMemory)
+	conn, err := common.getDBConnection(common.InMemory)
 	if err != nil {
 		return false, errors.PackError(err.ErrNo(), "error: while trying to create connection with DB: ", err.Error())
 	}
@@ -1027,7 +1027,7 @@ func CheckActiveRequest(key string) (bool, *errors.Error) {
 
 // DeleteActiveRequest deletes the active request key from the DB, return error if any
 func DeleteActiveRequest(key string) *errors.Error {
-	conn, err := common.GetDBConnection(common.InMemory)
+	conn, err := common.getDBConnection(common.InMemory)
 	if err != nil {
 		return errors.PackError(err.ErrNo(), "error: while trying to create connection with DB: ", err.Error())
 	}
@@ -1041,7 +1041,7 @@ func DeleteActiveRequest(key string) *errors.Error {
 //SavePluginManagerInfo will save plugin manager  data into the database
 func SavePluginManagerInfo(body []byte, table string, key string) error {
 
-	conn, err := common.GetDBConnection(common.InMemory)
+	conn, err := common.getDBConnection(common.InMemory)
 	if err != nil {
 		return fmt.Errorf("Unable to save the plugin data with SavePluginManagerInfo: %v", err.Error())
 	}
@@ -1054,7 +1054,7 @@ func SavePluginManagerInfo(body []byte, table string, key string) error {
 
 // GetDeviceSubscriptions is to get subscription details of device
 func GetDeviceSubscriptions(hostIP string) (*common.DeviceSubscription, error) {
-	conn, err := common.GetDBConnection(common.OnDisk)
+	conn, err := common.getDBConnection(common.OnDisk)
 	if err != nil {
 		return nil, err
 	}
@@ -1084,7 +1084,7 @@ func getSliceFromString(sliceString string) []string {
 
 // GetEventSubscriptions is for getting the event subscription details
 func GetEventSubscriptions(key string) ([]string, error) {
-	conn, err := common.GetDBConnection(common.OnDisk)
+	conn, err := common.getDBConnection(common.OnDisk)
 	if err != nil {
 		return nil, err
 	}
@@ -1097,7 +1097,7 @@ func GetEventSubscriptions(key string) ([]string, error) {
 
 // UpdateDeviceSubscription is to update subscription details of device
 func UpdateDeviceSubscription(devSubscription common.DeviceSubscription) error {
-	conn, err := common.GetDBConnection(common.OnDisk)
+	conn, err := common.getDBConnection(common.OnDisk)
 	if err != nil {
 		return err
 	}
@@ -1111,7 +1111,7 @@ func UpdateDeviceSubscription(devSubscription common.DeviceSubscription) error {
 // It will return true if there is an active request or false if not
 // It will also through an error if any DB connection issues arise
 func CheckMetricRequest(key string) (bool, *errors.Error) {
-	conn, err := common.GetDBConnection(common.InMemory)
+	conn, err := common.getDBConnection(common.InMemory)
 	if err != nil {
 		return false, errors.PackError(err.ErrNo(), "error: while trying to create connection with DB: ", err.Error())
 	}
@@ -1127,7 +1127,7 @@ func CheckMetricRequest(key string) (bool, *errors.Error) {
 
 // DeleteMetricRequest deletes the active request key from the DB, return error if any
 func DeleteMetricRequest(key string) *errors.Error {
-	conn, err := common.GetDBConnection(common.InMemory)
+	conn, err := common.getDBConnection(common.InMemory)
 	if err != nil {
 		return errors.PackError(err.ErrNo(), "error: while trying to create connection with DB: ", err.Error())
 	}

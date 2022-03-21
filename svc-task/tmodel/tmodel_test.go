@@ -41,7 +41,7 @@ func createMockUser(username, roleID string) error {
 		Password: hashedPassword,
 		RoleID:   roleID,
 	}
-	conn, err := common.GetDBConnection(common.OnDisk)
+	conn, err := common.getDBConnection(common.OnDisk)
 	if err != nil {
 		return err
 	}

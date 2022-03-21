@@ -28,7 +28,7 @@ import (
 )
 
 func mockChassisResourceData(body []byte, table, key string) error {
-	connPool, err := common.GetDBConnection(common.InMemory)
+	connPool, err := common.getDBConnection(common.InMemory)
 	if err != nil {
 		return fmt.Errorf("error while trying to connecting to DB: %v", err.Error())
 	}

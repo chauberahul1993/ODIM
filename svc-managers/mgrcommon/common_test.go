@@ -35,7 +35,7 @@ func getEncryptedKey(t *testing.T, key []byte) []byte {
 }
 
 func mockTarget() error {
-	connPool, err := common.GetDBConnection(common.OnDisk)
+	connPool, err := common.getDBConnection(common.OnDisk)
 	if err != nil {
 		return fmt.Errorf("error while trying to connecting to DB: %v", err.Error())
 	}
@@ -147,7 +147,7 @@ func mockPluginData(t *testing.T, pluginID, PreferredAuthType, port string) erro
 		ID:                pluginID,
 		PreferredAuthType: PreferredAuthType,
 	}
-	connPool, err := common.GetDBConnection(common.OnDisk)
+	connPool, err := common.getDBConnection(common.OnDisk)
 	if err != nil {
 		return fmt.Errorf("error while trying to connecting to DB: %v", err.Error())
 	}

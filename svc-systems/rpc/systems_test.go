@@ -113,7 +113,7 @@ func mockGetExternalInterface() *systems.ExternalInterface {
 
 func mockDeviceData(uuid string, device smodel.Target) error {
 
-	connPool, err := common.GetDBConnection(common.OnDisk)
+	connPool, err := common.getDBConnection(common.OnDisk)
 	if err != nil {
 		return fmt.Errorf("error while trying to connecting to DB: %v", err)
 	}
@@ -148,7 +148,7 @@ func mockSystemData(systemID string) error {
 		"Id":           "1",
 	})
 
-	connPool, err := common.GetDBConnection(common.InMemory)
+	connPool, err := common.getDBConnection(common.InMemory)
 	if err != nil {
 		return fmt.Errorf("error while trying to connecting to DB: %v", err.Error())
 	}
@@ -159,7 +159,7 @@ func mockSystemData(systemID string) error {
 }
 
 func mockSystemResourceData(body []byte, table, key string) error {
-	connPool, err := common.GetDBConnection(common.InMemory)
+	connPool, err := common.getDBConnection(common.InMemory)
 	if err != nil {
 		return err
 	}

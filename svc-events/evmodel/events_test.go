@@ -28,7 +28,7 @@ import (
 )
 
 func mockSystemResourceData(body []byte, table, key string) error {
-	connPool, err := common.GetDBConnection(common.InMemory)
+	connPool, err := common.getDBConnection(common.InMemory)
 	if err != nil {
 		return err
 	}
@@ -39,7 +39,7 @@ func mockSystemResourceData(body []byte, table, key string) error {
 }
 
 func mockTarget(t *testing.T) {
-	connPool, err := common.GetDBConnection(common.OnDisk)
+	connPool, err := common.getDBConnection(common.OnDisk)
 	if err != nil {
 		t.Fatalf("error: %v", err)
 	}
@@ -58,7 +58,7 @@ func mockTarget(t *testing.T) {
 }
 
 func mockPlugins(t *testing.T) {
-	connPool, err := common.GetDBConnection(common.OnDisk)
+	connPool, err := common.getDBConnection(common.OnDisk)
 	if err != nil {
 		t.Errorf("error while trying to connecting to DB: %v", err.Error())
 	}
@@ -103,7 +103,7 @@ func mockPlugins(t *testing.T) {
 }
 
 func mockFabricData(t *testing.T, fabuuid, pluginID string) {
-	connPool, err := common.GetDBConnection(common.OnDisk)
+	connPool, err := common.getDBConnection(common.OnDisk)
 	if err != nil {
 		t.Errorf("error while trying to connecting to DB: %v", err.Error())
 	}
@@ -146,7 +146,7 @@ func TestGetTarget(t *testing.T) {
 
 func create(target *Target) *errors.Error {
 
-	conn, err := common.GetDBConnection(common.OnDisk)
+	conn, err := common.getDBConnection(common.OnDisk)
 	if err != nil {
 		return err
 	}
@@ -189,7 +189,7 @@ func getEncryptedKey(t *testing.T, key []byte) []byte {
 }
 
 func mockData(t *testing.T, dbType common.DbType, table, id string, data interface{}) {
-	connPool, err := common.GetDBConnection(dbType)
+	connPool, err := common.getDBConnection(dbType)
 	if err != nil {
 		t.Fatalf("error: mockData() failed to DB connection: %v", err)
 	}

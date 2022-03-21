@@ -52,7 +52,7 @@ func mockSystemData(systemID string) error {
 		"Id": "1",
 	})
 
-	connPool, err := common.GetDBConnection(common.InMemory)
+	connPool, err := common.getDBConnection(common.InMemory)
 	if err != nil {
 		return fmt.Errorf("error while trying to connecting to DB: %v", err.Error())
 	}

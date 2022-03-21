@@ -46,7 +46,7 @@ var target = Target{
 var invalidTarget = "Target"
 
 func mockSystemIndex(uuid string) error {
-	connPool, err := common.GetDBConnection(common.InMemory)
+	connPool, err := common.getDBConnection(common.InMemory)
 	if err != nil {
 		return fmt.Errorf("error while trying to connecting to DB: %v", err.Error())
 	}
@@ -65,7 +65,7 @@ func mockSystemIndex(uuid string) error {
 
 func mockPluginData(t *testing.T) error {
 	plugin.Password = getEncryptedKey(t, []byte("12345"))
-	connPool, err := common.GetDBConnection(common.OnDisk)
+	connPool, err := common.getDBConnection(common.OnDisk)
 	if err != nil {
 		return fmt.Errorf("error while trying to connecting to DB: %v", err.Error())
 	}
@@ -76,7 +76,7 @@ func mockPluginData(t *testing.T) error {
 }
 
 func mockInvalidPluginData() error {
-	connPool, err := common.GetDBConnection(common.OnDisk)
+	connPool, err := common.getDBConnection(common.OnDisk)
 	if err != nil {
 		return fmt.Errorf("error while trying to connecting to DB: %v", err.Error())
 	}
@@ -87,7 +87,7 @@ func mockInvalidPluginData() error {
 }
 
 func mockSystemResourceData(body []byte, table, key string) error {
-	connPool, err := common.GetDBConnection(common.InMemory)
+	connPool, err := common.getDBConnection(common.InMemory)
 	if err != nil {
 		return fmt.Errorf("error while trying to connecting to DB: %v", err.Error())
 	}
@@ -98,7 +98,7 @@ func mockSystemResourceData(body []byte, table, key string) error {
 }
 
 func mockTarget() error {
-	connPool, err := common.GetDBConnection(common.OnDisk)
+	connPool, err := common.getDBConnection(common.OnDisk)
 	if err != nil {
 		return fmt.Errorf("error while trying to connecting to DB: %v", err.Error())
 	}
@@ -111,7 +111,7 @@ func mockTarget() error {
 	return nil
 }
 func mockInvalidTarget() error {
-	connPool, err := common.GetDBConnection(common.OnDisk)
+	connPool, err := common.getDBConnection(common.OnDisk)
 	if err != nil {
 		return fmt.Errorf("error while trying to connecting to DB: %v", err.Error())
 	}
@@ -133,7 +133,7 @@ func getEncryptedKey(t *testing.T, key []byte) []byte {
 }
 
 func mockData(t *testing.T, dbType common.DbType, table, id string, data interface{}) {
-	connPool, err := common.GetDBConnection(dbType)
+	connPool, err := common.getDBConnection(dbType)
 	if err != nil {
 		t.Fatalf("error: mockData() failed to DB connection: %v", err)
 	}

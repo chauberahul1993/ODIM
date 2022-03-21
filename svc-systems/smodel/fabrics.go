@@ -16,6 +16,7 @@ package smodel
 
 import (
 	"encoding/json"
+
 	log "github.com/sirupsen/logrus"
 
 	"github.com/ODIM-Project/ODIM/lib-utilities/common"
@@ -28,7 +29,7 @@ type Fabric struct {
 
 // GetFabricManagers fetches all the fabrics details from DB
 func GetFabricManagers() ([]Plugin, error) {
-	conn, err := common.GetDBConnection(common.OnDisk)
+	conn, err := common.getDBConnection(common.OnDisk)
 	if err != nil {
 		return nil, err
 	}

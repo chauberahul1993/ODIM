@@ -48,7 +48,7 @@ type Plugin struct {
 
 //GetResource fetches a resource from database using table and key
 func GetResource(Table, key string, dbtype common.DbType) (string, *errors.Error) {
-	conn, err := common.GetDBConnection(common.InMemory)
+	conn, err := common.getDBConnection(common.InMemory)
 	if err != nil {
 		return "", err
 	}
@@ -65,7 +65,7 @@ func GetResource(Table, key string, dbtype common.DbType) (string, *errors.Error
 
 //GetAllKeysFromTable fetches all keys in a given table
 func GetAllKeysFromTable(table string, dbtype common.DbType) ([]string, error) {
-	conn, err := common.GetDBConnection(dbtype)
+	conn, err := common.getDBConnection(dbtype)
 	if err != nil {
 		return nil, err
 	}
@@ -80,7 +80,7 @@ func GetAllKeysFromTable(table string, dbtype common.DbType) ([]string, error) {
 func GetPluginData(pluginID string) (Plugin, *errors.Error) {
 	var plugin Plugin
 
-	conn, err := common.GetDBConnection(common.OnDisk)
+	conn, err := common.getDBConnection(common.OnDisk)
 	if err != nil {
 		return plugin, err
 	}
@@ -106,7 +106,7 @@ func GetPluginData(pluginID string) (Plugin, *errors.Error) {
 //GetTarget fetches the System(Target Device Credentials) table details
 func GetTarget(deviceUUID string) (*Target, *errors.Error) {
 	var target Target
-	conn, err := common.GetDBConnection(common.OnDisk)
+	conn, err := common.getDBConnection(common.OnDisk)
 	if err != nil {
 		return nil, err
 	}
@@ -122,7 +122,7 @@ func GetTarget(deviceUUID string) (*Target, *errors.Error) {
 
 //GenericSave will save any resource data into the database
 func GenericSave(body []byte, table string, key string) error {
-	connPool, err := common.GetDBConnection(common.InMemory)
+	connPool, err := common.getDBConnection(common.InMemory)
 	if err != nil {
 		return fmt.Errorf("error while trying to connecting to DB: %v", err.Error())
 	}

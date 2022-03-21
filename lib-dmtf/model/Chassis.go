@@ -161,7 +161,7 @@ type Status struct {
 //	On Sucess  - returns nil value
 //	On Failure - returns non nil value
 func (c *Chassis) SaveInMemory(deviceUUID string) *errors.Error {
-	connPool, err := common.GetDBConnection(common.InMemory)
+	connPool, err := common.getDBConnection(common.InMemory)
 	if err != nil {
 		return errors.PackError(err.ErrNo(), "error while trying to connect to DB: ", err.Error())
 	}

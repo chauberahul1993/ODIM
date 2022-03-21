@@ -86,7 +86,7 @@ func mockPlugin(t *testing.T, pluginID, PreferredAuthType, port string) error {
 		PluginType:        "Fabric",
 		PreferredAuthType: PreferredAuthType,
 	}
-	connPool, err := common.GetDBConnection(common.OnDisk)
+	connPool, err := common.getDBConnection(common.OnDisk)
 	if err != nil {
 		return fmt.Errorf("error while trying to connecting to DB: %v", err.Error())
 	}

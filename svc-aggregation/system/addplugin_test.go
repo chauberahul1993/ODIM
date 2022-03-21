@@ -28,7 +28,7 @@ import (
 )
 
 func mockData(t *testing.T, dbType common.DbType, table, id string, data interface{}) {
-	connPool, err := common.GetDBConnection(dbType)
+	connPool, err := common.getDBConnection(dbType)
 	if err != nil {
 		t.Fatalf("error: mockData() failed to DB connection: %v", err)
 	}
@@ -69,7 +69,7 @@ func mockDupMgrAddrPluginData(t *testing.T, pluginID string) error {
 		PreferredAuthType: "BasicAuth",
 		ManagerUUID:       "duplicate-mgr-addr",
 	}
-	connPool, err := common.GetDBConnection(common.OnDisk)
+	connPool, err := common.getDBConnection(common.OnDisk)
 	if err != nil {
 		return fmt.Errorf("error while trying to connecting to DB: %v", err.Error())
 	}

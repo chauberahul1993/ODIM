@@ -28,7 +28,7 @@ import (
 )
 
 func mockSystemResourceData(body []byte, table, key string) error {
-	connPool, err := common.GetDBConnection(common.InMemory)
+	connPool, err := common.getDBConnection(common.InMemory)
 	if err != nil {
 		return err
 	}

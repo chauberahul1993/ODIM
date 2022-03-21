@@ -18,6 +18,7 @@ package umodel
 import (
 	"encoding/json"
 	"fmt"
+
 	log "github.com/sirupsen/logrus"
 
 	"github.com/ODIM-Project/ODIM/lib-utilities/common"
@@ -47,7 +48,7 @@ type Plugin struct {
 
 //GetAllKeysFromTable fetches all keys in a given table
 func GetAllKeysFromTable(table string, dbtype common.DbType) ([]string, error) {
-	conn, err := common.GetDBConnection(dbtype)
+	conn, err := common.getDBConnection(dbtype)
 	if err != nil {
 		return nil, err
 	}
@@ -60,7 +61,7 @@ func GetAllKeysFromTable(table string, dbtype common.DbType) ([]string, error) {
 
 //GetResource fetches a resource from database using table and key
 func GetResource(Table, key string, dbtype common.DbType) (string, *errors.Error) {
-	conn, err := common.GetDBConnection(dbtype)
+	conn, err := common.getDBConnection(dbtype)
 	if err != nil {
 		return "", err
 	}
@@ -77,7 +78,7 @@ func GetResource(Table, key string, dbtype common.DbType) (string, *errors.Error
 
 //GenericSave will save any resource data into the database
 func GenericSave(body []byte, table string, key string) error {
-	connPool, err := common.GetDBConnection(common.OnDisk)
+	connPool, err := common.getDBConnection(common.OnDisk)
 	if err != nil {
 		return fmt.Errorf("error while trying to connecting to DB: %v", err.Error())
 	}
@@ -93,7 +94,7 @@ func GenericSave(body []byte, table string, key string) error {
 //GetTarget fetches the System(Target Device Credentials) table details
 func GetTarget(deviceUUID string) (*Target, *errors.Error) {
 	var target Target
-	conn, err := common.GetDBConnection(common.OnDisk)
+	conn, err := common.getDBConnection(common.OnDisk)
 	if err != nil {
 		return nil, err
 	}
@@ -111,7 +112,7 @@ func GetTarget(deviceUUID string) (*Target, *errors.Error) {
 func GetPluginData(pluginID string) (Plugin, *errors.Error) {
 	var plugin Plugin
 
-	conn, err := common.GetDBConnection(common.OnDisk)
+	conn, err := common.getDBConnection(common.OnDisk)
 	if err != nil {
 		return plugin, err
 	}

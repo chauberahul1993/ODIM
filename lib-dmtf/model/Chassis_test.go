@@ -41,7 +41,7 @@ func TestChassis_SaveInMemory(t *testing.T) {
 		t.Fatalf("error while trying to persist the data: %v", err.Error())
 		return
 	}
-	connPool, errs := common.GetDBConnection(common.InMemory)
+	connPool, errs := common.getDBConnection(common.InMemory)
 	if errs != nil {
 		t.Fatalf("error while db connection pool: %v", errs.Error())
 		return

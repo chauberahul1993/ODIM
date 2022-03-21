@@ -43,7 +43,7 @@ func TestComputerSystem_SaveInMemory(t *testing.T) {
 		return
 	}
 
-	connPool, err := common.GetDBConnection(common.InMemory)
+	connPool, err := common.getDBConnection(common.InMemory)
 	if err != nil {
 		t.Fatalf("error while db connection pool: %v", err.Error())
 		return
