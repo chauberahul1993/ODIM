@@ -1675,6 +1675,7 @@ def remove_plugin(plugin_name):
 							   host_conf_file=host_file, master_node=master_node[0], \
 							   plugin_name=plugin_name, helm_chart_name=plugin_name, \
 							   helm_config_file=CONTROLLER_CONF_FILE)
+			logger.info("Command ************** ", remove_plugin_cmd)
 			ret = exec(remove_plugin_cmd, {'ANSIBLE_BECOME_PASS': ANSIBLE_BECOME_PASS})
 			if ret != 0:
 				logger.critical("removal of %s plugin failed on master node %s", plugin_name, master_node[0])
