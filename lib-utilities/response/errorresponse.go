@@ -339,6 +339,17 @@ func (a *Args) CreateGenericErrorResponse() CommonError {
 					Severity:   "Critical",
 					Resolution: "Reduce the number of other sessions before trying to establish the session or increase the limit of simultaneous sessions, if supported.",
 				})
+		case InvalidURL:
+			validateMessageArgs(errArg.MessageArgs, []string{"string"}, couldNotEstablishConnectionArgCount)
+			e.Error.MessageExtendedInfo = append(e.Error.MessageExtendedInfo,
+				Msg{
+					OdataType:   ErrorMessageOdataType,
+					MessageID:   errArg.StatusMessage,
+					Message:     fmt.Sprintf("The service failed to establish a connection with the URI %v. %v", errArg.MessageArgs[0], errArg.ErrorMessage),
+					Severity:    "Critical",
+					MessageArgs: errArg.MessageArgs,
+					Resolution:  "Ensure that the URI contains a valid and reachable node name, protocol information and other URI components.",
+				})
 		}
 	}
 	return e

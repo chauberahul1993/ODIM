@@ -1059,6 +1059,22 @@ func fillMethodNotAllowedErrorResponse(ctx iris.Context) {
 	ctx.JSON(errArgs.CreateGenericErrorResponse())
 	return
 }
+func fillMethodUrlNotFoundErrorResponse(ctx iris.Context) {
+	defer ctx.Next()
+	ctx.StatusCode(http.StatusMethodNotAllowed)
+	errArgs := &errResponse.Args{
+		Code: errResponse.GeneralError,
+		ErrorArgs: []errResponse.ErrArgs{
+			errResponse.ErrArgs{
+				StatusMessage: errResponse.ActionNotSupported,
+				MessageArgs:   []interface{}{ctx.Request().Method},
+			},
+		},
+	}
+	common.SetResponseHeader(ctx, nil)
+	ctx.JSON(errArgs.CreateGenericErrorResponse())
+	return
+}
 
 // AsMethodNotAllowed holds Method to throw 405 Method not allowed on Account Service URLs
 func AsMethodNotAllowed(ctx iris.Context) {
@@ -1134,6 +1150,24 @@ func SystemsMethodNotAllowed(ctx iris.Context) {
 	return
 }
 
+// SystemsMethodInvalidUrl holds builds reponse for the invalid url operation on Systems URLs and returns 404 error.
+func SystemsMethodInvalidUrl(ctx iris.Context) {
+	defer ctx.Next()
+	ctx.StatusCode(http.StatusMethodNotAllowed)
+	errArgs := &errResponse.Args{
+		Code: errResponse.GeneralError,
+		ErrorArgs: []errResponse.ErrArgs{
+			errResponse.ErrArgs{
+				StatusMessage: errResponse.ActionNotSupported,
+				MessageArgs:   []interface{}{ctx.Request().Method},
+			},
+		},
+	}
+	common.SetResponseHeader(ctx, nil)
+	ctx.JSON(errArgs.CreateGenericErrorResponse())
+	return
+}
+
 // CompositionServiceMethodNotAllowed holds builds reponse for the unallowed http operation on Systems URLs and returns 405 error.
 func CompositionServiceMethodNotAllowed(ctx iris.Context) {
 	defer ctx.Next()
@@ -1163,7 +1197,6 @@ func CompositionServiceMethodNotAllowed(ctx iris.Context) {
 	return
 }
 
-
 // LicenseMethodNotAllowed holds builds reponse for the unallowed http operation on License URLs and returns 405 error.
 func LicenseMethodNotAllowed(ctx iris.Context) {
 	defer ctx.Next()
@@ -1186,6 +1219,7 @@ func LicenseMethodNotAllowed(ctx iris.Context) {
 	fillMethodNotAllowedErrorResponse(ctx)
 	return
 }
+
 // ManagersMethodNotAllowed holds builds reponse for the unallowed http operation on Managers URLs and returns 405 error.
 func ManagersMethodNotAllowed(ctx iris.Context) {
 	defer ctx.Next()
