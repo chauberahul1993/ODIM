@@ -1059,22 +1059,6 @@ func fillMethodNotAllowedErrorResponse(ctx iris.Context) {
 	ctx.JSON(errArgs.CreateGenericErrorResponse())
 	return
 }
-func fillMethodUrlNotFoundErrorResponse(ctx iris.Context) {
-	defer ctx.Next()
-	ctx.StatusCode(http.StatusMethodNotAllowed)
-	errArgs := &errResponse.Args{
-		Code: errResponse.GeneralError,
-		ErrorArgs: []errResponse.ErrArgs{
-			errResponse.ErrArgs{
-				StatusMessage: errResponse.ActionNotSupported,
-				MessageArgs:   []interface{}{ctx.Request().Method},
-			},
-		},
-	}
-	common.SetResponseHeader(ctx, nil)
-	ctx.JSON(errArgs.CreateGenericErrorResponse())
-	return
-}
 
 // AsMethodNotAllowed holds Method to throw 405 Method not allowed on Account Service URLs
 func AsMethodNotAllowed(ctx iris.Context) {
@@ -1153,12 +1137,12 @@ func SystemsMethodNotAllowed(ctx iris.Context) {
 // SystemsMethodInvalidUrl holds builds reponse for the invalid url operation on Systems URLs and returns 404 error.
 func SystemsMethodInvalidUrl(ctx iris.Context) {
 	defer ctx.Next()
-	ctx.StatusCode(http.StatusMethodNotAllowed)
+	ctx.StatusCode(http.StatusNotFound)
 	errArgs := &errResponse.Args{
 		Code: errResponse.GeneralError,
 		ErrorArgs: []errResponse.ErrArgs{
 			errResponse.ErrArgs{
-				StatusMessage: errResponse.ActionNotSupported,
+				StatusMessage: errResponse.InvalidURL,
 				MessageArgs:   []interface{}{ctx.Request().Method},
 			},
 		},
