@@ -1134,16 +1134,17 @@ func SystemsMethodNotAllowed(ctx iris.Context) {
 	return
 }
 
-// SystemsMethodInvalidUrl holds builds reponse for the invalid url operation on Systems URLs and returns 404 error.
-func SystemsMethodInvalidUrl(ctx iris.Context) {
+// SystemsMethodInvalidURI holds builds reponse for the invalid url operation on Systems URLs and returns 404 error.
+func SystemsMethodInvalidURI(ctx iris.Context) {
 	defer ctx.Next()
+	url := ctx.Request().URL
 	ctx.StatusCode(http.StatusNotFound)
 	errArgs := &errResponse.Args{
 		Code: errResponse.GeneralError,
 		ErrorArgs: []errResponse.ErrArgs{
 			errResponse.ErrArgs{
-				StatusMessage: errResponse.InvalidURL,
-				MessageArgs:   []interface{}{ctx.Request().Method},
+				StatusMessage: errResponse.InvalidURI,
+				MessageArgs:   []interface{}{url},
 			},
 		},
 	}

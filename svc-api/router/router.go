@@ -194,7 +194,7 @@ func Router() *iris.Application {
 	serviceRoot := handle.InitServiceRoot()
 
 	router := iris.New()
-	router.OnErrorCode(iris.StatusNotFound, handle.SystemsMethodInvalidUrl)
+	router.OnErrorCode(iris.StatusNotFound, handle.SystemsMethodInvalidURI)
 	var reqBody map[string]interface{}
 	// Parses the URL and performs URL decoding for path
 	// Getting the request body copy
