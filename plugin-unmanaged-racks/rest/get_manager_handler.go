@@ -19,9 +19,9 @@ package rest
 import (
 	"net/http"
 
+	"github.com/ODIM-Project/ODIM/lib-utilities/common"
 	"github.com/ODIM-Project/ODIM/plugin-unmanaged-racks/config"
 	"github.com/ODIM-Project/ODIM/plugin-unmanaged-racks/redfish"
-
 	"github.com/kataras/iris/v12/context"
 )
 
@@ -43,7 +43,7 @@ func createPluginManager(pc *config.PluginConfig) redfish.Manager {
 	return redfish.Manager{
 		OdataContext:    "/ODIM/v1/$metadata#Manager.Manager",
 		OdataID:         "/ODIM/v1/Managers/" + pc.RootServiceUUID,
-		OdataType:       "#Manager.v1_13_0.Manager",
+		OdataType:       common.ManagerType,
 		Name:            urpPluginName,
 		ManagerType:     "Service",
 		ID:              pc.RootServiceUUID,

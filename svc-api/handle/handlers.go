@@ -59,7 +59,7 @@ func InitServiceRoot() ServiceRoot {
 //getService method takes list of string as parameter and returns Serviceroot struct with assigned values
 func getService(microServices []string, uuid string) models.ServiceRoot {
 	serviceRoot := models.ServiceRoot{
-		OdataType:      "#ServiceRoot.v1_11_0.ServiceRoot",
+		OdataType:      "#ServiceRoot.v1_14_0.ServiceRoot",
 		ID:             "RootService",
 		Name:           "Root Service",
 		RedfishVersion: "1.14.0",
