@@ -125,7 +125,7 @@ const (
 	// SessionServiceType has schema version to be returned with sessionservice
 	SessionServiceType = "#SessionService.v1_1_8.SessionService"
 	// SessionType has schema version to be returned with session
-	SessionType = "#Session.v1_3_0.Session"
+	SessionType = "#Session.v1_4_0.Session"
 	// EventType has schema version to be returned with event
 	EventType = "#Event.v1_7_0.Event"
 	// AggregationServiceType has schema version to be returned with Aggregationservice
