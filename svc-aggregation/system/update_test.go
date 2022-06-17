@@ -320,7 +320,7 @@ func TestExternalInterface_UpdateAggregationSource(t *testing.T) {
 	missingparamReq, _ := json.Marshal(map[string]interface{}{})
 
 	commonResponse1 := response.Response{
-		OdataType:    "#AggregationSource.v1_1_0.AggregationSource",
+		OdataType:    common.AggregationSourceType,
 		OdataID:      "/redfish/v1/AggregationService/AggregationSources/123455",
 		OdataContext: "/redfish/v1/$metadata#AggregationSource.AggregationSource",
 		ID:           "123455",
