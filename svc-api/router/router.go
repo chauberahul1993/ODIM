@@ -116,12 +116,13 @@ func Router() *iris.Application {
 	}
 
 	evt := handle.EventsRPCs{
-		GetEventServiceRPC:                 rpc.DoGetEventService,
-		CreateEventSubscriptionRPC:         rpc.DoCreateEventSubscription,
-		SubmitTestEventRPC:                 rpc.DoSubmitTestEvent,
-		GetEventSubscriptionRPC:            rpc.DoGetEventSubscription,
-		DeleteEventSubscriptionRPC:         rpc.DoDeleteEventSubscription,
-		GetEventSubscriptionsCollectionRPC: rpc.DoGetEventSubscriptionsCollection,
+		GetEventServiceRPC:                   rpc.DoGetEventService,
+		CreateEventSubscriptionRPC:           rpc.DoCreateEventSubscription,
+		SubmitTestEventRPC:                   rpc.DoSubmitTestEvent,
+		GetEventSubscriptionRPC:              rpc.DoGetEventSubscription,
+		DeleteEventSubscriptionRPC:           rpc.DoDeleteEventSubscription,
+		GetEventSubscriptionsCollectionRPC:   rpc.DoGetEventSubscriptionsCollection,
+		GetEventSubscriptionsCapabilitiesRPC: rpc.DoGetEventSubscriptionsCapabilities,
 	}
 
 	fab := handle.FabricRPCs{
@@ -553,8 +554,9 @@ func Router() *iris.Application {
 	events.Any("/", handle.EvtMethodNotAllowed)
 	events.Any("/Actions", handle.EvtMethodNotAllowed)
 	events.Any("/Actions/EventService.SubmitTestEvent", handle.EvtMethodNotAllowed)
+	events.Get("/Subscriptions/Capabilities", evt.GetEventSubscriptionsCapabilities)
 	events.Any("/Subscriptions", handle.EvtMethodNotAllowed)
-
+	events.Any("/Subscriptions/Capabilities", handle.EvtMethodNotAllowed)
 	fabrics := v1.Party("/Fabrics", middleware.SessionDelMiddleware)
 	fabrics.SetRegisterRule(iris.RouteSkip)
 	fabrics.Get("/", fab.GetFabricCollection)

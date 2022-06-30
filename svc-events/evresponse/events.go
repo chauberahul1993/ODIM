@@ -41,14 +41,15 @@ type SubscriptionResponse struct {
 
 // ListResponse define list for odimra
 type ListResponse struct {
-	OdataContext string       `json:"@odata.context"`
-	Etag         string       `json:"@odata.etag,omitempty"`
-	OdataID      string       `json:"@odata.id"`
-	OdataType    string       `json:"@odata.type"`
-	Name         string       `json:"Name,omitempty"`
-	Description  string       `json:"Description,omitempty"`
-	MembersCount int          `json:"Members@odata.count"`
-	Members      []ListMember `json:"Members"`
+	OdataContext            string                   `json:"@odata.context"`
+	Etag                    string                   `json:"@odata.etag,omitempty"`
+	OdataID                 string                   `json:"@odata.id"`
+	OdataType               string                   `json:"@odata.type"`
+	Name                    string                   `json:"Name,omitempty"`
+	Description             string                   `json:"Description,omitempty"`
+	MembersCount            int                      `json:"Members@odata.count"`
+	Members                 []ListMember             `json:"Members"`
+	CapabilitiesCollections *CapabilitiesCollections `json:"@Redfish.CollectionCapabilities,omitempty"`
 }
 
 // ListMember containes link to a resource
@@ -191,4 +192,15 @@ func deleteDuplicateHostData(data map[string]string, collectionKey, pattern stri
 			}
 		}
 	}
+}
+
+type CapabilitiesCollections struct {
+	OdataType          string         `json:"@odata.type"`
+	CapabilitiesObject []Capabilities `json:"CapabilitiesObject,omitempty"`
+	UserCase           string         `json:"userCase,omitempty"`
+	Links              Capabilities   `json:"links,omitempty"`
+}
+type Capabilities struct {
+	CapabilitiesObject *ListMember `json:"CapabilitiesObject,omitempty"`
+	TargetCollection   *ListMember `json:"TargetCollection,omitempty"`
 }

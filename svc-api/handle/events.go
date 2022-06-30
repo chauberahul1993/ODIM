@@ -29,12 +29,13 @@ import (
 
 // EventsRPCs defines all the RPC methods in Events service
 type EventsRPCs struct {
-	GetEventServiceRPC                 func(eventsproto.EventSubRequest) (*eventsproto.EventSubResponse, error)
-	CreateEventSubscriptionRPC         func(eventsproto.EventSubRequest) (*eventsproto.EventSubResponse, error)
-	SubmitTestEventRPC                 func(eventsproto.EventSubRequest) (*eventsproto.EventSubResponse, error)
-	GetEventSubscriptionRPC            func(eventsproto.EventRequest) (*eventsproto.EventSubResponse, error)
-	DeleteEventSubscriptionRPC         func(eventsproto.EventRequest) (*eventsproto.EventSubResponse, error)
-	GetEventSubscriptionsCollectionRPC func(eventsproto.EventRequest) (*eventsproto.EventSubResponse, error)
+	GetEventServiceRPC                   func(eventsproto.EventSubRequest) (*eventsproto.EventSubResponse, error)
+	CreateEventSubscriptionRPC           func(eventsproto.EventSubRequest) (*eventsproto.EventSubResponse, error)
+	SubmitTestEventRPC                   func(eventsproto.EventSubRequest) (*eventsproto.EventSubResponse, error)
+	GetEventSubscriptionRPC              func(eventsproto.EventRequest) (*eventsproto.EventSubResponse, error)
+	DeleteEventSubscriptionRPC           func(eventsproto.EventRequest) (*eventsproto.EventSubResponse, error)
+	GetEventSubscriptionsCollectionRPC   func(eventsproto.EventRequest) (*eventsproto.EventSubResponse, error)
+	GetEventSubscriptionsCapabilitiesRPC func(eventsproto.EventRequest) (*eventsproto.EventSubResponse, error)
 }
 
 // GetEventService is the handler to get the Event Service details.
@@ -243,6 +244,37 @@ func (e *EventsRPCs) GetEventSubscriptionsCollection(ctx iris.Context) {
 	}
 
 	ctx.ResponseWriter().Header().Set("Allow", "GET, POST")
+	common.SetResponseHeader(ctx, resp.Header)
+	ctx.StatusCode(int(resp.StatusCode))
+	ctx.Write(resp.Body)
+}
+
+// GetEventSubscriptionsCapabilities is the handler for getting event subscriptions capabilities
+func (e *EventsRPCs) GetEventSubscriptionsCapabilities(ctx iris.Context) {
+	defer ctx.Next()
+	var req eventsproto.EventRequest
+	req.SessionToken = ctx.Request().Header.Get("X-Auth-Token")
+
+	if req.SessionToken == "" {
+		errorMessage := "no X-Auth-Token found in request header"
+		response := common.GeneralError(http.StatusUnauthorized, response.NoValidSession, errorMessage, nil, nil)
+		common.SetResponseHeader(ctx, response.Header)
+		ctx.StatusCode(http.StatusUnauthorized)
+		ctx.JSON(&response.Body)
+		return
+	}
+
+	resp, err := e.GetEventSubscriptionsCapabilitiesRPC(req)
+	if err != nil {
+		log.Error(err.Error())
+		response := common.GeneralError(http.StatusInternalServerError, response.InternalError, err.Error(), nil, nil)
+		common.SetResponseHeader(ctx, response.Header)
+		ctx.StatusCode(http.StatusInternalServerError)
+		ctx.JSON(&response.Body)
+		return
+	}
+
+	ctx.ResponseWriter().Header().Set("Allow", "GET")
 	common.SetResponseHeader(ctx, resp.Header)
 	ctx.StatusCode(int(resp.StatusCode))
 	ctx.Write(resp.Body)

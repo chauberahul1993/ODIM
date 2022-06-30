@@ -366,3 +366,25 @@ func generateTaskRespone(taskID, taskURI string, resp *eventsproto.EventSubRespo
 	commonResponse.CreateGenericResponse(resp.StatusMessage)
 	resp.Body = generateResponse(commonResponse)
 }
+
+// GetEventSubscriptionsCapabilities defines the operations which handles the RPC request response
+// for the get event subscriptions capabilities RPC call to events micro service.
+// The functionality is to get the collection of subscrription details.
+func (e *Events) GetEventSubscriptionsCapabilities(ctx context.Context, req *eventsproto.EventRequest) (*eventsproto.EventSubResponse, error) {
+	var resp eventsproto.EventSubResponse
+	var err error
+	data := e.Connector.GetEventSubscriptionsCapabilities(req)
+	resp.Body, err = json.Marshal(data.Body)
+	if err != nil {
+		errorMessage := "error while trying marshal the response body for get event subsciption : " + err.Error()
+		resp.StatusCode = http.StatusInternalServerError
+		resp.StatusMessage = response.InternalError
+		resp.Body, _ = json.Marshal(common.GeneralError(http.StatusInternalServerError, response.InternalError, errorMessage, nil, nil).Body)
+		log.Error(resp.StatusMessage)
+		return &resp, nil
+	}
+	resp.StatusCode = data.StatusCode
+	resp.StatusMessage = data.StatusMessage
+	resp.Header = data.Header
+	return &resp, nil
+}

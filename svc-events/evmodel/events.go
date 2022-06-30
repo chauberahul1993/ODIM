@@ -121,6 +121,7 @@ type EvtSubPost struct {
 	HTTPHeaders          []HTTPHeaders `json:"HttpHeaders"`
 	Context              string        `json:"Context"`
 	OriginResources      []OdataIDLink `json:"OriginResources"`
+	DeliveryRetryPolicy  string        `json:"DeliveryRetryPolicy"`
 }
 
 //HTTPHeaders required for the suscribing for events

@@ -23,6 +23,8 @@ service Events {
     rpc CreateDefaultEventSubscription(DefaultEventSubRequest) returns (DefaultEventSubResponse) {}
     rpc GetEventSubscriptionsCollection(EventRequest) returns (EventSubResponse) {}
     rpc SubsribeEMB(SubscribeEMBRequest) returns (SubscribeEMBResponse){}
+    rpc GetEventSubscriptionsCapabilities(EventRequest) returns (EventSubResponse) {}
+
 }
 
 message EventSubRequest {

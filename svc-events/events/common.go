@@ -271,9 +271,9 @@ func validateFields(request *evmodel.RequestBody) (int32, string, []interface{},
 	if request.DeliveryRetryPolicy == "" {
 		request.DeliveryRetryPolicy = evmodel.DeliveryRetryPolicy
 	} else if request.DeliveryRetryPolicy == "TerminateAfterRetries" || request.DeliveryRetryPolicy == "SuspendRetries" || request.DeliveryRetryPolicy == "RetryForeverWithBackoff" {
-		return http.StatusBadRequest, errResponse.PropertyMissing, []interface{}{"DeliveryRetryPolicy"}, fmt.Errorf("Unsupported DeliveryRetryPolicy")
+		return http.StatusBadRequest, errResponse.PropertyValueNotInList, []interface{}{request.DeliveryRetryPolicy, "DeliveryRetryPolicy"}, fmt.Errorf("Unsupported DeliveryRetryPolicy")
 	} else if request.DeliveryRetryPolicy != evmodel.DeliveryRetryPolicy {
-		return http.StatusBadRequest, errResponse.PropertyMissing, []interface{}{"DeliveryRetryPolicy"}, fmt.Errorf("Invalid DeliveryRetryPolicy")
+		return http.StatusBadRequest, errResponse.PropertyValueNotInList, []interface{}{request.DeliveryRetryPolicy, "DeliveryRetryPolicy"}, fmt.Errorf("Invalid DeliveryRetryPolicy")
 	}
 
 	availableProtocols := []string{"Redfish"}
