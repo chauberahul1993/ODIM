@@ -120,3 +120,15 @@ func TestGetEventSubscription(t *testing.T) {
 	assert.Equal(t, http.StatusNotFound, int(resp.StatusCode), "Status Code should be StatusNotFound")
 
 }
+func TestGetEventSubscriptionsCapabilities(t *testing.T) {
+	common.SetUpMockConfig()
+	pc := getMockMethods()
+	req := &eventsproto.EventRequest{
+		SessionToken: "validToken",
+	}
+
+	// positive test case
+	resp := pc.GetEventSubscriptionsCapabilities(req)
+	assert.Equal(t, http.StatusOK, int(resp.StatusCode), "Status Code should be StatusOK")
+
+}
