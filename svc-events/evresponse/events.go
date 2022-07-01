@@ -195,10 +195,10 @@ func deleteDuplicateHostData(data map[string]string, collectionKey, pattern stri
 }
 
 type CapabilitiesCollections struct {
-	OdataType          string         `json:"@odata.type"`
-	CapabilitiesObject []Capabilities `json:"CapabilitiesObject,omitempty"`
-	UserCase           string         `json:"userCase,omitempty"`
-	Links              Capabilities   `json:"links,omitempty"`
+	OdataType    string         `json:"@odata.type"`
+	Capabilities []Capabilities `json:"Capabilities,omitempty"`
+	UseCase      string         `json:"UseCase,omitempty"`
+	Links        Capabilities   `json:"Links,omitempty"`
 }
 type Capabilities struct {
 	CapabilitiesObject *ListMember `json:"CapabilitiesObject,omitempty"`

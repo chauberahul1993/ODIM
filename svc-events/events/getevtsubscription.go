@@ -141,13 +141,13 @@ func (e *ExternalInterfaces) GetEventSubscriptionsCollection(req *eventsproto.Ev
 		Members:      listMembers,
 		CapabilitiesCollections: &evresponse.CapabilitiesCollections{
 			OdataType: "#CollectionCapabilities.v1_4_0.CollectionCapabilities",
-			UserCase:  "SubscriptionComposition",
+			UseCase:   "SubscriptionCreation",
 			Links: evresponse.Capabilities{
 				TargetCollection: &evresponse.ListMember{
 					OdataID: "/redfish/v1/EventService/Subscriptions",
 				},
 			},
-			CapabilitiesObject: []evresponse.Capabilities{{
+			Capabilities: []evresponse.Capabilities{{
 				CapabilitiesObject: &evresponse.ListMember{
 					OdataID: "/redfish/v1/EventService/Subscriptions/Capabilities",
 				},
@@ -168,40 +168,8 @@ func (e *ExternalInterfaces) GetEventSubscriptionsCapabilities(req *eventsproto.
 		log.Printf("error while trying to authenticate session: status code: %v, status message: %v", authResp.StatusCode, authResp.StatusMessage)
 		return authResp
 	}
-	respCapibilities := map[string]interface{}{
-		"@odata.id":                                     "/redfish/v1/EventService/Subscriptions/Capabilities",
-		"@odata.type":                                   "#EventDestinationCollection.EventDestinationCollection",
-		"Name":                                          "Capabilities for the subscription collection",
-		"ID":                                            "Capabilities",
-		"Name@Redfish.OptionalOnCreate":                 true,
-		"Name@Redfish.SetOnlyOnCreate":                  true,
-		"Destination@Redfish.RequiredOnCreate":          true,
-		"Destination@Redfish.SetOnlyOnCreate":           true,
-		"EventTypes@Redfish.OptionalOnCreate":           true,
-		"EventTypes@Redfish.SetOnlyOnCreate":            true,
-		"EventTypes@Redfish.AllowableValues":            []interface{}{"Alert", "MetricReport", "ResourceAdded", "ResourceRemoved", "ResourceUpdated", "StatusChange", "Other"},
-		"MessageIds@Redfish.OptionalOnCreate":           true,
-		"MessageIds@Redfish.SetOnlyOnCreate":            true,
-		"ResourceTypes@Redfish.OptionalOnCreate":        true,
-		"ResourceTypes@Redfish.SetOnlyOnCreate":         true,
-		"ResourceTypes@Redfish.AllowableValues":         []interface{}{"Job", "MemoryMetrics", "SerialInterfaces", "Switch", "Bios", "NetworkPort", "ComputerSystem", "MessageRegistry", "Thermal", "Event", "Manager", "Port", "Drive", "NetworkInterface", "PhysicalContext", "Processor", "Protocol", "BootOption", "IPAddresses", "MemoryChunks", "Storage", "Task", "AddressPool", "ManagerAccount", "ProcessorCollection", "VLanNetworkInterface", "Assembly", "EventService", "MemoryDomain", "MessageRegistryFile", "NetworkDeviceFunction", "PCIeFunction", "PrivilegeRegistry", "Resource", "Sensor", "EthernetInterface", "Fabric", "ManagerNetworkProtocol", "Redundancy", "Role", "SecureBoot", "Endpoint", "JobService", "NetworkAdapter", "Session", "LogEntry", "Memory", "Message", "Privileges", "ProcessorMetrics", "Chassis", "LogService", "PCIeDevice", "AccelerationFunction", "EventDestination", "HostInterface", "PCIeSlots", "Power", "Volume", "Zone"},
-		"Context@Redfish.OptionalOnCreate":              true,
-		"Context@Redfish.SetOnlyOnCreate":               true,
-		"Protocol@Redfish.RequiredOnCreate":             true,
-		"Protocol@Redfish.SetOnlyOnCreate":              true,
-		"Protocol@Redfish.AllowableValues":              []interface{}{"Redfish"},
-		"SubscriptionType@Redfish.OptionalOnCreate":     true,
-		"SubscriptionType@Redfish.SetOnlyOnCreate":      true,
-		"SubscriptionType@Redfish.AllowableValues":      []interface{}{"RedfishEvent"},
-		"EventFormatType@Redfish.OptionalOnCreate":      true,
-		"EventFormatType@Redfish.SetOnlyOnCreate":       true,
-		"EventFormatType@Redfish.AllowableValues":       []interface{}{"Event", "MetricReport"},
-		"SubordinateResources@Redfish.OptionalOnCreate": true,
-		"SubordinateResources@Redfish.SetOnlyOnCreate":  true,
-		"OriginResources@Redfish.OptionalOnCreate":      true,
-		"OriginResources@Redfish.SetOnlyOnCreate":       true,
-	}
-	resp.Body = respCapibilities
+
+	resp.Body = evresponse.SubscriptionCreationCapibilitiesResp
 	resp.StatusCode = http.StatusOK
 	resp.StatusMessage = response.Success
 	return resp
