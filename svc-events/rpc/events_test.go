@@ -282,3 +282,16 @@ func TestSubscribeEMB(t *testing.T) {
 	assert.Nil(t, err, "There should be no error")
 	assert.True(t, resp.Status, "status should be true")
 }
+
+func TestGetEventSubscriptionsCapabilities(t *testing.T) {
+	config.SetUpMockConfig(t)
+	var ctx context.Context
+	events := getMockPluginContactInitializer()
+	// Positive test cases
+	req := &eventsproto.EventRequest{
+		SessionToken: "validToken",
+	}
+	resp, err := events.GetEventSubscriptionsCapabilities(ctx, req)
+	assert.Nil(t, err, "There should be no error")
+	assert.Equal(t, int(resp.StatusCode), http.StatusOK, "Status code should be StatusOK.")
+}
