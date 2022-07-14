@@ -45,12 +45,7 @@ import (
 
 // addFabric will add the new fabric resource to db when an event is ResourceAdded and
 // originofcondition has fabrics odataid.
-func (e *ExternalInterfaces) addFabric(requestData, host string) {
-	var message common.MessageData
-	if err := json.Unmarshal([]byte(requestData), &message); err != nil {
-		log.Error("failed to unmarshal the incoming event: " + requestData + " with the error: " + err.Error())
-		return
-	}
+func (e *ExternalInterfaces) addFabric(message common.MessageData, host string) {
 	for _, inEvent := range message.Events {
 		if inEvent.OriginOfCondition == nil || len(inEvent.OriginOfCondition.Oid) < 1 {
 			log.Info("event not forwarded : Originofcondition is empty in incoming event")
@@ -112,7 +107,7 @@ func (e *ExternalInterfaces) PublishEventsToDestination(data interface{}) bool {
 		return false
 	}
 
-	e.addFabric(requestData, host)
+	e.addFabric(message, host)
 	searchKey := evcommon.GetSearchKey(host, evmodel.DeviceSubscriptionIndex)
 	deviceSubscription, err := e.GetDeviceSubscriptions(searchKey)
 	if err != nil {
@@ -130,12 +125,6 @@ func (e *ExternalInterfaces) PublishEventsToDestination(data interface{}) bool {
 	searchKey = evcommon.GetSearchKey(host, evmodel.SubscriptionIndex)
 	subscriptions, err := e.GetEvtSubscriptions(searchKey)
 	if err != nil {
-		return false
-	}
-
-	err = json.Unmarshal([]byte(requestData), &message)
-	if err != nil {
-		log.Error("failed to unmarshal the incoming event: ", requestData, " with the error: ", err.Error())
 		return false
 	}
 	eventUniqueID := uuid.NewV4().String()
@@ -162,7 +151,7 @@ func (e *ExternalInterfaces) PublishEventsToDestination(data interface{}) bool {
 				}
 			}
 		} else {
-			log.Info("event not forwarded as originofcondition is empty in ncoming event: ", requestData)
+			log.Info("event not forwarded as originofcondition is empty incoming event: ", requestData)
 			continue
 		}
 
