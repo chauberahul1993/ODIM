@@ -22,6 +22,7 @@ package events
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"reflect"
 	"testing"
@@ -31,6 +32,39 @@ import (
 	"github.com/ODIM-Project/ODIM/svc-events/evmodel"
 	"github.com/stretchr/testify/assert"
 )
+
+// Positive test cases
+func TestCreateEventSubscription1(t *testing.T) {
+	config.SetUpMockConfig(t)
+	p := getMockMethods()
+	taskID := "123"
+	sessionUserName := "admin"
+	SubscriptionReq := map[string]interface{}{
+		"Name":                 "EventSubscription",
+		"Destination":          "https://odim.test24.com:8070/Destination1",
+		"EventTypes":           []string{"Alert"},
+		"Protocol":             "Redfish",
+		"Context":              "Event Subscription",
+		"SubscriptionType":     "RedfishEvent",
+		"EventFormatType":      "Event",
+		"SubordinateResources": true,
+		"OriginResources": []evmodel.OdataIDLink{
+			// {OdataID: "/redfish/v1/Systems/6d4a0a66-7efa-578e-83cf-44dc68d2874e.1"},
+			// {OdataID: "/redfish/v1/Systems"},
+			{OdataID: "/redfish/v1/AggregationService/Aggregates/6d4a0a66-7efa-578e-83cf-44dc68d2874e.1"},
+		},
+	}
+	postBody, _ := json.Marshal(&SubscriptionReq)
+
+	// Positive test cases
+	req := &eventsproto.EventSubRequest{
+		SessionToken: "token",
+		PostBody:     postBody,
+	}
+	resp := p.CreateEventSubscription(taskID, sessionUserName, req)
+	fmt.Println("Status code is ################ ", resp.StatusCode)
+	// assert.Equal(t, http.StatusCreated, int(resp.StatusCode), "Status Code should be StatusCreated")
+}
 
 // Positive test cases
 func TestCreateEventSubscription(t *testing.T) {

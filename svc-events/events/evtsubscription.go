@@ -147,7 +147,7 @@ func (e *ExternalInterfaces) CreateEventSubscription(taskID string, sessionUserN
 	removeDuplicatesFromSlice(&originResources, &originResourcesCount)
 
 	// If origin resource is nil then subscribe to all collection
-	if originResourcesCount <= 0 {
+	if originResourcesCount == 0 {
 		originResources = []string{
 			"/redfish/v1/Systems",
 			"/redfish/v1/Chassis",
@@ -183,7 +183,7 @@ func (e *ExternalInterfaces) CreateEventSubscription(taskID string, sessionUserN
 	}()
 
 	for _, origin := range originResources {
-		_, _, err := e.getTargetDetails(origin)
+		_, err := getUUID(origin)
 		if err != nil {
 			collection, collectionName, collectionFlag, _ := e.checkCollection(origin)
 			wg.Add(1)
@@ -313,15 +313,18 @@ func (e *ExternalInterfaces) eventSubscription(postRequest evmodel.RequestBody, 
 	var plugin *evmodel.Plugin
 	var contactRequest evcommon.PluginContactRequest
 	var target *evmodel.Target
+	fmt.Println("Event target ", "****************  ")
 	if !collectionFlag {
+		fmt.Println("Event target ", "**************** 1111 ")
 		if strings.Contains(origin, "Fabrics") {
 			return e.createFabricSubscription(postRequest, origin, collectionName, collectionFlag)
 		}
+		fmt.Println("Event target ", "****************  222 ")
 		target, resp, err = e.getTargetDetails(origin)
 		if err != nil {
 			return "", resp
 		}
-
+		fmt.Printf("Event target ****************  33333 %+v ", target)
 		var errs *errors.Error
 		plugin, errs = e.GetPluginData(target.PluginID)
 		if errs != nil {
@@ -350,6 +353,7 @@ func (e *ExternalInterfaces) eventSubscription(postRequest evmodel.RequestBody, 
 			}
 		}
 	}
+	fmt.Println("Event target ", "**************** 4444 ")
 	var httpHeadersSlice = make([]evmodel.HTTPHeaders, 0)
 	httpHeadersSlice = append(httpHeadersSlice, evmodel.HTTPHeaders{ContentType: "application/json"})
 	subscriptionPost := evmodel.EvtSubPost{
@@ -386,7 +390,6 @@ func (e *ExternalInterfaces) eventSubscription(postRequest evmodel.RequestBody, 
 			log.Error(errorMessage)
 			return "", resp
 		}
-
 		resp.StatusCode = http.StatusCreated
 		resp.Response = createEventSubscriptionResponse()
 		return collectionName, resp
@@ -697,7 +700,6 @@ func (e *ExternalInterfaces) saveDeviceSubscriptionDetails(evtSubscription evmod
 		// if the origin resource is present in device subscription details then dont add
 		for _, originResource := range deviceSubscription.OriginResources {
 			if evtSubscription.OriginResource == originResource {
-
 				save = false
 			} else {
 				newDevSubscription.OriginResources = append(newDevSubscription.OriginResources, originResource)
@@ -717,7 +719,6 @@ func (e *ExternalInterfaces) saveDeviceSubscriptionDetails(evtSubscription evmod
 
 func (e *ExternalInterfaces) getTargetDetails(origin string) (*evmodel.Target, evresponse.EventResponse, error) {
 	var resp evresponse.EventResponse
-
 	uuid, err := getUUID(origin)
 	if err != nil {
 		evcommon.GenEventErrorResponse(err.Error(), errResponse.ResourceNotFound, http.StatusNotFound,
@@ -829,7 +830,7 @@ func (e *ExternalInterfaces) createEventSubscrption(taskID string, subTaskChan c
 		log.Error("error while trying to marshal create event request: " + err.Error())
 	}
 	reqJSON = string(reqBody)
-
+	fmt.Println("Step 11  **********  ", reqJSON, " Task is ", taskID)
 	if taskID != "" {
 		subTaskURI, err = e.CreateChildTask(reqSessionToken, taskID)
 		if err != nil {
@@ -842,6 +843,8 @@ func (e *ExternalInterfaces) createEventSubscrption(taskID string, subTaskChan c
 	}
 
 	host, response := e.eventSubscription(request, originResource, collectionName, collectionFlag)
+	fmt.Println("Oigin ", originResource, collectionFlag)
+	fmt.Println("Response ", response)
 	resp.Body = response.Response
 	resp.StatusCode = int32(response.StatusCode)
 	result.AddResponse(originResource, host, response)
