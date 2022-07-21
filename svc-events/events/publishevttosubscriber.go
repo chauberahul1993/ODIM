@@ -122,6 +122,17 @@ func (e *ExternalInterfaces) PublishEventsToDestination(data interface{}) bool {
 	}
 	fmt.Println("Aggregate List Is ", aggregateList)
 
+	for _, aggregateId := range aggregateList {
+		searchKeyAgg := evcommon.GetSearchKey(aggregateId, evmodel.SubscriptionIndex)
+
+		subscription, err := e.GetEvtSubscriptions(searchKeyAgg)
+		if err != nil {
+			fmt.Println("No Aggregate subscription found  ******** ", err)
+		}
+		fmt.Println("Aggregate List Is ", aggregateId, len(subscription), subscription)
+
+	}
+
 	e.addFabric(requestData, host)
 	searchKey := evcommon.GetSearchKey(host, evmodel.DeviceSubscriptionIndex)
 

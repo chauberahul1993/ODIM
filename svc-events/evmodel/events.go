@@ -651,6 +651,9 @@ func GetAggregateList(hostIP string) ([]string, error) {
 	aggregates := []string{}
 	for _, v := range aggregateList {
 		devSub := strings.Split(v, "::")
+		if devSub[0] == "0" {
+			continue
+		}
 		aggregates = append(aggregates, devSub[0])
 	}
 	fmt.Println("Get Aggregate List ", aggregates)
