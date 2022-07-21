@@ -102,6 +102,12 @@ type SNMP struct {
 	TrapCommunity          string `json:"TrapCommunity,omitempty"`
 }
 
+const (
+	// aggregateHostIndex is a index name which required for indexing
+	// aggregateHost of device
+	aggregateHostIndex = common.AggregateSubscriptionIndex
+)
+
 // Aggregate payload is used for perform the operations on Aggregate
 type Aggregate struct {
 	Elements []OdataID `json:"Elements"`
@@ -1136,6 +1142,17 @@ func DeleteMetricRequest(key string) *errors.Error {
 	err = conn.Delete("ActiveMetricRequest", key)
 	if err != nil {
 		return errors.PackError(err.ErrNo(), "error: while trying to delete active connection details: ", err.Error())
+	}
+	return nil
+}
+func AddAggregateHostIndex(uuid string, hostIP []string) error {
+	conn, err := common.GetDBConnection(common.InMemory)
+	if err != nil {
+		return errors.PackError(err.ErrNo(), "error: while trying to create connection with DB: ", err.Error())
+	}
+	err1 := conn.CreateAggregateHostIndex(aggregateHostIndex, uuid, hostIP)
+	if err1 != nil {
+		return errors.PackError(err.ErrNo(), "error: while trying to add aggregate: ", err.Error())
 	}
 	return nil
 }

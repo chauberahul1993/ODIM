@@ -1417,7 +1417,7 @@ func (p *ConnPool) TTL(table, key string) (int, *errors.Error) {
 1. index is the name of the index to be created
 2. key is for the index
 */
-func (p *ConnPool) CreateAggregateSubscriptionIndex(index, aggregateID string, hostIP []string) error {
+func (p *ConnPool) CreateAggregateHostIndex(index, aggregateID string, hostIP []string) error {
 	writePool := (*redis.Pool)(atomic.LoadPointer((*unsafe.Pointer)(unsafe.Pointer(&p.WritePool))))
 	if writePool == nil {
 		return fmt.Errorf("WritePool is nil")
@@ -1497,7 +1497,7 @@ func (p *ConnPool) UpdateAggregateHosts(index, aggregateID string, hostIP []stri
 	if err != nil {
 		return err
 	}
-	err = p.CreateAggregateSubscriptionIndex(index, aggregateID, hostIP)
+	err = p.CreateAggregateHostIndex(index, aggregateID, hostIP)
 	if err != nil {
 		return fmt.Errorf("error while updating aggregate host ")
 	}
