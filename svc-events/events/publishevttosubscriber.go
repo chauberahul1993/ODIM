@@ -133,7 +133,7 @@ func (e *ExternalInterfaces) PublishEventsToDestination(data interface{}) bool {
 	if err != nil {
 		return false
 	}
-	fmt.Printf("Event Received %s %+v \n ", host, message)
+	fmt.Printf("Event Received %s %+d \n ", host, len(subscriptions))
 	// Getting Aggregate List
 	searchKeyAgg := evcommon.GetSearchKey(host, evmodel.SubscriptionIndex)
 
@@ -154,7 +154,7 @@ func (e *ExternalInterfaces) PublishEventsToDestination(data interface{}) bool {
 		fmt.Printf("Subscription List Is  %s %d \n %+v", aggregateId, len(subscription), subscription)
 
 	}
-
+	fmt.Println("After Adding Aggregate ", len(subscriptions))
 	err = json.Unmarshal([]byte(requestData), &message)
 	if err != nil {
 		log.Error("failed to unmarshal the incoming event: ", requestData, " with the error: ", err.Error())
@@ -199,6 +199,8 @@ func (e *ExternalInterfaces) PublishEventsToDestination(data interface{}) bool {
 			// filter and send events to destination if destination is not empty
 			// in case of default event subscription destination will be empty
 			if sub.Destination != "" {
+				fmt.Println("Destination ", sub.Destination, isHostPresentInEventForward(sub.Hosts, host))
+				fmt.Println("Destination And ", filterEventsToBeForwarded(sub, inEvent, deviceSubscription.OriginResources))
 				// check if hostip present in the hosts slice to make sure that it doesn't filter with the destination ip
 				if isHostPresentInEventForward(sub.Hosts, host) {
 					if filterEventsToBeForwarded(sub, inEvent, deviceSubscription.OriginResources) {
