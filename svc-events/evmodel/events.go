@@ -635,3 +635,23 @@ func GetAggregateHosts(aggregateIP string) ([]string, error) {
 	hostsIP := getSliceFromString(devSub[1])
 	return hostsIP, nil
 }
+
+// GetAggregateList  will fetch aggregate list
+func GetAggregateList(hostIP string) ([]string, error) {
+	conn, err := common.GetDBConnection(common.OnDisk)
+	if err != nil {
+		return nil, err
+	}
+	aggregateList, gerr := conn.GetAggregateHosts(AggregateSubscriptionIndex, "*[^0-9]"+hostIP+"[^0-9]*")
+	if gerr != nil {
+		return nil, fmt.Errorf("error while trying to get aggregate host of device %v", gerr.Error())
+	}
+	fmt.Println("Row Data is ", aggregateList)
+	aggregates := []string{}
+	for _, v := range aggregateList {
+		devSub := strings.Split(v, "::")
+		aggregates = append(aggregates, devSub[0])
+	}
+	fmt.Println("Get Aggregate List ", aggregates)
+	return aggregates, nil
+}
