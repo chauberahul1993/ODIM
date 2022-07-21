@@ -141,7 +141,7 @@ func (e *ExternalInterfaces) PublishEventsToDestination(data interface{}) bool {
 	if err != nil {
 		fmt.Println("No Aggregate subscription Found ", host)
 	}
-
+	var aggregateSubscriptionList []evmodel.Subscription
 	for _, aggregateId := range aggregateList {
 		searchKeyAgg := evcommon.GetSearchKey(aggregateId, evmodel.SubscriptionIndex)
 
@@ -150,8 +150,7 @@ func (e *ExternalInterfaces) PublishEventsToDestination(data interface{}) bool {
 			fmt.Println("No Aggregate subscription found  ******** ", err)
 		}
 
-		subscriptions = append(subscriptions, subscription...)
-		fmt.Printf("Subscription List Is  %s %d \n %+v", aggregateId, len(subscription), subscription)
+		aggregateSubscriptionList = append(aggregateSubscriptionList, subscription...)
 
 	}
 	fmt.Println("After Adding Aggregate ", len(subscriptions))
@@ -194,6 +193,11 @@ func (e *ExternalInterfaces) PublishEventsToDestination(data interface{}) bool {
 		}
 		collectionSubscriptions := e.getCollectionSubscriptionInfoForOID(inEvent.OriginOfCondition.Oid, host)
 		subscriptions = append(subscriptions, collectionSubscriptions...)
+		for _, sub := range aggregateSubscriptionList {
+			eventMap[sub.Destination] = append(eventMap[sub.Destination], inEvent)
+			flag = true
+		}
+
 		for _, sub := range subscriptions {
 
 			// filter and send events to destination if destination is not empty
@@ -269,7 +273,7 @@ func filterEventsToBeForwarded(subscription evmodel.Subscription, event common.E
 		// if SubordinateResources is true then check if originofresource is top level of originofcondition
 		// if SubordinateResources is flase then check originofresource is same as originofcondition
 		for _, origin := range originResources {
-			if subscription.SubordinateResources == true {
+			if subscription.SubordinateResources {
 				if strings.Contains(originCondition, origin) {
 					return true
 				}
