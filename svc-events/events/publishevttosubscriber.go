@@ -112,16 +112,18 @@ func (e *ExternalInterfaces) PublishEventsToDestination(data interface{}) bool {
 		return false
 	}
 
-	e.addFabric(requestData, host)
-	searchKey := evcommon.GetSearchKey(host, evmodel.DeviceSubscriptionIndex)
-
 	fmt.Printf("Event Received %s %+v \n ", host, message)
 	// Getting Aggregate List
-	aggregateList, err := e.GetAggregateList(searchKey)
+	searchKeyAgg := evcommon.GetSearchKey(host, evmodel.SubscriptionIndex)
+
+	aggregateList, err := e.GetAggregateList(searchKeyAgg)
 	if err != nil {
 		fmt.Println("No Aggregate Found ******** ")
 	}
 	fmt.Println("Aggregate List Is ", aggregateList)
+
+	e.addFabric(requestData, host)
+	searchKey := evcommon.GetSearchKey(host, evmodel.DeviceSubscriptionIndex)
 
 	deviceSubscription, err := e.GetDeviceSubscriptions(searchKey)
 	if err != nil {
