@@ -1146,7 +1146,7 @@ func DeleteMetricRequest(key string) *errors.Error {
 	return nil
 }
 func AddAggregateHostIndex(uuid string, hostIP []string) error {
-	conn, err := common.GetDBConnection(common.InMemory)
+	conn, err := common.GetDBConnection(common.OnDisk)
 	if err != nil {
 		return errors.PackError(err.ErrNo(), "error: while trying to create connection with DB: ", err.Error())
 	}
