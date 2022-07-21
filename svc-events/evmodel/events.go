@@ -642,7 +642,7 @@ func GetAggregateList(hostIP string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("Search ", hostIP)
+	fmt.Println("Search ********** ", hostIP)
 	aggregateList, gerr := conn.GetAggregateHosts(AggregateSubscriptionIndex, hostIP+"*")
 	if gerr != nil {
 		return nil, fmt.Errorf("error while trying to get aggregate host list of device %v", gerr.Error())

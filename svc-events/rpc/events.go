@@ -77,7 +77,7 @@ func GetPluginContactInitializer() *Events {
 			SaveAggregateSubscription:        evmodel.SaveAggregateSubscription,
 			GetAggregateHosts:                evmodel.GetAggregateHosts,
 			UpdateAggregateHosts:             evmodel.UpdateAggregateHosts,
-			GetAggregateList:                 evmodel.GetAggregateHosts,
+			GetAggregateList:                 evmodel.GetAggregateList,
 		},
 	}
 	return &Events{
