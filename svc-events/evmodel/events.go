@@ -642,9 +642,10 @@ func GetAggregateList(hostIP string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	aggregateList, gerr := conn.GetAggregateHosts(AggregateSubscriptionIndex, "*[^0-9]"+hostIP+"[^0-9]*")
+	fmt.Println("Search ", hostIP)
+	aggregateList, gerr := conn.GetAggregateHosts(AggregateSubscriptionIndex, hostIP+"*")
 	if gerr != nil {
-		return nil, fmt.Errorf("error while trying to get aggregate host of device %v", gerr.Error())
+		return nil, fmt.Errorf("error while trying to get aggregate host list of device %v", gerr.Error())
 	}
 	fmt.Println("Row Data is ", aggregateList)
 	aggregates := []string{}

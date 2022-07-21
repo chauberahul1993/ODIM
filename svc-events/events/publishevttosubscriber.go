@@ -111,16 +111,18 @@ func (e *ExternalInterfaces) PublishEventsToDestination(data interface{}) bool {
 		log.Error("failed to unmarshal the incoming event: ", requestData, " with the error: ", err.Error())
 		return false
 	}
-	fmt.Printf("Event Received %+v \n ", message)
+
+	e.addFabric(requestData, host)
+	searchKey := evcommon.GetSearchKey(host, evmodel.DeviceSubscriptionIndex)
+
+	fmt.Printf("Event Received %s %+v \n ", host, message)
 	// Getting Aggregate List
-	aggregateList, err := e.GetAggregateList(host)
+	aggregateList, err := e.GetAggregateList(searchKey)
 	if err != nil {
 		fmt.Println("No Aggregate Found ******** ")
 	}
 	fmt.Println("Aggregate List Is ", aggregateList)
 
-	e.addFabric(requestData, host)
-	searchKey := evcommon.GetSearchKey(host, evmodel.DeviceSubscriptionIndex)
 	deviceSubscription, err := e.GetDeviceSubscriptions(searchKey)
 	if err != nil {
 		log.Error("Failed to get the event destinations: ", err.Error())
