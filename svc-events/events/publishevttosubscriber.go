@@ -112,27 +112,6 @@ func (e *ExternalInterfaces) PublishEventsToDestination(data interface{}) bool {
 		return false
 	}
 
-	fmt.Printf("Event Received %s %+v \n ", host, message)
-	// Getting Aggregate List
-	searchKeyAgg := evcommon.GetSearchKey(host, evmodel.SubscriptionIndex)
-
-	aggregateList, err := e.GetAggregateList(searchKeyAgg)
-	if err != nil {
-		fmt.Println("No Aggregate Found ******** ")
-	}
-	fmt.Println("Aggregate List Is ", aggregateList)
-
-	for _, aggregateId := range aggregateList {
-		searchKeyAgg := evcommon.GetSearchKey(aggregateId, evmodel.SubscriptionIndex)
-
-		subscription, err := e.GetEvtSubscriptions(searchKeyAgg)
-		if err != nil {
-			fmt.Println("No Aggregate subscription found  ******** ", err)
-		}
-		fmt.Println("Aggregate List Is ", aggregateId, len(subscription), subscription)
-
-	}
-
 	e.addFabric(requestData, host)
 	searchKey := evcommon.GetSearchKey(host, evmodel.DeviceSubscriptionIndex)
 
@@ -153,6 +132,27 @@ func (e *ExternalInterfaces) PublishEventsToDestination(data interface{}) bool {
 	subscriptions, err := e.GetEvtSubscriptions(searchKey)
 	if err != nil {
 		return false
+	}
+	fmt.Printf("Event Received %s %+v \n ", host, message)
+	// Getting Aggregate List
+	searchKeyAgg := evcommon.GetSearchKey(host, evmodel.SubscriptionIndex)
+
+	aggregateList, err := e.GetAggregateList(searchKeyAgg)
+	if err != nil {
+		fmt.Println("No Aggregate subscription Found ", host)
+	}
+
+	for _, aggregateId := range aggregateList {
+		searchKeyAgg := evcommon.GetSearchKey(aggregateId, evmodel.SubscriptionIndex)
+
+		subscription, err := e.GetEvtSubscriptions(searchKeyAgg)
+		if err != nil {
+			fmt.Println("No Aggregate subscription found  ******** ", err)
+		}
+
+		subscriptions = append(subscriptions, subscription...)
+		fmt.Printf("Subscription List Is  %s %d \n %+v", aggregateId, len(subscription), subscription)
+
 	}
 
 	err = json.Unmarshal([]byte(requestData), &message)
