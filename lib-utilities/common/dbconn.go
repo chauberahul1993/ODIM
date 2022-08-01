@@ -17,6 +17,7 @@ package common
 
 import (
 	"fmt"
+
 	"github.com/ODIM-Project/ODIM/lib-persistence-manager/persistencemgr"
 	"github.com/ODIM-Project/ODIM/lib-utilities/errors"
 )
@@ -31,31 +32,13 @@ const (
 	OnDisk
 )
 
-// GetDBConnection is for maintaining and supplying DB connection pool for InMemory and OnDisk DB's
-// Takes dbFlag of type DbType/int32
-// dbFlag:
-//	InMemory:	returns In-Memory DB connection pool
-//	OnDsik:  	returns On-Disk DB connection pool
-func GetDBConnection(dbFlag DbType) (*persistencemgr.ConnPool, *errors.Error) {
-	switch dbFlag {
-	case InMemory:
-		pool, err := persistencemgr.GetDBConnection(persistencemgr.InMemory)
-		return pool, err
-	case OnDisk:
-		pool, err := persistencemgr.GetDBConnection(persistencemgr.OnDisk)
-		return pool, err
-	default:
-		return nil, errors.PackError(errors.UndefinedErrorType, "error invalid db type selection")
-	}
-}
-
 // TruncateDB will clear DB. It will be useful for test cases
 // Takes DbFlag of type DbType/int32 to choose Inmemory or OnDisk db to truncate
 //dbFlag:
 //    InMemory: Truncates InMemory DB
 //    OnDisk: Truncates OnDisk DB
 func TruncateDB(dbFlag DbType) *errors.Error {
-	conn, err := GetDBConnection(dbFlag)
+	conn, err := persistencemgr.GetDBConnection(dbFlag)
 	if err != nil {
 		return errors.PackError(err.ErrNo(), "unable to connect DB: ", err.Error())
 	}
@@ -69,11 +52,11 @@ func TruncateDB(dbFlag DbType) *errors.Error {
 // CheckDBConnection will check both inMemory and onDisk DB connections
 // This function is expected to be called at each service startup
 func CheckDBConnection() error {
-	inMemConn, err := GetDBConnection(InMemory)
+	inMemConn, err := persistencemgr.GetDBConnection(persistencemgr.InMemory)
 	if err != nil {
 		return fmt.Errorf("unable to create InMemory DB connection: %v", err)
 	}
-	onDiskConn, err := GetDBConnection(OnDisk)
+	onDiskConn, err := persistencemgr.GetDBConnection(persistencemgr.OnDisk)
 	if err != nil {
 		return fmt.Errorf("unable to create OnDisk DB connection: %v", err)
 	}

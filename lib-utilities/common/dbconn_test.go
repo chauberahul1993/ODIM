@@ -18,6 +18,7 @@ import (
 	"math"
 	"testing"
 
+	"github.com/ODIM-Project/ODIM/lib-persistence-manager/persistencemgr"
 	"github.com/ODIM-Project/ODIM/lib-utilities/config"
 )
 
@@ -65,7 +66,7 @@ func reportError(t *testing.T, errType int, errMsg ...interface{}) {
 func TestGetDBConnectionInMemory(t *testing.T) {
 	config.SetUpMockConfig(t)
 	// Get In-Memory db connection pool
-	conn, err := GetDBConnection(InMemory)
+	conn, err := persistencemgr.GetDBConnection(persistencemgr.InMemory)
 	if err != nil {
 		reportError(t, getRedisConnErr, err)
 	}
@@ -76,7 +77,7 @@ func TestGetDBConnectionInMemory(t *testing.T) {
 func TestGetDBConnectionOnDisk(t *testing.T) {
 	config.SetUpMockConfig(t)
 	// Get In-Disk db connection pool
-	conn, err := GetDBConnection(OnDisk)
+	conn, err := persistencemgr.GetDBConnection(persistencemgr.OnDisk)
 	if err != nil {
 		reportError(t, getRedisConnErr, err)
 	}
@@ -87,7 +88,7 @@ func TestGetDBConnectionOnDisk(t *testing.T) {
 func TestGetDBConnectionDefaultCase(t *testing.T) {
 	config.SetUpMockConfig(t)
 	// Get In-Disk db connection pool
-	conn, err := GetDBConnection(math.MaxInt32)
+	conn, err := persistencemgr.GetDBConnection(math.MaxInt32)
 	if err == nil {
 		reportError(t, getRedisConnErr, err)
 	}
@@ -99,7 +100,7 @@ func TestGetDBConnectionDefaultCase(t *testing.T) {
 func TestGetDBConnectionForExistingConnInMemory(t *testing.T) {
 	config.SetUpMockConfig(t)
 	// Get In-Memory db connection pool
-	conn, err := GetDBConnection(InMemory)
+	conn, err := persistencemgr.GetDBConnection(persistencemgr.InMemory)
 	if err != nil {
 		reportError(t, getRedisConnErr, err)
 	}
@@ -108,7 +109,7 @@ func TestGetDBConnectionForExistingConnInMemory(t *testing.T) {
 	}
 
 	// now in-memory connection pool already exists, expects to be served by same connection pool
-	sConn, err := GetDBConnection(InMemory)
+	sConn, err := persistencemgr.GetDBConnection(persistencemgr.InMemory)
 	if err != nil {
 		reportError(t, getRedisConnErr, err)
 	}
@@ -119,7 +120,7 @@ func TestGetDBConnectionForExistingConnInMemory(t *testing.T) {
 func TestGetDBConnectionForExistingConnOnDisk(t *testing.T) {
 	config.SetUpMockConfig(t)
 	// Get In-Disk db connection pool
-	conn, err := GetDBConnection(OnDisk)
+	conn, err := persistencemgr.GetDBConnection(persistencemgr.OnDisk)
 	if err != nil {
 		reportError(t, getRedisConnErr, err)
 	}
@@ -128,7 +129,7 @@ func TestGetDBConnectionForExistingConnOnDisk(t *testing.T) {
 	}
 
 	// now In-Disk connection pool already exists, expects to be served by same connection pool
-	sConn, err := GetDBConnection(OnDisk)
+	sConn, err := persistencemgr.GetDBConnection(persistencemgr.OnDisk)
 	if err != nil {
 		reportError(t, getRedisConnErr, err)
 	}
@@ -140,7 +141,7 @@ func TestGetDBConnectionForExistingConnOnDisk(t *testing.T) {
 func TestTruncateDBInMemory(t *testing.T) {
 	config.SetUpMockConfig(t)
 	// Get In-Memory db connection pool
-	conn, err := GetDBConnection(InMemory)
+	conn, err := persistencemgr.GetDBConnection(persistencemgr.InMemory)
 	if err != nil {
 		reportError(t, getRedisConnErr, err)
 	}
@@ -158,7 +159,7 @@ func TestTruncateDBInMemory(t *testing.T) {
 	if len(keys) == 0 {
 		reportError(t, redisEmptyDBErr)
 	}
-	err = TruncateDB(InMemory)
+	err = TruncateDB(persistencemgr.InMemory)
 	if err != nil {
 		reportError(t, redisDBFlushErr, err)
 	}
@@ -174,7 +175,7 @@ func TestTruncateDBInMemory(t *testing.T) {
 func TestTruncateDBOnDisk(t *testing.T) {
 	config.SetUpMockConfig(t)
 	// Get In-Disk db connection pool
-	conn, err := GetDBConnection(OnDisk)
+	conn, err := persistencemgr.GetDBConnection(persistencemgr.OnDisk)
 	if err != nil {
 		reportError(t, getRedisConnErr, err)
 	}
