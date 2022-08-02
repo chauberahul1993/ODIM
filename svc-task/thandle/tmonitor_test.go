@@ -67,7 +67,7 @@ func mockGetSessionUserName(sessionToken string) (string, error) {
 	}
 	return user, nil
 }
-func mockGetTaskStatusModel(taskID string, db common.DbType) (*tmodel.Task, error) {
+func mockGetTaskStatusModel(taskID string, db persistencemgr.DbType) (*tmodel.Task, error) {
 	if db != persistencemgr.InMemory {
 		return nil, fmt.Errorf("Resource not found")
 	}

@@ -15,6 +15,7 @@
 package telemetry
 
 import (
+	"ODIM/lib-persistence-manager/persistencemgr"
 	"net/http"
 
 	"github.com/ODIM-Project/ODIM/lib-rest-client/pmbhandle"
@@ -53,8 +54,8 @@ type responseStatus struct {
 
 // DB struct holds the function pointers to database operations
 type DB struct {
-	GetAllKeysFromTable func(string, common.DbType) ([]string, error)
-	GetResource         func(string, string, common.DbType) (string, *errors.Error)
+	GetAllKeysFromTable func(string, persistencemgr.DbType) ([]string, error)
+	GetResource         func(string, string, persistencemgr.DbType) (string, *errors.Error)
 }
 
 // GetExternalInterface retrieves all the external connections update package functions uses

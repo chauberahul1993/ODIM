@@ -46,7 +46,7 @@ func TestPersist(t *testing.T) {
 		common.TruncateDB(persistencemgr.OnDisk)
 		common.TruncateDB(persistencemgr.InMemory)
 	}()
-	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
+	GetDBConnectionFunc = func(dbFlag persistencemgr.DbType) (*persistencemgr.ConnPool, *errors.Error) {
 		return persistencemgr.GetDBConnection(dbFlag)
 	}
 	err := session.Persist()
@@ -58,7 +58,7 @@ func TestGetAllSessionKeys(t *testing.T) {
 		common.TruncateDB(persistencemgr.OnDisk)
 		common.TruncateDB(persistencemgr.InMemory)
 	}()
-	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
+	GetDBConnectionFunc = func(dbFlag persistencemgr.DbType) (*persistencemgr.ConnPool, *errors.Error) {
 		return persistencemgr.GetDBConnection(dbFlag)
 	}
 	mockData(persistencemgr.InMemory, "session", session.Token, session)
@@ -79,7 +79,7 @@ func TestGetSession(t *testing.T) {
 	tests := []struct {
 		name                string
 		args                args
-		GetDBConnectionFunc func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error)
+		GetDBConnectionFunc func(dbFlag persistencemgr.DbType) (*persistencemgr.ConnPool, *errors.Error)
 		want                Session
 		wantErr             bool
 	}{
@@ -88,7 +88,7 @@ func TestGetSession(t *testing.T) {
 			args: args{
 				key: "token",
 			},
-			GetDBConnectionFunc: func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
+			GetDBConnectionFunc: func(dbFlag persistencemgr.DbType) (*persistencemgr.ConnPool, *errors.Error) {
 				return nil, &errors.Error{}
 			},
 			want:    Session{},
@@ -99,7 +99,7 @@ func TestGetSession(t *testing.T) {
 			args: args{
 				key: "token",
 			},
-			GetDBConnectionFunc: func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
+			GetDBConnectionFunc: func(dbFlag persistencemgr.DbType) (*persistencemgr.ConnPool, *errors.Error) {
 				return persistencemgr.GetDBConnection(dbFlag)
 			},
 			want:    session,
@@ -110,7 +110,7 @@ func TestGetSession(t *testing.T) {
 			args: args{
 				key: "InvalidID",
 			},
-			GetDBConnectionFunc: func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
+			GetDBConnectionFunc: func(dbFlag persistencemgr.DbType) (*persistencemgr.ConnPool, *errors.Error) {
 				return persistencemgr.GetDBConnection(dbFlag)
 			},
 			want:    Session{},
@@ -140,32 +140,32 @@ func TestDelete(t *testing.T) {
 		common.TruncateDB(persistencemgr.OnDisk)
 		common.TruncateDB(persistencemgr.InMemory)
 	}()
-	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
+	GetDBConnectionFunc = func(dbFlag persistencemgr.DbType) (*persistencemgr.ConnPool, *errors.Error) {
 		return persistencemgr.GetDBConnection(dbFlag)
 	}
 	mockData(persistencemgr.InMemory, "session", session.Token, session)
 	tests := []struct {
 		name                string
-		GetDBConnectionFunc func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error)
+		GetDBConnectionFunc func(dbFlag persistencemgr.DbType) (*persistencemgr.ConnPool, *errors.Error)
 		want                *errors.Error
 	}{
 		{
 			name: "DB error",
-			GetDBConnectionFunc: func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
+			GetDBConnectionFunc: func(dbFlag persistencemgr.DbType) (*persistencemgr.ConnPool, *errors.Error) {
 				return nil, errors.PackError(0, "fakeError : ", " fakeErr")
 			},
 			want: errors.PackError(0, "error while trying to connecting to DB: ", "fakeError :  fakeErr"),
 		},
 		{
 			name: "success case",
-			GetDBConnectionFunc: func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
+			GetDBConnectionFunc: func(dbFlag persistencemgr.DbType) (*persistencemgr.ConnPool, *errors.Error) {
 				return persistencemgr.GetDBConnection(dbFlag)
 			},
 			want: nil,
 		},
 		{
 			name: "not found case",
-			GetDBConnectionFunc: func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
+			GetDBConnectionFunc: func(dbFlag persistencemgr.DbType) (*persistencemgr.ConnPool, *errors.Error) {
 				return persistencemgr.GetDBConnection(dbFlag)
 			},
 			want: errors.PackError(errors.DBKeyNotFound, "error while trying to delete session: no data with the with key token found"),
@@ -188,7 +188,7 @@ func TestUpdate(t *testing.T) {
 		common.TruncateDB(persistencemgr.OnDisk)
 		common.TruncateDB(persistencemgr.InMemory)
 	}()
-	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
+	GetDBConnectionFunc = func(dbFlag persistencemgr.DbType) (*persistencemgr.ConnPool, *errors.Error) {
 		return persistencemgr.GetDBConnection(dbFlag)
 	}
 	mockData(persistencemgr.InMemory, "session", session.Token, session)
@@ -202,7 +202,7 @@ func TestUpdateNegativeTestCase(t *testing.T) {
 		common.TruncateDB(persistencemgr.OnDisk)
 		common.TruncateDB(persistencemgr.InMemory)
 	}()
-	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
+	GetDBConnectionFunc = func(dbFlag persistencemgr.DbType) (*persistencemgr.ConnPool, *errors.Error) {
 		return persistencemgr.GetDBConnection(dbFlag)
 	}
 	mockData(persistencemgr.InMemory, "session", session.Token, "session")
@@ -211,7 +211,7 @@ func TestUpdateNegativeTestCase(t *testing.T) {
 }
 
 func TestPersistDBError(t *testing.T) {
-	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
+	GetDBConnectionFunc = func(dbFlag persistencemgr.DbType) (*persistencemgr.ConnPool, *errors.Error) {
 		return nil, &errors.Error{}
 	}
 	err := session.Persist()
@@ -219,7 +219,7 @@ func TestPersistDBError(t *testing.T) {
 }
 
 func TestUpdateDBError(t *testing.T) {
-	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
+	GetDBConnectionFunc = func(dbFlag persistencemgr.DbType) (*persistencemgr.ConnPool, *errors.Error) {
 		return nil, &errors.Error{}
 	}
 	err := session.Update()
@@ -228,7 +228,7 @@ func TestUpdateDBError(t *testing.T) {
 }
 
 func TestGetAllSessionKeysDBError(t *testing.T) {
-	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
+	GetDBConnectionFunc = func(dbFlag persistencemgr.DbType) (*persistencemgr.ConnPool, *errors.Error) {
 		return nil, &errors.Error{}
 	}
 	_, err := GetAllSessionKeys()

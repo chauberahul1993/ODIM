@@ -15,16 +15,18 @@
 package tcommon
 
 import (
+	"ODIM/lib-persistence-manager/persistencemgr"
 	"bytes"
 	"fmt"
+	"io/ioutil"
+	"net/http"
+	"testing"
+
 	"github.com/ODIM-Project/ODIM/lib-utilities/common"
 	"github.com/ODIM-Project/ODIM/lib-utilities/config"
 	"github.com/ODIM-Project/ODIM/lib-utilities/errors"
 	"github.com/ODIM-Project/ODIM/svc-telemetry/tmodel"
 	"github.com/stretchr/testify/assert"
-	"io/ioutil"
-	"net/http"
-	"testing"
 )
 
 func stubDevicePassword(password []byte) ([]byte, error) {
@@ -89,7 +91,7 @@ func mockPluginStatus(plugin tmodel.Plugin) bool {
 	return true
 }
 
-func mockGetAllKeysFromTable(table string, dbtype common.DbType) ([]string, error) {
+func mockGetAllKeysFromTable(table string, dbtype persistencemgr.DbType) ([]string, error) {
 	return []string{"ILO", "GRF"}, nil
 }
 
@@ -108,7 +110,7 @@ func mockGetPluginData(pluginID string) (tmodel.Plugin, *errors.Error) {
 	return plugin, nil
 }
 
-func mockGetResource(table, key string, dbType common.DbType) (string, *errors.Error) {
+func mockGetResource(table, key string, dbType persistencemgr.DbType) (string, *errors.Error) {
 	if key == "/redfish/v1/TelemetryService/MetricReports" {
 		return `{
 			"@odata.context": "/redfish/v1/$metadata#MetricReportCollection.MetricReportCollection",

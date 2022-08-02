@@ -502,7 +502,7 @@ func UpdateEventSubscription(evtSubscription Subscription) error {
 }
 
 //GetAllMatchingDetails accepts the table name ,pattern and DB type and return all the keys which mathces the pattern
-func GetAllMatchingDetails(table, pattern string, dbtype common.DbType) ([]string, *errors.Error) {
+func GetAllMatchingDetails(table, pattern string, dbtype persistencemgr.DbType) ([]string, *errors.Error) {
 	conn, err := persistencemgr.GetDBConnection(dbtype)
 	if err != nil {
 		return []string{}, err

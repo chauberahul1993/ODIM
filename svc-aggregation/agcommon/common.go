@@ -39,7 +39,7 @@ type DBInterface struct {
 	GetAllKeysFromTableInterface func(string) ([]string, error)
 	GetConnectionMethodInterface func(string) (agmodel.ConnectionMethod, *errors.Error)
 	AddConnectionMethodInterface func(agmodel.ConnectionMethod, string) *errors.Error
-	DeleteInterface              func(string, string, common.DbType) *errors.Error
+	DeleteInterface              func(string, string, persistencemgr.DbType) *errors.Error
 }
 
 // PluginHealthCheckInterface holds the methods required for plugin healthcheck

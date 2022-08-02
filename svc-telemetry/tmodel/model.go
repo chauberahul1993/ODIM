@@ -49,7 +49,7 @@ type Plugin struct {
 }
 
 //GetResource fetches a resource from database using table and key
-func GetResource(Table, key string, dbtype common.DbType) (string, *errors.Error) {
+func GetResource(Table, key string, dbtype persistencemgr.DbType) (string, *errors.Error) {
 	conn, err := persistencemgr.GetDBConnection(persistencemgr.InMemory)
 	if err != nil {
 		return "", err
@@ -66,7 +66,7 @@ func GetResource(Table, key string, dbtype common.DbType) (string, *errors.Error
 }
 
 //GetAllKeysFromTable fetches all keys in a given table
-func GetAllKeysFromTable(table string, dbtype common.DbType) ([]string, error) {
+func GetAllKeysFromTable(table string, dbtype persistencemgr.DbType) ([]string, error) {
 	conn, err := persistencemgr.GetDBConnection(dbtype)
 	if err != nil {
 		return nil, err

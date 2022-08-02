@@ -38,7 +38,7 @@ func TestCreateRedfishRoles(t *testing.T) {
 		common.TruncateDB(persistencemgr.OnDisk)
 		common.TruncateDB(persistencemgr.InMemory)
 	}()
-	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
+	GetDBConnectionFunc = func(dbFlag persistencemgr.DbType) (*persistencemgr.ConnPool, *errors.Error) {
 		return persistencemgr.GetDBConnection(dbFlag)
 	}
 	err := roles.Create()
@@ -51,7 +51,7 @@ func TestGetRedfishRoles(t *testing.T) {
 		common.TruncateDB(persistencemgr.OnDisk)
 		common.TruncateDB(persistencemgr.InMemory)
 	}()
-	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
+	GetDBConnectionFunc = func(dbFlag persistencemgr.DbType) (*persistencemgr.ConnPool, *errors.Error) {
 		return persistencemgr.GetDBConnection(dbFlag)
 	}
 	mockData(persistencemgr.OnDisk, "roles", "redfishdefined", roles)
@@ -65,7 +65,7 @@ func TestGetRedfishRolesNegativeTestCase(t *testing.T) {
 		common.TruncateDB(persistencemgr.OnDisk)
 		common.TruncateDB(persistencemgr.InMemory)
 	}()
-	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
+	GetDBConnectionFunc = func(dbFlag persistencemgr.DbType) (*persistencemgr.ConnPool, *errors.Error) {
 		return persistencemgr.GetDBConnection(dbFlag)
 	}
 	_, err := GetRedfishRoles()
@@ -76,7 +76,7 @@ func TestGetRedfishRolesNegativeTestCase(t *testing.T) {
 }
 
 func TestCreateRedfishRolesDBError(t *testing.T) {
-	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
+	GetDBConnectionFunc = func(dbFlag persistencemgr.DbType) (*persistencemgr.ConnPool, *errors.Error) {
 		return nil, &errors.Error{}
 	}
 	err := roles.Create()
@@ -84,7 +84,7 @@ func TestCreateRedfishRolesDBError(t *testing.T) {
 }
 
 func TestGetRedfishRolesDBError(t *testing.T) {
-	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
+	GetDBConnectionFunc = func(dbFlag persistencemgr.DbType) (*persistencemgr.ConnPool, *errors.Error) {
 		return nil, &errors.Error{}
 	}
 	role, err := GetRedfishRoles()

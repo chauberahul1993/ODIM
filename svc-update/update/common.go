@@ -15,6 +15,7 @@
 package update
 
 import (
+	"ODIM/lib-persistence-manager/persistencemgr"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -84,8 +85,8 @@ type responseStatus struct {
 
 // DB struct holds the function pointers to database operations
 type DB struct {
-	GetAllKeysFromTable func(string, common.DbType) ([]string, error)
-	GetResource         func(string, string, common.DbType) (string, *errors.Error)
+	GetAllKeysFromTable func(string, persistencemgr.DbType) ([]string, error)
+	GetResource         func(string, string, persistencemgr.DbType) (string, *errors.Error)
 }
 
 // SimpleUpdateRequest struct defines the request body for update action

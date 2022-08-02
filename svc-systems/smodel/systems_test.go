@@ -134,7 +134,7 @@ func getEncryptedKey(t *testing.T, key []byte) []byte {
 	return cryptedKey
 }
 
-func mockData(t *testing.T, dbType common.DbType, table, id string, data interface{}) {
+func mockData(t *testing.T, dbType persistencemgr.DbType, table, id string, data interface{}) {
 	connPool, err := persistencemgr.GetDBConnection(dbType)
 	if err != nil {
 		t.Fatalf("error: mockData() failed to DB connection: %v", err)
@@ -259,14 +259,14 @@ func TestGetSystemByUUID(t *testing.T) {
 	JSONUnmarshalFunc = func(data []byte, v interface{}) error {
 		return json.Unmarshal(data, v)
 	}
-	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
+	GetDBConnectionFunc = func(dbFlag persistencemgr.DbType) (*persistencemgr.ConnPool, *errors.Error) {
 		return nil, &errors.Error{}
 
 	}
 	_, err = GetSystemByUUID("/redfish/v1/Systems/uuid")
 	assert.NotNil(t, err, "There should be an error")
 
-	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
+	GetDBConnectionFunc = func(dbFlag persistencemgr.DbType) (*persistencemgr.ConnPool, *errors.Error) {
 		return persistencemgr.GetDBConnection(dbFlag)
 
 	}
@@ -328,7 +328,7 @@ func TestGenericSave(t *testing.T) {
 	err := GenericSave(body, table, key)
 	assert.Nil(t, err, "There should be no error")
 
-	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
+	GetDBConnectionFunc = func(dbFlag persistencemgr.DbType) (*persistencemgr.ConnPool, *errors.Error) {
 		return nil, &errors.Error{}
 
 	}
@@ -338,7 +338,7 @@ func TestGenericSave(t *testing.T) {
 	_, err = GetResource(table, key)
 	assert.NotNil(t, err, "There should be an error")
 
-	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
+	GetDBConnectionFunc = func(dbFlag persistencemgr.DbType) (*persistencemgr.ConnPool, *errors.Error) {
 		return persistencemgr.GetDBConnection(dbFlag)
 
 	}
@@ -558,12 +558,12 @@ func TestFind(t *testing.T) {
 	JSONUnmarshalFunc = func(data []byte, v interface{}) error {
 		return json.Unmarshal(data, v)
 	}
-	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
+	GetDBConnectionFunc = func(dbFlag persistencemgr.DbType) (*persistencemgr.ConnPool, *errors.Error) {
 		return nil, &errors.Error{}
 	}
 	err = Find("Volumes", "/redfish/v1/Systems/ef83e569-7336-492a-aaee-31c02d9db831.1/Storage/1/Volume/1", "")
 	assert.NotNil(t, err, "should be an error ")
-	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
+	GetDBConnectionFunc = func(dbFlag persistencemgr.DbType) (*persistencemgr.ConnPool, *errors.Error) {
 		return persistencemgr.GetDBConnection(dbFlag)
 	}
 
@@ -578,13 +578,13 @@ func TestFindAll(t *testing.T) {
 	_, err := FindAll("Volumes", "/redfish/v1/Systems/ef83e569-7336-492a-aaee-31c02d9db831.1/Storage/1/Volume/1")
 	assert.Nil(t, err, "should be no error ")
 
-	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
+	GetDBConnectionFunc = func(dbFlag persistencemgr.DbType) (*persistencemgr.ConnPool, *errors.Error) {
 		return nil, &errors.Error{}
 	}
 	_, err = FindAll("Volumes", "/redfish/v1/Systems/ef83e569-7336-492a-aaee-31c02d9db831.1/Storage/1/Volume/1")
 	assert.NotNil(t, err, "should be an error ")
 
-	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
+	GetDBConnectionFunc = func(dbFlag persistencemgr.DbType) (*persistencemgr.ConnPool, *errors.Error) {
 		return persistencemgr.GetDBConnection(dbFlag)
 	}
 	scanFunc = func(cp *persistencemgr.ConnPool, key string) ([]interface{}, error) {
@@ -606,7 +606,7 @@ func TestGetAllKeysFromTable(t *testing.T) {
 		common.TruncateDB(persistencemgr.InMemory)
 	}()
 	mockData(t, persistencemgr.InMemory, "Volumes", "/redfish/v1/Systems/ef83e569-7336-492a-aaee-31c02d9db831.1/Storage/1/Volume/1", "")
-	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
+	GetDBConnectionFunc = func(dbFlag persistencemgr.DbType) (*persistencemgr.ConnPool, *errors.Error) {
 		return nil, &errors.Error{}
 	}
 	_, err := GetAllKeysFromTable("Volumes")
@@ -630,7 +630,7 @@ func TestGetAllKeysFromTable(t *testing.T) {
 	assert.NotNil(t, err, "should be an error ")
 	err = DeleteVolume("Volumes")
 	assert.NotNil(t, err, "should be an error ")
-	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
+	GetDBConnectionFunc = func(dbFlag persistencemgr.DbType) (*persistencemgr.ConnPool, *errors.Error) {
 		return persistencemgr.GetDBConnection(dbFlag)
 	}
 

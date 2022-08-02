@@ -103,11 +103,11 @@ type ExternalInterface struct {
 	GenericSave              func([]byte, string, string) error
 	CheckActiveRequest       func(string) (bool, *errors.Error)
 	DeleteActiveRequest      func(string) *errors.Error
-	GetAllMatchingDetails    func(string, string, common.DbType) ([]string, *errors.Error)
+	GetAllMatchingDetails    func(string, string, persistencemgr.DbType) ([]string, *errors.Error)
 	CheckMetricRequest       func(string) (bool, *errors.Error)
 	DeleteMetricRequest      func(string) *errors.Error
 	GetResource              func(string, string) (string, *errors.Error)
-	Delete                   func(string, string, common.DbType) *errors.Error
+	Delete                   func(string, string, persistencemgr.DbType) *errors.Error
 }
 
 type responseStatus struct {

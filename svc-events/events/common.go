@@ -8,6 +8,7 @@
 package events
 
 import (
+	"ODIM/lib-persistence-manager/persistencemgr"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -55,7 +56,7 @@ type DB struct {
 	GetTarget                        func(string) (*evmodel.Target, error)
 	GetAllKeysFromTable              func(string) ([]string, error)
 	GetAllFabrics                    func() ([]string, error)
-	GetAllMatchingDetails            func(string, string, common.DbType) ([]string, *errors.Error)
+	GetAllMatchingDetails            func(string, string, persistencemgr.DbType) ([]string, *errors.Error)
 	UpdateDeviceSubscriptionLocation func(evmodel.DeviceSubscription) error
 	GetFabricData                    func(string) (evmodel.Fabric, error)
 	DeleteEvtSubscription            func(string) error

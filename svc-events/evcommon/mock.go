@@ -16,6 +16,7 @@
 package evcommon
 
 import (
+	"ODIM/lib-persistence-manager/persistencemgr"
 	"bytes"
 	"encoding/json"
 	"fmt"
@@ -594,7 +595,7 @@ func MockGetAllFabrics() ([]string, error) {
 }
 
 // MockGetAllMatchingDetails is for mocking up of get all matching details from the given table
-func MockGetAllMatchingDetails(table, pattern string, dbtype common.DbType) ([]string, *errors.Error) {
+func MockGetAllMatchingDetails(table, pattern string, dbtype persistencemgr.DbType) ([]string, *errors.Error) {
 	return []string{}, nil
 }
 

@@ -100,7 +100,7 @@ func TestNewCreateHandler(t *testing.T) {
 	assert.NotNil(t, response, "Status code should be StatusBadRequest")
 
 	// Mocking Db Connection with error
-	GetDbConnectFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
+	GetDbConnectFunc = func(dbFlag persistencemgr.DbType) (*persistencemgr.ConnPool, *errors.Error) {
 		return nil, &errors.Error{}
 	}
 	req = chassisproto.CreateChassisRequest{
@@ -120,7 +120,7 @@ func TestNewCreateHandler(t *testing.T) {
 	response = create.Handle(&req)
 	assert.NotNil(t, response, "Can not acquire database connection")
 
-	GetDbConnectFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
+	GetDbConnectFunc = func(dbFlag persistencemgr.DbType) (*persistencemgr.ConnPool, *errors.Error) {
 		return persistencemgr.GetDBConnection(dbFlag)
 	}
 	//Mocking GenericSave Func
@@ -207,7 +207,7 @@ func Test_NewCreateHandler(t *testing.T) {
 	assert.NotNil(t, create, "Should be no error")
 }
 
-func mockAddManagertoDB(table, key string, data []byte, dbtype common.DbType) error {
+func mockAddManagertoDB(table, key string, data []byte, dbtype persistencemgr.DbType) error {
 	connPool, connErr := persistencemgr.GetDBConnection(dbtype)
 	if connErr != nil {
 		return fmt.Errorf("unable to connect DB: %v", connErr.Error())
@@ -217,7 +217,7 @@ func mockAddManagertoDB(table, key string, data []byte, dbtype common.DbType) er
 	}
 	return nil
 }
-func mockAddPlugonToDB(table, key string, data []byte, dbtype common.DbType) error {
+func mockAddPlugonToDB(table, key string, data []byte, dbtype persistencemgr.DbType) error {
 
 	connPool, connErr := persistencemgr.GetDBConnection(dbtype)
 	if connErr != nil {

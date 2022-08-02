@@ -61,9 +61,9 @@ type ResourceInfoRequest struct {
 	DevicePassword      func([]byte) ([]byte, error)
 	GetPluginStatus     func(tmodel.Plugin) bool
 	ResourceName        string
-	GetAllKeysFromTable func(string, common.DbType) ([]string, error)
+	GetAllKeysFromTable func(string, persistencemgr.DbType) ([]string, error)
 	GetPluginData       func(string) (tmodel.Plugin, *errors.Error)
-	GetResource         func(string, string, common.DbType) (string, *errors.Error)
+	GetResource         func(string, string, persistencemgr.DbType) (string, *errors.Error)
 	GenericSave         func([]byte, string, string) error
 }
 

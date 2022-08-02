@@ -15,6 +15,7 @@
 package rpc
 
 import (
+	"ODIM/lib-persistence-manager/persistencemgr"
 	"bytes"
 	"context"
 	"fmt"
@@ -84,11 +85,11 @@ func mockContactClient(url, method, token string, odataID string, body interface
 	return nil, fmt.Errorf("InvalidRequest")
 }
 
-func mockGetResource(table, key string, dbType common.DbType) (string, *errors.Error) {
+func mockGetResource(table, key string, dbType persistencemgr.DbType) (string, *errors.Error) {
 	return "body", nil
 }
 
-func mockGetAllKeysFromTable(table string, dbType common.DbType) ([]string, error) {
+func mockGetAllKeysFromTable(table string, dbType persistencemgr.DbType) ([]string, error) {
 	if table == "Plugin" {
 		return []string{"ILO", "GRF"}, nil
 	}

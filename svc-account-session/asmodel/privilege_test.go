@@ -57,7 +57,7 @@ func TestCreatePrivilegeRegistry(t *testing.T) {
 		common.TruncateDB(persistencemgr.OnDisk)
 		common.TruncateDB(persistencemgr.InMemory)
 	}()
-	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
+	GetDBConnectionFunc = func(dbFlag persistencemgr.DbType) (*persistencemgr.ConnPool, *errors.Error) {
 		return persistencemgr.GetDBConnection(dbFlag)
 	}
 	err := list.Create()
@@ -70,7 +70,7 @@ func TestGetPrivilegeRegistry(t *testing.T) {
 		common.TruncateDB(persistencemgr.OnDisk)
 		common.TruncateDB(persistencemgr.InMemory)
 	}()
-	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
+	GetDBConnectionFunc = func(dbFlag persistencemgr.DbType) (*persistencemgr.ConnPool, *errors.Error) {
 		return persistencemgr.GetDBConnection(dbFlag)
 	}
 	mockData(persistencemgr.OnDisk, "registry", "assignedprivileges", list)
@@ -84,7 +84,7 @@ func TestGetPrivilegeRegistryNegativeTestCase(t *testing.T) {
 		common.TruncateDB(persistencemgr.OnDisk)
 		common.TruncateDB(persistencemgr.InMemory)
 	}()
-	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
+	GetDBConnectionFunc = func(dbFlag persistencemgr.DbType) (*persistencemgr.ConnPool, *errors.Error) {
 		return persistencemgr.GetDBConnection(dbFlag)
 	}
 	_, err := GetPrivilegeRegistry()
@@ -100,7 +100,7 @@ func TestCreateOEMPrivilegeRegistry(t *testing.T) {
 		common.TruncateDB(persistencemgr.OnDisk)
 		common.TruncateDB(persistencemgr.InMemory)
 	}()
-	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
+	GetDBConnectionFunc = func(dbFlag persistencemgr.DbType) (*persistencemgr.ConnPool, *errors.Error) {
 		return persistencemgr.GetDBConnection(dbFlag)
 	}
 	err := OEMList.Create()
@@ -113,7 +113,7 @@ func TestGetOEMPrivileges(t *testing.T) {
 		common.TruncateDB(persistencemgr.OnDisk)
 		common.TruncateDB(persistencemgr.InMemory)
 	}()
-	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
+	GetDBConnectionFunc = func(dbFlag persistencemgr.DbType) (*persistencemgr.ConnPool, *errors.Error) {
 		return persistencemgr.GetDBConnection(dbFlag)
 	}
 	mockData(persistencemgr.OnDisk, "registry", "oemprivileges", OEMList)
@@ -127,7 +127,7 @@ func TestGetOEMPrivilegesNegativeTestCase(t *testing.T) {
 		common.TruncateDB(persistencemgr.OnDisk)
 		common.TruncateDB(persistencemgr.InMemory)
 	}()
-	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
+	GetDBConnectionFunc = func(dbFlag persistencemgr.DbType) (*persistencemgr.ConnPool, *errors.Error) {
 		return persistencemgr.GetDBConnection(dbFlag)
 	}
 	_, err := GetOEMPrivileges()
@@ -139,7 +139,7 @@ func TestGetOEMPrivilegesNegativeTestCase(t *testing.T) {
 
 func TestCreateDBError(t *testing.T) {
 	common.SetUpMockConfig()
-	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
+	GetDBConnectionFunc = func(dbFlag persistencemgr.DbType) (*persistencemgr.ConnPool, *errors.Error) {
 		return nil, &errors.Error{}
 	}
 	err := list.Create()
@@ -147,7 +147,7 @@ func TestCreateDBError(t *testing.T) {
 }
 
 func TestGetOEMPrivilegesDBError(t *testing.T) {
-	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
+	GetDBConnectionFunc = func(dbFlag persistencemgr.DbType) (*persistencemgr.ConnPool, *errors.Error) {
 		return nil, &errors.Error{}
 	}
 	oemPriv, err := GetOEMPrivileges()
@@ -156,7 +156,7 @@ func TestGetOEMPrivilegesDBError(t *testing.T) {
 }
 
 func TestCreateOEMPrivilegeRegistryDBError(t *testing.T) {
-	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
+	GetDBConnectionFunc = func(dbFlag persistencemgr.DbType) (*persistencemgr.ConnPool, *errors.Error) {
 		return nil, &errors.Error{}
 	}
 	err := OEMList.Create()
@@ -164,7 +164,7 @@ func TestCreateOEMPrivilegeRegistryDBError(t *testing.T) {
 }
 
 func TestGetPrivilegeRegistryDBError(t *testing.T) {
-	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
+	GetDBConnectionFunc = func(dbFlag persistencemgr.DbType) (*persistencemgr.ConnPool, *errors.Error) {
 		return nil, &errors.Error{}
 	}
 	priv, err := GetPrivilegeRegistry()

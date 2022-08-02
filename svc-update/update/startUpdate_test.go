@@ -14,13 +14,13 @@
 package update
 
 import (
+	"ODIM/lib-persistence-manager/persistencemgr"
 	"errors"
 	"fmt"
 	"net/http"
 	"reflect"
 	"testing"
 
-	"github.com/ODIM-Project/ODIM/lib-utilities/common"
 	"github.com/ODIM-Project/ODIM/lib-utilities/config"
 	updateproto "github.com/ODIM-Project/ODIM/lib-utilities/proto/update"
 	"github.com/ODIM-Project/ODIM/lib-utilities/response"
@@ -128,28 +128,28 @@ func TestExternalInterface_StartUpdate(t *testing.T) {
 	req := &updateproto.UpdateRequest{
 		SessionToken: "validToken",
 	}
-	GetAllKeysFromTableFunc = func(table string, dbtype common.DbType) ([]string, error) {
+	GetAllKeysFromTableFunc = func(table string, dbtype persistencemgr.DbType) ([]string, error) {
 		return nil, errors.New("")
 	}
 	e.StartUpdate("uuid", "dummySessionName", req)
-	GetAllKeysFromTableFunc = func(table string, dbtype common.DbType) ([]string, error) {
+	GetAllKeysFromTableFunc = func(table string, dbtype persistencemgr.DbType) ([]string, error) {
 		return []string{}, nil
 	}
 	e.StartUpdate("uuid", "dummySessionName", req)
 
-	GetAllKeysFromTableFunc = func(table string, dbtype common.DbType) ([]string, error) {
+	GetAllKeysFromTableFunc = func(table string, dbtype persistencemgr.DbType) ([]string, error) {
 		return []string{"/redfish/v1/UpdateService/FirmwareInentory/3bd1f589-117a-4cf9-89f2-da44ee8e012b.1"}, nil
 	}
 	e.DB.GetResource = mockGetResource
 	e.StartUpdate("uuid", "dummySessionName", req)
 
-	GetAllKeysFromTableFunc = func(table string, dbtype common.DbType) ([]string, error) {
+	GetAllKeysFromTableFunc = func(table string, dbtype persistencemgr.DbType) ([]string, error) {
 		return []string{"dummy"}, nil
 	}
 	e.DB.GetResource = mockGetResource
 	e.StartUpdate("uuid", "dummySessionName", req)
 
-	GetAllKeysFromTableFunc = func(table string, dbtype common.DbType) ([]string, error) {
+	GetAllKeysFromTableFunc = func(table string, dbtype persistencemgr.DbType) ([]string, error) {
 		return []string{"dummy", "dummy", "dummy"}, nil
 	}
 	e.DB.GetResource = mockGetResource

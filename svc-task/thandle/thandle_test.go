@@ -65,7 +65,7 @@ func createMockUser(username, roleID string) error {
 	return nil
 }
 
-func mockGetTaskStatus(taskID string, db common.DbType) (*tmodel.Task, error) {
+func mockGetTaskStatus(taskID string, db persistencemgr.DbType) (*tmodel.Task, error) {
 	var task tmodel.Task
 	err := fmt.Errorf("invalid System ID")
 	if taskID != "validUUID" {
@@ -127,7 +127,7 @@ func mockDeleteTaskIndex(task string) error {
 	return nil
 }
 
-func mockUpdateTaskStatusModel(task *tmodel.Task, db common.DbType) error {
+func mockUpdateTaskStatusModel(task *tmodel.Task, db persistencemgr.DbType) error {
 	if db != persistencemgr.InMemory {
 		return fmt.Errorf("error while trying to update task")
 	}
@@ -146,7 +146,7 @@ func mockValidateTaskUserNameModel(userName string) error {
 	}
 	return nil
 }
-func mockPersistTaskModel(task *tmodel.Task, db common.DbType) error {
+func mockPersistTaskModel(task *tmodel.Task, db persistencemgr.DbType) error {
 	if db != persistencemgr.InMemory {
 		return fmt.Errorf("error while trying to connecting to DB: error invalid db type selection")
 	}

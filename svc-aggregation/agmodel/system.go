@@ -815,7 +815,7 @@ func UpdateAggregtionSource(aggregationSource AggregationSource, key string) *er
 }
 
 //GetAllMatchingDetails accepts the table name ,pattern and DB type and return all the keys which mathces the pattern
-func GetAllMatchingDetails(table, pattern string, dbtype common.DbType) ([]string, *errors.Error) {
+func GetAllMatchingDetails(table, pattern string, dbtype persistencemgr.DbType) ([]string, *errors.Error) {
 	conn, err := persistencemgr.GetDBConnection(dbtype)
 	if err != nil {
 		return []string{}, err
@@ -1006,7 +1006,7 @@ func GetConnectionMethod(connectionMethodURI string) (ConnectionMethod, *errors.
 }
 
 // Delete will delete the data from the provided db with the provided table and key data
-func Delete(table, key string, dbtype common.DbType) *errors.Error {
+func Delete(table, key string, dbtype persistencemgr.DbType) *errors.Error {
 	conn, err := persistencemgr.GetDBConnection(dbtype)
 	if err != nil {
 		return err

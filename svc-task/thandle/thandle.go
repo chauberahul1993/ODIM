@@ -47,7 +47,7 @@ const (
 type TasksRPC struct {
 	AuthenticationRPC                func(sessionToken string, privileges []string) response.RPC
 	GetSessionUserNameRPC            func(sessionToken string) (string, error)
-	GetTaskStatusModel               func(taskID string, db common.DbType) (*tmodel.Task, error)
+	GetTaskStatusModel               func(taskID string, db persistencemgr.DbType) (*tmodel.Task, error)
 	GetAllTaskKeysModel              func() ([]string, error)
 	TransactionModel                 func(key string, cb func(string) error) error
 	OverWriteCompletedTaskUtilHelper func(userName string) error
@@ -55,8 +55,8 @@ type TasksRPC struct {
 	GetCompletedTasksIndexModel      func(userName string) ([]string, error)
 	DeleteTaskFromDBModel            func(t *tmodel.Task) error
 	DeleteTaskIndex                  func(taskID string) error
-	UpdateTaskStatusModel            func(t *tmodel.Task, db common.DbType) error
-	PersistTaskModel                 func(t *tmodel.Task, db common.DbType) error
+	UpdateTaskStatusModel            func(t *tmodel.Task, db persistencemgr.DbType) error
+	PersistTaskModel                 func(t *tmodel.Task, db persistencemgr.DbType) error
 	ValidateTaskUserNameModel        func(userName string) error
 	PublishToMessageBus              func(taskURI string, taskEvenMessageID string, eventType string, taskMessage string)
 }

@@ -905,7 +905,7 @@ func mockDeleteMetricRequest(managerAddress string) *errors.Error {
 	return nil
 }
 
-func mockGetAllMatchingDetails(table, pattern string, dbtype common.DbType) ([]string, *errors.Error) {
+func mockGetAllMatchingDetails(table, pattern string, dbtype persistencemgr.DbType) ([]string, *errors.Error) {
 	return []string{
 		"MetricReportDefinitions:/redfish/v1/TelemetryService/MetricReportDefinitions/CPUICUtilCustom1",
 		"Triggers:/redfish/v1/TelemetryService/Triggers/CPU0PowerTriggers",
@@ -913,7 +913,7 @@ func mockGetAllMatchingDetails(table, pattern string, dbtype common.DbType) ([]s
 	}, nil
 }
 
-func mockDelete(table, key string, dbtype common.DbType) *errors.Error {
+func mockDelete(table, key string, dbtype persistencemgr.DbType) *errors.Error {
 	return nil
 }
 

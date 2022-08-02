@@ -39,7 +39,7 @@ func getEncryptedKey(t *testing.T, key []byte) []byte {
 	return cryptedKey
 }
 
-func mockData(t *testing.T, dbType common.DbType, table, id string, data interface{}) {
+func mockData(t *testing.T, dbType persistencemgr.DbType, table, id string, data interface{}) {
 	connPool, err := persistencemgr.GetDBConnection(dbType)
 	if err != nil {
 		t.Fatalf("error: mockData() failed to DB connection: %v", err)
@@ -49,7 +49,7 @@ func mockData(t *testing.T, dbType common.DbType, table, id string, data interfa
 	}
 }
 
-func mockIndex(dbType common.DbType, index, key string) {
+func mockIndex(dbType persistencemgr.DbType, index, key string) {
 	connPool, _ := persistencemgr.GetDBConnection(dbType)
 	form := map[string]interface{}{index: "value", index: "value2"}
 	connPool.CreateIndex(form, "/redfish/v1/systems/ef83e569-7336-492a-aaee-31c02d9db831.1")

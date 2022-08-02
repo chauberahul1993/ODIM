@@ -72,13 +72,13 @@ func TestGetFabricManagers(t *testing.T) {
 	_, err = GetFabricManagers()
 	assert.Nil(t, err, "should be no error ")
 
-	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
+	GetDBConnectionFunc = func(dbFlag persistencemgr.DbType) (*persistencemgr.ConnPool, *errors.Error) {
 		return nil, &errors.Error{}
 	}
 	_, err = GetFabricManagers()
 	assert.NotNil(t, err, "should be an error ")
 
-	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
+	GetDBConnectionFunc = func(dbFlag persistencemgr.DbType) (*persistencemgr.ConnPool, *errors.Error) {
 		return persistencemgr.GetDBConnection(dbFlag)
 	}
 	GetPluginDataFunc = func(pluginID string) (Plugin, *errors.Error) {

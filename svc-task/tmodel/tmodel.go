@@ -23,8 +23,6 @@ import (
 	"github.com/ODIM-Project/ODIM/lib-persistence-manager/persistencemgr"
 
 	log "github.com/sirupsen/logrus"
-
-	"github.com/ODIM-Project/ODIM/lib-utilities/common"
 )
 
 const (
@@ -129,8 +127,8 @@ type Oem struct {
 // PersistTask is to store the task data in db
 // Takes:
 //	t pointer to Task to be stored.
-//	db of type common.DbType(int32)
-func PersistTask(t *Task, db common.DbType) error {
+//	db of type persistencemgr.DbType(int32)
+func PersistTask(t *Task, db persistencemgr.DbType) error {
 	connPool, err := persistencemgr.GetDBConnection(db)
 	if err != nil {
 		log.Error("PersistTask : error while trying to get DB Connection : " + err.Error())
@@ -145,13 +143,13 @@ func PersistTask(t *Task, db common.DbType) error {
 
 // UpdateTaskStatus is to update the task data already present in db
 // Takes:
-//	db of type common.DbType(int32)
+//	db of type persistencemgr.DbType(int32)
 //	t of type *Task
 // Returns:
 //	err of type error
 //	On Success - return nil value
 //	On Failure - return non nill value
-func UpdateTaskStatus(t *Task, db common.DbType) error {
+func UpdateTaskStatus(t *Task, db persistencemgr.DbType) error {
 	connPool, err := persistencemgr.GetDBConnection(db)
 	if err != nil {
 		log.Error("UpdateTaskStatus : error while trying to get DB Connection : " + err.Error())
@@ -210,13 +208,13 @@ func DeleteTaskIndex(taskID string) error {
 // GetTaskStatus is to retrieve the task data already present in db
 // Takes:
 //	taskID of type string contains the task ID of the task to be retrieved from the db
-//	db of type common.DbType(int32)
+//	db of type persistencemgr.DbType(int32)
 // Returns:
 //	err of type error
 //		On Success - return nil value
 //		On Failure - return non nill value
 //	t of type *Task implicitly valid only when error is nil
-func GetTaskStatus(taskID string, db common.DbType) (*Task, error) {
+func GetTaskStatus(taskID string, db persistencemgr.DbType) (*Task, error) {
 	task := new(Task)
 	var taskData string
 	connPool, err := persistencemgr.GetDBConnection(persistencemgr.InMemory)

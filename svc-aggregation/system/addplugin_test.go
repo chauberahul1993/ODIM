@@ -29,7 +29,7 @@ import (
 	"github.com/ODIM-Project/ODIM/svc-aggregation/agmodel"
 )
 
-func mockData(t *testing.T, dbType common.DbType, table, id string, data interface{}) {
+func mockData(t *testing.T, dbType persistencemgr.DbType, table, id string, data interface{}) {
 	connPool, err := persistencemgr.GetDBConnection(dbType)
 	if err != nil {
 		t.Fatalf("error: mockData() failed to DB connection: %v", err)
