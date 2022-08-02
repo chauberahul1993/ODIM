@@ -15,7 +15,8 @@
 package model
 
 import (
-	"github.com/ODIM-Project/ODIM/lib-utilities/common"
+	"ODIM/lib-persistence-manager/persistencemgr"
+
 	"github.com/ODIM-Project/ODIM/lib-utilities/errors"
 )
 
@@ -867,7 +868,7 @@ type Metrics struct {
 //	On Success - returns nil value
 //	On Failure - return non nil value
 func (c *ComputerSystem) SaveInMemory(deviceUUID string) *errors.Error {
-	connPool, err := common.GetDBConnection(common.InMemory)
+	connPool, err := persistencemgr.GetDBConnection(persistencemgr.InMemory)
 	if err != nil {
 		return errors.PackError(err.ErrNo(), "error while trying to connect to DB: ", err.Error())
 	}
