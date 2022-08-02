@@ -43,8 +43,8 @@ var invalidSession = Session{
 func TestPersist(t *testing.T) {
 	common.SetUpMockConfig()
 	defer func() {
-		common.TruncateDB(common.OnDisk)
-		common.TruncateDB(common.InMemory)
+		common.TruncateDB(persistencemgr.OnDisk)
+		common.TruncateDB(persistencemgr.InMemory)
 	}()
 	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
 		return common.GetDBConnection(dbFlag)
@@ -55,13 +55,13 @@ func TestPersist(t *testing.T) {
 func TestGetAllSessionKeys(t *testing.T) {
 	common.SetUpMockConfig()
 	defer func() {
-		common.TruncateDB(common.OnDisk)
-		common.TruncateDB(common.InMemory)
+		common.TruncateDB(persistencemgr.OnDisk)
+		common.TruncateDB(persistencemgr.InMemory)
 	}()
 	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
 		return common.GetDBConnection(dbFlag)
 	}
-	mockData(common.InMemory, "session", session.Token, session)
+	mockData(persistencemgr.InMemory, "session", session.Token, session)
 	_, err := GetAllSessionKeys()
 	assert.Nil(t, err, "There should be no error")
 }
@@ -69,10 +69,10 @@ func TestGetAllSessionKeys(t *testing.T) {
 func TestGetSession(t *testing.T) {
 	common.SetUpMockConfig()
 	defer func() {
-		common.TruncateDB(common.OnDisk)
-		common.TruncateDB(common.InMemory)
+		common.TruncateDB(persistencemgr.OnDisk)
+		common.TruncateDB(persistencemgr.InMemory)
 	}()
-	mockData(common.InMemory, "session", session.Token, session)
+	mockData(persistencemgr.InMemory, "session", session.Token, session)
 	type args struct {
 		key string
 	}
@@ -137,13 +137,13 @@ func TestDelete(t *testing.T) {
 	config.SetUpMockConfig(t)
 	common.SetUpMockConfig()
 	defer func() {
-		common.TruncateDB(common.OnDisk)
-		common.TruncateDB(common.InMemory)
+		common.TruncateDB(persistencemgr.OnDisk)
+		common.TruncateDB(persistencemgr.InMemory)
 	}()
 	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
 		return common.GetDBConnection(dbFlag)
 	}
-	mockData(common.InMemory, "session", session.Token, session)
+	mockData(persistencemgr.InMemory, "session", session.Token, session)
 	tests := []struct {
 		name                string
 		GetDBConnectionFunc func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error)
@@ -185,13 +185,13 @@ func TestDelete(t *testing.T) {
 func TestUpdate(t *testing.T) {
 	common.SetUpMockConfig()
 	defer func() {
-		common.TruncateDB(common.OnDisk)
-		common.TruncateDB(common.InMemory)
+		common.TruncateDB(persistencemgr.OnDisk)
+		common.TruncateDB(persistencemgr.InMemory)
 	}()
 	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
 		return common.GetDBConnection(dbFlag)
 	}
-	mockData(common.InMemory, "session", session.Token, session)
+	mockData(persistencemgr.InMemory, "session", session.Token, session)
 	err := session.Update()
 	assert.Nil(t, err, "There should be no error")
 }
@@ -199,13 +199,13 @@ func TestUpdate(t *testing.T) {
 func TestUpdateNegativeTestCase(t *testing.T) {
 	common.SetUpMockConfig()
 	defer func() {
-		common.TruncateDB(common.OnDisk)
-		common.TruncateDB(common.InMemory)
+		common.TruncateDB(persistencemgr.OnDisk)
+		common.TruncateDB(persistencemgr.InMemory)
 	}()
 	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
 		return common.GetDBConnection(dbFlag)
 	}
-	mockData(common.InMemory, "session", session.Token, "session")
+	mockData(persistencemgr.InMemory, "session", session.Token, "session")
 	err := invalidSession.Update()
 	assert.NotNil(t, err, "There should be an error")
 }

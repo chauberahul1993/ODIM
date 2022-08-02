@@ -24,6 +24,8 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/ODIM-Project/ODIM/lib-persistence-manager/persistencemgr"
+
 	"github.com/ODIM-Project/ODIM/lib-utilities/common"
 	"github.com/ODIM-Project/ODIM/lib-utilities/config"
 	"github.com/ODIM-Project/ODIM/svc-fabrics/fabmodel"
@@ -60,7 +62,7 @@ func mockPluginData(t *testing.T) error {
 		ID:                "CFM",
 		PreferredAuthType: "XAuthTOken",
 	}
-	connPool, err := common.GetDBConnection(common.OnDisk)
+	connPool, err := common.GetDBConnection(persistencemgr.OnDisk)
 	if err != nil {
 		return fmt.Errorf("error while trying to connecting to DB: %v", err.Error())
 	}
@@ -140,7 +142,7 @@ func TestFabrics_GetFabricResource(t *testing.T) {
 	fabrics.Token.Tokens = make(map[string]string)
 	config.SetUpMockConfig(t)
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -191,7 +193,7 @@ func TestFabrics_UpdateFabricResource(t *testing.T) {
 	})
 	config.SetUpMockConfig(t)
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -240,7 +242,7 @@ func TestFabrics_DeleteFabricResource(t *testing.T) {
 	fabrics.Token.Tokens = make(map[string]string)
 	config.SetUpMockConfig(t)
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -287,7 +289,7 @@ func TestFabrics_DeleteFabricResource(t *testing.T) {
 func TestFabrics_AddFabric(t *testing.T) {
 	config.SetUpMockConfig(t)
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}

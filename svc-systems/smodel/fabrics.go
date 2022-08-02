@@ -15,9 +15,9 @@
 package smodel
 
 import (
-	log "github.com/sirupsen/logrus"
+	"github.com/ODIM-Project/ODIM/lib-persistence-manager/persistencemgr"
 
-	"github.com/ODIM-Project/ODIM/lib-utilities/common"
+	log "github.com/sirupsen/logrus"
 )
 
 // Fabric is the model to collect fabric plugin id from DB
@@ -32,7 +32,7 @@ var (
 
 // GetFabricManagers fetches all the fabrics details from DB
 func GetFabricManagers() ([]Plugin, error) {
-	conn, err := GetDBConnectionFunc(common.OnDisk)
+	conn, err := GetDBConnectionFunc(persistencemgr.OnDisk)
 	if err != nil {
 		return nil, err
 	}

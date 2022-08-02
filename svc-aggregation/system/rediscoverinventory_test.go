@@ -22,6 +22,8 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/ODIM-Project/ODIM/lib-persistence-manager/persistencemgr"
+
 	"github.com/ODIM-Project/ODIM/lib-utilities/common"
 	"github.com/ODIM-Project/ODIM/lib-utilities/config"
 	"github.com/ODIM-Project/ODIM/lib-utilities/errors"
@@ -40,7 +42,7 @@ func mockChassisData(systemID string) error {
 		"Id": "1",
 	})
 
-	connPool, err := common.GetDBConnection(common.InMemory)
+	connPool, err := common.GetDBConnection(persistencemgr.InMemory)
 	if err != nil {
 		return fmt.Errorf("error while trying to connecting to DB: %v", err.Error())
 	}
@@ -54,7 +56,7 @@ func mockManagerData(systemID string) error {
 		"Id": "1",
 	})
 
-	connPool, err := common.GetDBConnection(common.InMemory)
+	connPool, err := common.GetDBConnection(persistencemgr.InMemory)
 	if err != nil {
 		return fmt.Errorf("error while trying to connecting to DB: %v", err.Error())
 	}
@@ -66,11 +68,11 @@ func mockManagerData(systemID string) error {
 func TestExternalInterface_RediscoverResources(t *testing.T) {
 	config.SetUpMockConfig(t)
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
-		err = common.TruncateDB(common.InMemory)
+		err = common.TruncateDB(persistencemgr.InMemory)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -132,11 +134,11 @@ func TestExternalInterface_RediscoverSystemInventory(t *testing.T) {
 	config.SetUpMockConfig(t)
 	common.MuxLock.Unlock()
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
-		err = common.TruncateDB(common.InMemory)
+		err = common.TruncateDB(persistencemgr.InMemory)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -268,11 +270,11 @@ func TestExternalInterface_RediscoverSystemInventory(t *testing.T) {
 func TestExternalInterface_isServerRediscoveryRequired(t *testing.T) {
 	config.SetUpMockConfig(t)
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
-		err = common.TruncateDB(common.InMemory)
+		err = common.TruncateDB(persistencemgr.InMemory)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}

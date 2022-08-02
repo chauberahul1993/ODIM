@@ -22,6 +22,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/ODIM-Project/ODIM/lib-persistence-manager/persistencemgr"
+
 	"github.com/ODIM-Project/ODIM/lib-utilities/common"
 	taskproto "github.com/ODIM-Project/ODIM/lib-utilities/proto/task"
 	"github.com/ODIM-Project/ODIM/lib-utilities/response"
@@ -54,7 +56,7 @@ func (ts *TasksRPC) GetTaskMonitor(ctx context.Context, req *taskproto.GetTaskRe
 		return &rsp, nil
 	}
 	// get task status from database using task id
-	task, err := ts.GetTaskStatusModel(req.TaskID, common.InMemory)
+	task, err := ts.GetTaskStatusModel(req.TaskID, persistencemgr.InMemory)
 	if err != nil {
 		log.Printf("error getting task status : %v", err)
 		fillProtoResponse(&rsp, common.GeneralError(http.StatusNotFound, response.ResourceNotFound, err.Error(), []interface{}{"Task", req.TaskID}, nil))

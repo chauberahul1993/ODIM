@@ -27,7 +27,7 @@ import (
 func TestGenericSave(t *testing.T) {
 	common.SetUpMockConfig()
 	defer func() {
-		err := common.TruncateDB(common.InMemory)
+		err := common.TruncateDB(persistencemgr.InMemory)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -54,7 +54,7 @@ func TestGenericSave(t *testing.T) {
 func TestManager_Update(t *testing.T) {
 	common.SetUpMockConfig()
 	defer func() {
-		err := common.TruncateDB(common.InMemory)
+		err := common.TruncateDB(persistencemgr.InMemory)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -91,7 +91,7 @@ func TestManager_Update(t *testing.T) {
 
 func TestGetResourceNegativeTestCases(t *testing.T) {
 	defer func() {
-		err := common.TruncateDB(common.InMemory)
+		err := common.TruncateDB(persistencemgr.InMemory)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -121,7 +121,7 @@ func TestGetResourceNegativeTestCases(t *testing.T) {
 func TestGetAllkeysFromTable(t *testing.T) {
 	common.SetUpMockConfig()
 	defer func() {
-		err := common.TruncateDB(common.InMemory)
+		err := common.TruncateDB(persistencemgr.InMemory)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -150,7 +150,7 @@ func TestGetAllkeysFromTable(t *testing.T) {
 func TestGetManagerByURL(t *testing.T) {
 	common.SetUpMockConfig()
 	defer func() {
-		err := common.TruncateDB(common.InMemory)
+		err := common.TruncateDB(persistencemgr.InMemory)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -180,7 +180,7 @@ func TestGetManagerByURL(t *testing.T) {
 func TestGetManagerByURLNegativeTestCase(t *testing.T) {
 	common.SetUpMockConfig()
 	defer func() {
-		err := common.TruncateDB(common.InMemory)
+		err := common.TruncateDB(persistencemgr.InMemory)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -196,7 +196,7 @@ func TestGetManagerByURLNegativeTestCase(t *testing.T) {
 func TestAddManagertoDB(t *testing.T) {
 	common.SetUpMockConfig()
 	defer func() {
-		err := common.TruncateDB(common.InMemory)
+		err := common.TruncateDB(persistencemgr.InMemory)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -249,7 +249,7 @@ func TestAddManagertoDB(t *testing.T) {
 func TestUpdateData(t *testing.T) {
 	common.SetUpMockConfig()
 	defer func() {
-		err := common.TruncateDB(common.InMemory)
+		err := common.TruncateDB(persistencemgr.InMemory)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}

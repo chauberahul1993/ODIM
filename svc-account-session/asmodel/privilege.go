@@ -18,7 +18,7 @@ package asmodel
 import (
 	"encoding/json"
 
-	"github.com/ODIM-Project/ODIM/lib-utilities/common"
+	"github.com/ODIM-Project/ODIM/lib-persistence-manager/persistencemgr"
 	"github.com/ODIM-Project/ODIM/lib-utilities/errors"
 )
 
@@ -30,7 +30,7 @@ type Privileges struct {
 //GetPrivilegeRegistry retrives the privileges from database
 func GetPrivilegeRegistry() (Privileges, *errors.Error) {
 	var privileges Privileges
-	conn, err := GetDBConnectionFunc(common.OnDisk)
+	conn, err := GetDBConnectionFunc(persistencemgr.OnDisk)
 	if err != nil {
 		return privileges, err
 	}
@@ -46,7 +46,7 @@ func GetPrivilegeRegistry() (Privileges, *errors.Error) {
 
 // Create method is to insert the privileges list to database
 func (p *Privileges) Create() *errors.Error {
-	conn, err := GetDBConnectionFunc(common.OnDisk)
+	conn, err := GetDBConnectionFunc(persistencemgr.OnDisk)
 	if err != nil {
 		return err
 	}
@@ -65,7 +65,7 @@ type OEMPrivileges struct {
 //GetOEMPrivileges retrives the privileges from database
 func GetOEMPrivileges() (OEMPrivileges, *errors.Error) {
 	var oemPrivileges OEMPrivileges
-	conn, err := GetDBConnectionFunc(common.OnDisk)
+	conn, err := GetDBConnectionFunc(persistencemgr.OnDisk)
 	if err != nil {
 		return oemPrivileges, err
 	}
@@ -81,7 +81,7 @@ func GetOEMPrivileges() (OEMPrivileges, *errors.Error) {
 
 // Create method is to insert the oemprivileges list to database
 func (p *OEMPrivileges) Create() *errors.Error {
-	conn, err := GetDBConnectionFunc(common.OnDisk)
+	conn, err := GetDBConnectionFunc(persistencemgr.OnDisk)
 	if err != nil {
 		return err
 	}

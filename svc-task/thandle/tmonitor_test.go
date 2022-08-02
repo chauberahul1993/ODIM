@@ -24,6 +24,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ODIM-Project/ODIM/lib-persistence-manager/persistencemgr"
+
 	"github.com/ODIM-Project/ODIM/lib-utilities/common"
 	taskproto "github.com/ODIM-Project/ODIM/lib-utilities/proto/task"
 	"github.com/ODIM-Project/ODIM/lib-utilities/response"
@@ -66,7 +68,7 @@ func mockGetSessionUserName(sessionToken string) (string, error) {
 	return user, nil
 }
 func mockGetTaskStatusModel(taskID string, db common.DbType) (*tmodel.Task, error) {
-	if db != common.InMemory {
+	if db != persistencemgr.InMemory {
 		return nil, fmt.Errorf("Resource not found")
 	}
 	task := tmodel.Task{

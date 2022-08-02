@@ -22,6 +22,8 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/ODIM-Project/ODIM/lib-persistence-manager/persistencemgr"
+
 	"github.com/ODIM-Project/ODIM/lib-utilities/common"
 	"github.com/ODIM-Project/ODIM/lib-utilities/config"
 	"github.com/ODIM-Project/ODIM/lib-utilities/errors"
@@ -39,7 +41,7 @@ func mockSystemData(systemID string) error {
 		"Id":           "1",
 	})
 
-	connPool, err := common.GetDBConnection(common.InMemory)
+	connPool, err := common.GetDBConnection(persistencemgr.InMemory)
 	if err != nil {
 		return fmt.Errorf("error while trying to connecting to DB: %v", err.Error())
 	}
@@ -56,11 +58,11 @@ func stubDevicePassword(password []byte) ([]byte, error) {
 func TestPluginContact_SetDefaultBootOrder(t *testing.T) {
 	config.SetUpMockConfig(t)
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
-		err = common.TruncateDB(common.InMemory)
+		err = common.TruncateDB(persistencemgr.InMemory)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -249,11 +251,11 @@ func TestPluginContact_SetDefaultBootOrder(t *testing.T) {
 func TestPluginContact_ChangeBiosSettings(t *testing.T) {
 	config.SetUpMockConfig(t)
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
-		err = common.TruncateDB(common.InMemory)
+		err = common.TruncateDB(persistencemgr.InMemory)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -515,11 +517,11 @@ func mockPluginClient(url, method, token string, odataID string, body interface{
 func TestPluginContact_ChangeBootOrderSettings(t *testing.T) {
 	config.SetUpMockConfig(t)
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
-		err = common.TruncateDB(common.InMemory)
+		err = common.TruncateDB(persistencemgr.InMemory)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}

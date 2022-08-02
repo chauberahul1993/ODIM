@@ -21,6 +21,8 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/ODIM-Project/ODIM/lib-persistence-manager/persistencemgr"
+
 	log "github.com/sirupsen/logrus"
 
 	dmtf "github.com/ODIM-Project/ODIM/lib-dmtf/model"
@@ -80,7 +82,7 @@ func (e *ExternalInterface) DeleteAggregationSource(req *aggregatorproto.Aggrega
 		resp = e.deletePlugin("/redfish/v1/Managers/" + plugin.ManagerUUID)
 	} else {
 		var data = strings.Split(req.URL, "/redfish/v1/AggregationService/AggregationSources/")
-		systemList, dbErr := agmodel.GetAllMatchingDetails("ComputerSystem", data[1], common.InMemory)
+		systemList, dbErr := agmodel.GetAllMatchingDetails("ComputerSystem", data[1], persistencemgr.InMemory)
 		if dbErr != nil {
 			errMsg := dbErr.Error()
 			log.Error(errMsg)
@@ -348,12 +350,12 @@ func (e *ExternalInterface) deleteCompute(key string, index int, pluginID string
 	}
 
 	keys := strings.SplitN(key[index+1:], ".", 2)
-	chassisList, derr := agmodel.GetAllMatchingDetails("Chassis", keys[0], common.InMemory)
+	chassisList, derr := agmodel.GetAllMatchingDetails("Chassis", keys[0], persistencemgr.InMemory)
 	if derr != nil {
 		log.Error("error while trying to collect the chassis list: " + derr.Error())
 	}
 
-	managersList, derr := agmodel.GetAllMatchingDetails("Managers", keys[0], common.InMemory)
+	managersList, derr := agmodel.GetAllMatchingDetails("Managers", keys[0], persistencemgr.InMemory)
 	if derr != nil {
 		log.Error("error while trying to collect the manager list: " + derr.Error())
 	}
@@ -454,7 +456,7 @@ func deleteLinkDetails(managerData map[string]interface{}, systemID string, chas
 // deleteWildCardValues will delete the wild card values and
 // if all the servers are deleted, then it will delete the telemetry information
 func (e *ExternalInterface) deleteWildCardValues(systemID string) {
-	telemetryList, dbErr := e.GetAllMatchingDetails("*", "TelemetryService", common.InMemory)
+	telemetryList, dbErr := e.GetAllMatchingDetails("*", "TelemetryService", persistencemgr.InMemory)
 	if dbErr != nil {
 		log.Error(dbErr)
 		return
@@ -499,7 +501,7 @@ func (e *ExternalInterface) deleteWildCardValues(systemID string) {
 				if exist || dbErr != nil {
 					continue
 				}
-				if derr := e.Delete(oID[0], odataID, common.InMemory); derr != nil {
+				if derr := e.Delete(oID[0], odataID, persistencemgr.InMemory); derr != nil {
 					log.Error("error while trying to delete data: " + derr.Error())
 					continue
 				}

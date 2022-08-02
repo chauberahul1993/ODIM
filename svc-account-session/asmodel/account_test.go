@@ -43,8 +43,8 @@ func TestCreate(t *testing.T) {
 	config.SetUpMockConfig(t)
 	common.SetUpMockConfig()
 	defer func() {
-		common.TruncateDB(common.OnDisk)
-		common.TruncateDB(common.InMemory)
+		common.TruncateDB(persistencemgr.OnDisk)
+		common.TruncateDB(persistencemgr.InMemory)
 	}()
 	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
 		return common.GetDBConnection(dbFlag)
@@ -56,13 +56,13 @@ func TestCreate(t *testing.T) {
 func TestGetAllUsers(t *testing.T) {
 	common.SetUpMockConfig()
 	defer func() {
-		common.TruncateDB(common.OnDisk)
-		common.TruncateDB(common.InMemory)
+		common.TruncateDB(persistencemgr.OnDisk)
+		common.TruncateDB(persistencemgr.InMemory)
 	}()
 	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
 		return common.GetDBConnection(dbFlag)
 	}
-	mockData(common.OnDisk, "User", "successID", User{UserName: "successID"})
+	mockData(persistencemgr.OnDisk, "User", "successID", User{UserName: "successID"})
 	_, err := GetAllUsers()
 	assert.Nil(t, err, "There should be no error")
 }
@@ -70,10 +70,10 @@ func TestGetAllUsers(t *testing.T) {
 func TestGetUserDetails(t *testing.T) {
 	common.SetUpMockConfig()
 	defer func() {
-		common.TruncateDB(common.OnDisk)
-		common.TruncateDB(common.InMemory)
+		common.TruncateDB(persistencemgr.OnDisk)
+		common.TruncateDB(persistencemgr.InMemory)
 	}()
-	mockData(common.OnDisk, "User", "successID", User{UserName: "successID"})
+	mockData(persistencemgr.OnDisk, "User", "successID", User{UserName: "successID"})
 	type args struct {
 		key string
 	}
@@ -134,10 +134,10 @@ func TestGetUserDetails(t *testing.T) {
 func TestDeleteUser(t *testing.T) {
 	common.SetUpMockConfig()
 	defer func() {
-		common.TruncateDB(common.OnDisk)
-		common.TruncateDB(common.InMemory)
+		common.TruncateDB(persistencemgr.OnDisk)
+		common.TruncateDB(persistencemgr.InMemory)
 	}()
-	mockData(common.OnDisk, "User", "successID", User{UserName: "successID"})
+	mockData(persistencemgr.OnDisk, "User", "successID", User{UserName: "successID"})
 	type args struct {
 		key string
 	}
@@ -192,8 +192,8 @@ func TestDeleteUser(t *testing.T) {
 func TestUpdateUserDetails(t *testing.T) {
 	common.SetUpMockConfig()
 	defer func() {
-		common.TruncateDB(common.OnDisk)
-		common.TruncateDB(common.InMemory)
+		common.TruncateDB(persistencemgr.OnDisk)
+		common.TruncateDB(persistencemgr.InMemory)
 	}()
 	user := User{
 		UserName: "successID",
@@ -220,7 +220,7 @@ func TestUpdateUserDetails(t *testing.T) {
 		Password: "password",
 		RoleID:   "testRole",
 	}
-	mockData(common.OnDisk, "User", "successID", user)
+	mockData(persistencemgr.OnDisk, "User", "successID", user)
 	type args struct {
 		userData User
 	}
@@ -292,11 +292,11 @@ func TestUpdateUserDetails(t *testing.T) {
 func TestUpdateUserDetailsNegativeTestCase(t *testing.T) {
 	common.SetUpMockConfig()
 	defer func() {
-		common.TruncateDB(common.OnDisk)
-		common.TruncateDB(common.InMemory)
+		common.TruncateDB(persistencemgr.OnDisk)
+		common.TruncateDB(persistencemgr.InMemory)
 	}()
 	user := User{}
-	mockData(common.OnDisk, "User", "successID", "user")
+	mockData(persistencemgr.OnDisk, "User", "successID", "user")
 	userData := User{UserName: "successID"}
 	err := UpdateUserDetails(user, userData)
 	assert.NotNil(t, err, "There should be an error")

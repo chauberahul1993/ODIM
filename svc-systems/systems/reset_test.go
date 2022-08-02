@@ -22,6 +22,8 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/ODIM-Project/ODIM/lib-persistence-manager/persistencemgr"
+
 	"github.com/ODIM-Project/ODIM/lib-utilities/errors"
 	"github.com/stretchr/testify/assert"
 
@@ -43,7 +45,7 @@ func mockPluginData(t *testing.T) error {
 		ID:                "GRF",
 		PreferredAuthType: "BasicAuth",
 	}
-	connPool, err := common.GetDBConnection(common.OnDisk)
+	connPool, err := common.GetDBConnection(persistencemgr.OnDisk)
 	if err != nil {
 		return fmt.Errorf("error while trying to connecting to DB: %v", err)
 	}
@@ -56,7 +58,7 @@ func mockPluginData(t *testing.T) error {
 }
 func mockDeviceData(uuid string, device smodel.Target) error {
 
-	connPool, err := common.GetDBConnection(common.OnDisk)
+	connPool, err := common.GetDBConnection(persistencemgr.OnDisk)
 	if err != nil {
 		return fmt.Errorf("error while trying to connecting to DB: %v", err)
 	}
@@ -130,11 +132,11 @@ func mockContactClient(url, method, token string, odataID string, body interface
 func TestPluginContact_ComputerSystemReset(t *testing.T) {
 	config.SetUpMockConfig(t)
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
-		err = common.TruncateDB(common.InMemory)
+		err = common.TruncateDB(persistencemgr.InMemory)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}

@@ -18,13 +18,16 @@ package tcommon
 import (
 	"encoding/json"
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"net/http"
 	"reflect"
 	"strconv"
 	"strings"
 	"sync"
+
+	"github.com/ODIM-Project/ODIM/lib-persistence-manager/persistencemgr"
+
+	log "github.com/sirupsen/logrus"
 
 	dmtf "github.com/ODIM-Project/ODIM/lib-dmtf/model"
 	"github.com/ODIM-Project/ODIM/lib-utilities/common"
@@ -67,7 +70,7 @@ type ResourceInfoRequest struct {
 // GetResourceInfoFromDevice will contact to the southbound client and gets the Particual resource info from device
 func GetResourceInfoFromDevice(req ResourceInfoRequest) ([]byte, error) {
 	var metricReportData dmtf.MetricReports
-	plugins, err := req.GetAllKeysFromTable("Plugin", common.OnDisk)
+	plugins, err := req.GetAllKeysFromTable("Plugin", persistencemgr.OnDisk)
 	if err != nil {
 		return []byte{}, err
 	}
@@ -226,7 +229,7 @@ func callPlugin(req PluginContactRequest) (*http.Response, error) {
 
 func removeNonExistingID(req ResourceInfoRequest) {
 	collectionURL := "/redfish/v1/TelemetryService/MetricReports"
-	data, err := req.GetResource("MetricReportsCollection", collectionURL, common.InMemory)
+	data, err := req.GetResource("MetricReportsCollection", collectionURL, persistencemgr.InMemory)
 	if err != nil {
 		return
 	}

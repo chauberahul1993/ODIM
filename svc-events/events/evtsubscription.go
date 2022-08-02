@@ -31,6 +31,8 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/ODIM-Project/ODIM/lib-persistence-manager/persistencemgr"
+
 	log "github.com/sirupsen/logrus"
 
 	"github.com/ODIM-Project/ODIM/lib-utilities/common"
@@ -957,8 +959,8 @@ func (e *ExternalInterfaces) checkCollectionSubscription(origin, protocol string
 		searchKey := evcommon.GetSearchKey(host, evmodel.DeviceSubscriptionIndex)
 		deviceSubscription, _ := e.GetDeviceSubscriptions(searchKey)
 		data := strings.Split(origin, "/redfish/v1/Systems/")
-		chassisList, _ := e.GetAllMatchingDetails("Chassis", data[1], common.InMemory)
-		managersList, _ := e.GetAllMatchingDetails("Managers", data[1], common.InMemory)
+		chassisList, _ := e.GetAllMatchingDetails("Chassis", data[1], persistencemgr.InMemory)
+		managersList, _ := e.GetAllMatchingDetails("Managers", data[1], persistencemgr.InMemory)
 		var newDevSubscription = evmodel.DeviceSubscription{
 			EventHostIP:     deviceSubscription.EventHostIP,
 			Location:        deviceSubscription.Location,

@@ -18,7 +18,7 @@ package asmodel
 import (
 	"encoding/json"
 
-	"github.com/ODIM-Project/ODIM/lib-utilities/common"
+	"github.com/ODIM-Project/ODIM/lib-persistence-manager/persistencemgr"
 	"github.com/ODIM-Project/ODIM/lib-utilities/errors"
 )
 
@@ -30,7 +30,7 @@ type RedfishRoles struct {
 //GetRedfishRoles retrives the privileges from database
 func GetRedfishRoles() (RedfishRoles, *errors.Error) {
 	var redfishRoles RedfishRoles
-	conn, err := GetDBConnectionFunc(common.OnDisk)
+	conn, err := GetDBConnectionFunc(persistencemgr.OnDisk)
 	if err != nil {
 		return redfishRoles, err
 	}
@@ -47,7 +47,7 @@ func GetRedfishRoles() (RedfishRoles, *errors.Error) {
 // Create method is to insert the privileges list to database
 func (r *RedfishRoles) Create() *errors.Error {
 
-	conn, err := GetDBConnectionFunc(common.OnDisk)
+	conn, err := GetDBConnectionFunc(persistencemgr.OnDisk)
 	if err != nil {
 		return err
 	}

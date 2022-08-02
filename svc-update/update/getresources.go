@@ -23,6 +23,8 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/ODIM-Project/ODIM/lib-persistence-manager/persistencemgr"
+
 	log "github.com/sirupsen/logrus"
 
 	dmtf "github.com/ODIM-Project/ODIM/lib-dmtf/model"
@@ -117,7 +119,7 @@ func (e *ExternalInterface) GetAllFirmwareInventory(req *updateproto.UpdateReque
 	}
 
 	members := []dmtf.Link{}
-	firmwareCollectionKeysArray, err := e.DB.GetAllKeysFromTable("FirmwareInventory", common.InMemory)
+	firmwareCollectionKeysArray, err := e.DB.GetAllKeysFromTable("FirmwareInventory", persistencemgr.InMemory)
 	if err != nil || len(firmwareCollectionKeysArray) == 0 {
 		log.Warn("odimra doesnt have servers")
 	}
@@ -146,7 +148,7 @@ func (e *ExternalInterface) GetFirmwareInventory(req *updateproto.UpdateRequest)
 		errorMessage := "error: SystemUUID not found"
 		return common.GeneralError(http.StatusNotFound, response.ResourceNotFound, errorMessage, []interface{}{"FirmwareInventory", req.ResourceID}, nil)
 	}
-	data, gerr := e.DB.GetResource("FirmwareInventory", req.URL, common.InMemory)
+	data, gerr := e.DB.GetResource("FirmwareInventory", req.URL, persistencemgr.InMemory)
 	if gerr != nil {
 		log.Warn("Unable to get firmware inventory details : " + gerr.Error())
 		errorMessage := gerr.Error()
@@ -194,7 +196,7 @@ func (e *ExternalInterface) GetAllSoftwareInventory(req *updateproto.UpdateReque
 	}
 
 	members := []dmtf.Link{}
-	softwareCollectionKeysArray, err := e.DB.GetAllKeysFromTable("SoftwareInventory", common.InMemory)
+	softwareCollectionKeysArray, err := e.DB.GetAllKeysFromTable("SoftwareInventory", persistencemgr.InMemory)
 	if err != nil || len(softwareCollectionKeysArray) == 0 {
 		log.Warn("odimra doesnt have servers")
 	}
@@ -223,7 +225,7 @@ func (e *ExternalInterface) GetSoftwareInventory(req *updateproto.UpdateRequest)
 		errorMessage := "error: SystemUUID not found"
 		return common.GeneralError(http.StatusNotFound, response.ResourceNotFound, errorMessage, []interface{}{"SoftwareInventory", req.ResourceID}, nil)
 	}
-	data, gerr := e.DB.GetResource("SoftwareInventory", req.URL, common.InMemory)
+	data, gerr := e.DB.GetResource("SoftwareInventory", req.URL, persistencemgr.InMemory)
 	if gerr != nil {
 		log.Warn("Unable to get software inventory details : " + gerr.Error())
 		errorMessage := gerr.Error()

@@ -16,9 +16,10 @@
 package asmodel
 
 import (
+	"testing"
+
 	"github.com/ODIM-Project/ODIM/lib-persistence-manager/persistencemgr"
 	"github.com/stretchr/testify/assert"
-	"testing"
 
 	"github.com/ODIM-Project/ODIM/lib-utilities/common"
 	"github.com/ODIM-Project/ODIM/lib-utilities/errors"
@@ -34,8 +35,8 @@ var roles = RedfishRoles{
 func TestCreateRedfishRoles(t *testing.T) {
 	common.SetUpMockConfig()
 	defer func() {
-		common.TruncateDB(common.OnDisk)
-		common.TruncateDB(common.InMemory)
+		common.TruncateDB(persistencemgr.OnDisk)
+		common.TruncateDB(persistencemgr.InMemory)
 	}()
 	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
 		return common.GetDBConnection(dbFlag)
@@ -47,13 +48,13 @@ func TestCreateRedfishRoles(t *testing.T) {
 func TestGetRedfishRoles(t *testing.T) {
 	common.SetUpMockConfig()
 	defer func() {
-		common.TruncateDB(common.OnDisk)
-		common.TruncateDB(common.InMemory)
+		common.TruncateDB(persistencemgr.OnDisk)
+		common.TruncateDB(persistencemgr.InMemory)
 	}()
 	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
 		return common.GetDBConnection(dbFlag)
 	}
-	mockData(common.OnDisk, "roles", "redfishdefined", roles)
+	mockData(persistencemgr.OnDisk, "roles", "redfishdefined", roles)
 	_, err := GetRedfishRoles()
 	assert.Nil(t, err, "There should be no error")
 }
@@ -61,15 +62,15 @@ func TestGetRedfishRoles(t *testing.T) {
 func TestGetRedfishRolesNegativeTestCase(t *testing.T) {
 	common.SetUpMockConfig()
 	defer func() {
-		common.TruncateDB(common.OnDisk)
-		common.TruncateDB(common.InMemory)
+		common.TruncateDB(persistencemgr.OnDisk)
+		common.TruncateDB(persistencemgr.InMemory)
 	}()
 	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
 		return common.GetDBConnection(dbFlag)
 	}
 	_, err := GetRedfishRoles()
 	assert.NotNil(t, err, "There should be an error")
-	mockData(common.OnDisk, "roles", "redfishdefined", "roles")
+	mockData(persistencemgr.OnDisk, "roles", "redfishdefined", "roles")
 	_, err = GetRedfishRoles()
 	assert.NotNil(t, err, "There should be an error")
 }

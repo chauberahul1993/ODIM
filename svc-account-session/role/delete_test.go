@@ -20,6 +20,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ODIM-Project/ODIM/lib-persistence-manager/persistencemgr"
+
 	"github.com/ODIM-Project/ODIM/lib-utilities/common"
 	roleproto "github.com/ODIM-Project/ODIM/lib-utilities/proto/role"
 	"github.com/ODIM-Project/ODIM/lib-utilities/response"
@@ -50,11 +52,11 @@ func mockSession(token string, roleID string, privilegeRequired bool) error {
 }
 
 func truncateDB(t *testing.T) {
-	err := common.TruncateDB(common.OnDisk)
+	err := common.TruncateDB(persistencemgr.OnDisk)
 	if err != nil {
 		t.Fatalf("error: %v", err)
 	}
-	err = common.TruncateDB(common.InMemory)
+	err = common.TruncateDB(persistencemgr.InMemory)
 	if err != nil {
 		t.Fatalf("error: %v", err)
 	}

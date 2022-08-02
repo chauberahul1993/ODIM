@@ -20,6 +20,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ODIM-Project/ODIM/lib-persistence-manager/persistencemgr"
+
 	"github.com/ODIM-Project/ODIM/lib-utilities/common"
 	"github.com/ODIM-Project/ODIM/lib-utilities/config"
 	sessionproto "github.com/ODIM-Project/ODIM/lib-utilities/proto/session"
@@ -30,11 +32,11 @@ import (
 
 func TestGetSession(t *testing.T) {
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
-		err = common.TruncateDB(common.InMemory)
+		err = common.TruncateDB(persistencemgr.InMemory)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -145,11 +147,11 @@ func TestGetSession(t *testing.T) {
 
 func TestGetAllActiveSessions(t *testing.T) {
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
-		err = common.TruncateDB(common.InMemory)
+		err = common.TruncateDB(persistencemgr.InMemory)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -310,11 +312,11 @@ func TestGetSessionService(t *testing.T) {
 
 func TestGetSessionUserName(t *testing.T) {
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
-		err = common.TruncateDB(common.InMemory)
+		err = common.TruncateDB(persistencemgr.InMemory)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -370,11 +372,11 @@ func TestGetSessionUserName(t *testing.T) {
 
 func TestGetSessionUserRoleID(t *testing.T) {
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
-		err = common.TruncateDB(common.InMemory)
+		err = common.TruncateDB(persistencemgr.InMemory)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}

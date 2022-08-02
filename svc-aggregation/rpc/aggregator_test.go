@@ -21,6 +21,8 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/ODIM-Project/ODIM/lib-persistence-manager/persistencemgr"
+
 	"github.com/ODIM-Project/ODIM/lib-utilities/common"
 	"github.com/ODIM-Project/ODIM/lib-utilities/config"
 	aggregatorproto "github.com/ODIM-Project/ODIM/lib-utilities/proto/aggregator"
@@ -330,8 +332,8 @@ func TestAggregator_AddAggreagationSource(t *testing.T) {
 
 	config.Data.AddComputeSkipResources = &addComputeRetrieval
 	defer func() {
-		common.TruncateDB(common.OnDisk)
-		common.TruncateDB(common.InMemory)
+		common.TruncateDB(persistencemgr.OnDisk)
+		common.TruncateDB(persistencemgr.InMemory)
 	}()
 	successReq, _ := json.Marshal(system.AggregationSource{
 		HostName: "100.0.0.1:50000",
@@ -440,8 +442,8 @@ func TestAggregator_AddAggreagationSource(t *testing.T) {
 
 func TestAggregator_GetAllAggregationSource(t *testing.T) {
 	defer func() {
-		common.TruncateDB(common.OnDisk)
-		common.TruncateDB(common.InMemory)
+		common.TruncateDB(persistencemgr.OnDisk)
+		common.TruncateDB(persistencemgr.InMemory)
 	}()
 	req := agmodel.AggregationSource{
 		HostName: "9.9.9.0",
@@ -495,8 +497,8 @@ func TestAggregator_GetAllAggregationSource(t *testing.T) {
 
 func TestAggregator_GetAggregationSource(t *testing.T) {
 	defer func() {
-		common.TruncateDB(common.OnDisk)
-		common.TruncateDB(common.InMemory)
+		common.TruncateDB(persistencemgr.OnDisk)
+		common.TruncateDB(persistencemgr.InMemory)
 	}()
 	req := agmodel.AggregationSource{
 		HostName: "9.9.9.0",
@@ -567,8 +569,8 @@ func TestAggregator_UpdateAggreagationSource(t *testing.T) {
 		t.Fatalf("error: %v", err)
 	}
 	defer func() {
-		common.TruncateDB(common.OnDisk)
-		common.TruncateDB(common.InMemory)
+		common.TruncateDB(persistencemgr.OnDisk)
+		common.TruncateDB(persistencemgr.InMemory)
 	}()
 	successReq, _ := json.Marshal(system.AggregationSource{
 		HostName: "100.0.0.1:50000",
@@ -658,8 +660,8 @@ func TestAggregator_DeleteAggregationSource(t *testing.T) {
 		t.Fatalf("error: %v", err)
 	}
 	defer func() {
-		common.TruncateDB(common.OnDisk)
-		common.TruncateDB(common.InMemory)
+		common.TruncateDB(persistencemgr.OnDisk)
+		common.TruncateDB(persistencemgr.InMemory)
 	}()
 	type args struct {
 		ctx context.Context
@@ -723,7 +725,7 @@ func TestAggregator_DeleteAggregationSource(t *testing.T) {
 }
 
 func mockSystemResourceData(body []byte, table, key string) error {
-	connPool, err := common.GetDBConnection(common.InMemory)
+	connPool, err := common.GetDBConnection(persistencemgr.InMemory)
 	if err != nil {
 		return fmt.Errorf("error while trying to connecting to DB: %v", err.Error())
 	}
@@ -747,11 +749,11 @@ func TestAggregator_CreateAggregate(t *testing.T) {
 	config.SetUpMockConfig(t)
 	common.MuxLock.Unlock()
 	defer func() {
-		common.TruncateDB(common.OnDisk)
-		common.TruncateDB(common.InMemory)
+		common.TruncateDB(persistencemgr.OnDisk)
+		common.TruncateDB(persistencemgr.InMemory)
 	}()
-	mockData(t, common.OnDisk, "System", "6d4a0a66-7efa-578e-83cf-44dc68d2874e", &agmodel.Target{ManagerAddress: "10.10.0.1", DeviceUUID: "6d4a0a66-7efa-578e-83cf-44dc68d2874e"})
-	mockData(t, common.OnDisk, "System", "c14d91b5-3333-48bb-a7b7-75f74a137d48", &agmodel.Target{ManagerAddress: "10.10.0.1", DeviceUUID: "c14d91b5-3333-48bb-a7b7-75f74a137d48"})
+	mockData(t, persistencemgr.OnDisk, "System", "6d4a0a66-7efa-578e-83cf-44dc68d2874e", &agmodel.Target{ManagerAddress: "10.10.0.1", DeviceUUID: "6d4a0a66-7efa-578e-83cf-44dc68d2874e"})
+	mockData(t, persistencemgr.OnDisk, "System", "c14d91b5-3333-48bb-a7b7-75f74a137d48", &agmodel.Target{ManagerAddress: "10.10.0.1", DeviceUUID: "c14d91b5-3333-48bb-a7b7-75f74a137d48"})
 	reqData, _ := json.Marshal(map[string]interface{}{"@odata.id": "/redfish/v1/Systems/6d4a0a66-7efa-578e-83cf-44dc68d2874e.1"})
 	err := mockSystemResourceData(reqData, "ComputerSystem", "/redfish/v1/Systems/6d4a0a66-7efa-578e-83cf-44dc68d2874e.1")
 	if err != nil {
@@ -849,8 +851,8 @@ func TestAggregator_CreateAggregate(t *testing.T) {
 
 func TestAggregator_GetAllAggregates(t *testing.T) {
 	defer func() {
-		common.TruncateDB(common.OnDisk)
-		common.TruncateDB(common.InMemory)
+		common.TruncateDB(persistencemgr.OnDisk)
+		common.TruncateDB(persistencemgr.InMemory)
 	}()
 	req := agmodel.Aggregate{
 		Elements: []agmodel.OdataID{
@@ -900,8 +902,8 @@ func TestAggregator_GetAllAggregates(t *testing.T) {
 
 func TestAggregator_GetAggregate(t *testing.T) {
 	defer func() {
-		common.TruncateDB(common.OnDisk)
-		common.TruncateDB(common.InMemory)
+		common.TruncateDB(persistencemgr.OnDisk)
+		common.TruncateDB(persistencemgr.InMemory)
 	}()
 	req := agmodel.Aggregate{
 		Elements: []agmodel.OdataID{
@@ -959,8 +961,8 @@ func TestAggregator_GetAggregate(t *testing.T) {
 
 func TestAggregator_DeleteAggregate(t *testing.T) {
 	defer func() {
-		common.TruncateDB(common.OnDisk)
-		common.TruncateDB(common.InMemory)
+		common.TruncateDB(persistencemgr.OnDisk)
+		common.TruncateDB(persistencemgr.InMemory)
 	}()
 	req := agmodel.Aggregate{
 		Elements: []agmodel.OdataID{
@@ -1018,8 +1020,8 @@ func TestAggregator_DeleteAggregate(t *testing.T) {
 
 func TestAggregator_AddElementsToAggregate(t *testing.T) {
 	defer func() {
-		common.TruncateDB(common.OnDisk)
-		common.TruncateDB(common.InMemory)
+		common.TruncateDB(persistencemgr.OnDisk)
+		common.TruncateDB(persistencemgr.InMemory)
 	}()
 	req := agmodel.Aggregate{
 		Elements: []agmodel.OdataID{
@@ -1186,8 +1188,8 @@ func TestAggregator_AddElementsToAggregate(t *testing.T) {
 
 func TestAggregator_RemoveElementsFromAggregate(t *testing.T) {
 	defer func() {
-		common.TruncateDB(common.OnDisk)
-		common.TruncateDB(common.InMemory)
+		common.TruncateDB(persistencemgr.OnDisk)
+		common.TruncateDB(persistencemgr.InMemory)
 	}()
 	req := agmodel.Aggregate{
 		Elements: []agmodel.OdataID{
@@ -1348,8 +1350,8 @@ func TestAggregator_RemoveElementsFromAggregate(t *testing.T) {
 
 func TestAggregator_ResetElementsOfAggregate(t *testing.T) {
 	defer func() {
-		common.TruncateDB(common.OnDisk)
-		common.TruncateDB(common.InMemory)
+		common.TruncateDB(persistencemgr.OnDisk)
+		common.TruncateDB(persistencemgr.InMemory)
 	}()
 	req := agmodel.Aggregate{
 		Elements: []agmodel.OdataID{
@@ -1494,8 +1496,8 @@ func TestAggregator_ResetElementsOfAggregate(t *testing.T) {
 
 func TestAggregator_SetDefaultBootOrderElementsOfAggregate(t *testing.T) {
 	defer func() {
-		common.TruncateDB(common.OnDisk)
-		common.TruncateDB(common.InMemory)
+		common.TruncateDB(persistencemgr.OnDisk)
+		common.TruncateDB(persistencemgr.InMemory)
 	}()
 	req := agmodel.Aggregate{
 		Elements: []agmodel.OdataID{

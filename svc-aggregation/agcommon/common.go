@@ -23,6 +23,8 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/ODIM-Project/ODIM/lib-persistence-manager/persistencemgr"
+
 	"github.com/ODIM-Project/ODIM/lib-rest-client/pmbhandle"
 	"github.com/ODIM-Project/ODIM/lib-utilities/common"
 	"github.com/ODIM-Project/ODIM/lib-utilities/config"
@@ -180,7 +182,7 @@ func (e *DBInterface) AddConnectionMethods(connectionMethodConf []config.Connect
 			log.Info("Removing connection method id "+connectionMethodID+
 				" with Connection Method Type"+connectionMethodData.ConnectionMethodType+
 				" and Connection Method Variant", connectionMethodData.ConnectionMethodVariant)
-			err := e.DeleteInterface("ConnectionMethod", connectionMethodID, common.OnDisk)
+			err := e.DeleteInterface("ConnectionMethod", connectionMethodID, persistencemgr.OnDisk)
 			if err != nil {
 				log.Error("Unable to removing connection method : " + err.Error())
 				return err

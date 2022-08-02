@@ -20,6 +20,8 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/ODIM-Project/ODIM/lib-persistence-manager/persistencemgr"
+
 	"github.com/stretchr/testify/assert"
 
 	"github.com/ODIM-Project/ODIM/lib-utilities/common"
@@ -28,7 +30,7 @@ import (
 )
 
 func mockSystemResourceData(body []byte, table, key string) error {
-	connPool, err := common.GetDBConnection(common.InMemory)
+	connPool, err := common.GetDBConnection(persistencemgr.InMemory)
 	if err != nil {
 		return err
 	}
@@ -39,7 +41,7 @@ func mockSystemResourceData(body []byte, table, key string) error {
 }
 
 func mockTarget(t *testing.T) {
-	connPool, err := common.GetDBConnection(common.OnDisk)
+	connPool, err := common.GetDBConnection(persistencemgr.OnDisk)
 	if err != nil {
 		t.Fatalf("error: %v", err)
 	}
@@ -58,7 +60,7 @@ func mockTarget(t *testing.T) {
 }
 
 func mockPlugins(t *testing.T) {
-	connPool, err := common.GetDBConnection(common.OnDisk)
+	connPool, err := common.GetDBConnection(persistencemgr.OnDisk)
 	if err != nil {
 		t.Errorf("error while trying to connecting to DB: %v", err.Error())
 	}
@@ -103,7 +105,7 @@ func mockPlugins(t *testing.T) {
 }
 
 func mockFabricData(t *testing.T, fabuuid, pluginID string) {
-	connPool, err := common.GetDBConnection(common.OnDisk)
+	connPool, err := common.GetDBConnection(persistencemgr.OnDisk)
 	if err != nil {
 		t.Errorf("error while trying to connecting to DB: %v", err.Error())
 	}
@@ -146,7 +148,7 @@ func TestGetTarget(t *testing.T) {
 
 func create(target *Target) *errors.Error {
 
-	conn, err := common.GetDBConnection(common.OnDisk)
+	conn, err := common.GetDBConnection(persistencemgr.OnDisk)
 	if err != nil {
 		return err
 	}
@@ -162,7 +164,7 @@ func create(target *Target) *errors.Error {
 func TestGetResource(t *testing.T) {
 	config.SetUpMockConfig(t)
 	defer func() {
-		err := common.TruncateDB(common.InMemory)
+		err := common.TruncateDB(persistencemgr.InMemory)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -202,8 +204,8 @@ func TestGetPluginData(t *testing.T) {
 	config.SetUpMockConfig(t)
 
 	defer func() {
-		common.TruncateDB(common.OnDisk)
-		common.TruncateDB(common.InMemory)
+		common.TruncateDB(persistencemgr.OnDisk)
+		common.TruncateDB(persistencemgr.InMemory)
 	}()
 
 	validPassword := []byte("password")
@@ -219,10 +221,10 @@ func TestGetPluginData(t *testing.T) {
 		PluginType:        "RF-GENERIC",
 		PreferredAuthType: "BasicAuth",
 	}
-	mockData(t, common.OnDisk, "Plugin", "validPlugin", pluginData)
+	mockData(t, persistencemgr.OnDisk, "Plugin", "validPlugin", pluginData)
 	pluginData.Password = invalidPassword
-	mockData(t, common.OnDisk, "Plugin", "invalidPassword", pluginData)
-	mockData(t, common.OnDisk, "Plugin", "invalidPluginData", "pluginData")
+	mockData(t, persistencemgr.OnDisk, "Plugin", "invalidPassword", pluginData)
+	mockData(t, persistencemgr.OnDisk, "Plugin", "invalidPluginData", "pluginData")
 
 	type args struct {
 		pluginID string
@@ -285,11 +287,11 @@ func TestGetPluginData(t *testing.T) {
 func TestGetAllPlugins(t *testing.T) {
 	config.SetUpMockConfig(t)
 	defer func() {
-		err := common.TruncateDB(common.InMemory)
+		err := common.TruncateDB(persistencemgr.InMemory)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
-		err = common.TruncateDB(common.OnDisk)
+		err = common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -304,11 +306,11 @@ func TestGetAllPlugins(t *testing.T) {
 func TestGetAllKeysFromTable(t *testing.T) {
 	config.SetUpMockConfig(t)
 	defer func() {
-		err := common.TruncateDB(common.InMemory)
+		err := common.TruncateDB(persistencemgr.InMemory)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
-		err = common.TruncateDB(common.OnDisk)
+		err = common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -327,11 +329,11 @@ func TestGetAllKeysFromTable(t *testing.T) {
 func TestGetAllSystems(t *testing.T) {
 	config.SetUpMockConfig(t)
 	defer func() {
-		err := common.TruncateDB(common.InMemory)
+		err := common.TruncateDB(persistencemgr.InMemory)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
-		err = common.TruncateDB(common.OnDisk)
+		err = common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -347,11 +349,11 @@ func TestGetAllSystems(t *testing.T) {
 func TestGetSingleSystem(t *testing.T) {
 	config.SetUpMockConfig(t)
 	defer func() {
-		err := common.TruncateDB(common.InMemory)
+		err := common.TruncateDB(persistencemgr.InMemory)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
-		err = common.TruncateDB(common.OnDisk)
+		err = common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -376,11 +378,11 @@ func TestGetSingleSystem(t *testing.T) {
 func TestGetFabricData(t *testing.T) {
 	config.SetUpMockConfig(t)
 	defer func() {
-		err := common.TruncateDB(common.InMemory)
+		err := common.TruncateDB(persistencemgr.InMemory)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
-		err = common.TruncateDB(common.OnDisk)
+		err = common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -403,11 +405,11 @@ func TestGetFabricData(t *testing.T) {
 func TestGetAllFabrics(t *testing.T) {
 	config.SetUpMockConfig(t)
 	defer func() {
-		err := common.TruncateDB(common.InMemory)
+		err := common.TruncateDB(persistencemgr.InMemory)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
-		err = common.TruncateDB(common.OnDisk)
+		err = common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -427,7 +429,7 @@ func TestGetAllFabrics(t *testing.T) {
 func TestSaveDeviceSubscription(t *testing.T) {
 	common.SetUpMockConfig()
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -446,7 +448,7 @@ func TestSaveDeviceSubscription(t *testing.T) {
 func TestSaveDeviceSubscription_existing_subscription(t *testing.T) {
 	common.SetUpMockConfig()
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -469,7 +471,7 @@ func TestSaveDeviceSubscription_existing_subscription(t *testing.T) {
 func TestGetDeviceSubscriptions(t *testing.T) {
 	common.SetUpMockConfig()
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -499,7 +501,7 @@ func TestGetDeviceSubscriptions(t *testing.T) {
 func TestDeleteDeviceSubscription(t *testing.T) {
 	common.SetUpMockConfig()
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -522,7 +524,7 @@ func TestDeleteDeviceSubscription(t *testing.T) {
 func TestUpdateDeviceSubscriptionLocation(t *testing.T) {
 	common.SetUpMockConfig()
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -558,7 +560,7 @@ func TestSaveEventSubscription(t *testing.T) {
 
 	common.SetUpMockConfig()
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -578,7 +580,7 @@ func TestSaveEventSubscription(t *testing.T) {
 func TestSaveEventSubscription_existingData(t *testing.T) {
 	common.SetUpMockConfig()
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -601,7 +603,7 @@ func TestSaveEventSubscription_existingData(t *testing.T) {
 func TestGetEvtSubscriptions(t *testing.T) {
 	common.SetUpMockConfig()
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -637,7 +639,7 @@ func TestGetEvtSubscriptions(t *testing.T) {
 func TestDeleteEvtSubscription(t *testing.T) {
 	common.SetUpMockConfig()
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -664,7 +666,7 @@ func TestDeleteEvtSubscription(t *testing.T) {
 func TestUpdateEvtSubscription(t *testing.T) {
 	common.SetUpMockConfig()
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -696,7 +698,7 @@ func TestUpdateEvtSubscription(t *testing.T) {
 func TestSaveUndeliveredEvents(t *testing.T) {
 	common.SetUpMockConfig()
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -710,7 +712,7 @@ func TestSaveUndeliveredEvents(t *testing.T) {
 func TestGetUndeliveredEvents(t *testing.T) {
 	common.SetUpMockConfig()
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -728,7 +730,7 @@ func TestGetUndeliveredEvents(t *testing.T) {
 func TestDeleteUndeliveredEvents(t *testing.T) {
 	common.SetUpMockConfig()
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -748,7 +750,7 @@ func TestDeleteUndeliveredEvents(t *testing.T) {
 func TestSetUndeliveredEventsFlag(t *testing.T) {
 	common.SetUpMockConfig()
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -761,7 +763,7 @@ func TestSetUndeliveredEventsFlag(t *testing.T) {
 func TestGetUndeliveredEventsFlag(t *testing.T) {
 	common.SetUpMockConfig()
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -778,7 +780,7 @@ func TestGetUndeliveredEventsFlag(t *testing.T) {
 func TestDeleteUndeliveredEventsFlag(t *testing.T) {
 	common.SetUpMockConfig()
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}

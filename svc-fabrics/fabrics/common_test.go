@@ -18,17 +18,20 @@ package fabrics
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"testing"
+
+	"github.com/ODIM-Project/ODIM/lib-persistence-manager/persistencemgr"
+
 	"github.com/ODIM-Project/ODIM/lib-utilities/common"
 	fabricsproto "github.com/ODIM-Project/ODIM/lib-utilities/proto/fabrics"
 	"github.com/ODIM-Project/ODIM/svc-fabrics/fabmodel"
 	"github.com/stretchr/testify/assert"
-	"net/http"
-	"testing"
 )
 
 func mockFabricData(fabricID, pluginID string) error {
 
-	connPool, err := common.GetDBConnection(common.OnDisk)
+	connPool, err := common.GetDBConnection(persistencemgr.OnDisk)
 	if err != nil {
 		return fmt.Errorf("error while trying to connecting to DB: %v", err.Error())
 	}
@@ -47,7 +50,7 @@ func TestFabrics_WithInvalidPluginData(t *testing.T) {
 	Token.Tokens["GRF"] = "234556"
 	common.SetUpMockConfig()
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -100,7 +103,7 @@ func TestFabrics_WithInvalidURI(t *testing.T) {
 	Token.Tokens["CFM"] = "123456"
 	common.SetUpMockConfig()
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -153,7 +156,7 @@ func TestFabrics_WithInvaliPluginCredentials(t *testing.T) {
 	Token.Tokens["CFM"] = ""
 	common.SetUpMockConfig()
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -206,7 +209,7 @@ func TestFabrics_WithBasicAuth(t *testing.T) {
 
 	common.SetUpMockConfig()
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -241,7 +244,7 @@ func TestFabrics_WithInvalidData(t *testing.T) {
 
 	common.SetUpMockConfig()
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}

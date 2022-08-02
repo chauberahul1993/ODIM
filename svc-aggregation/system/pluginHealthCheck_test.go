@@ -20,6 +20,8 @@ package system
 import (
 	"testing"
 
+	"github.com/ODIM-Project/ODIM/lib-persistence-manager/persistencemgr"
+
 	"github.com/ODIM-Project/ODIM/lib-utilities/common"
 	"github.com/ODIM-Project/ODIM/lib-utilities/config"
 	"github.com/ODIM-Project/ODIM/svc-aggregation/agcommon"
@@ -65,7 +67,7 @@ func Test_checkPluginStatus(t *testing.T) {
 }
 
 func mockPlugins(t *testing.T) {
-	connPool, err := common.GetDBConnection(common.OnDisk)
+	connPool, err := common.GetDBConnection(persistencemgr.OnDisk)
 	if err != nil {
 		t.Errorf("error while trying to connecting to DB: %v", err.Error())
 	}
@@ -94,11 +96,11 @@ func mockPlugins(t *testing.T) {
 func TestPushPluginStartUpData(t *testing.T) {
 	config.SetUpMockConfig(t)
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
-		err = common.TruncateDB(common.InMemory)
+		err = common.TruncateDB(persistencemgr.InMemory)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -123,11 +125,11 @@ func TestPushPluginStartUpData(t *testing.T) {
 func Test_sendPluginStartupRequest(t *testing.T) {
 	config.SetUpMockConfig(t)
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
-		err = common.TruncateDB(common.InMemory)
+		err = common.TruncateDB(persistencemgr.InMemory)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -148,11 +150,11 @@ func Test_sendPluginStartupRequest(t *testing.T) {
 func Test_sendFullPluginInventory(t *testing.T) {
 	config.SetUpMockConfig(t)
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
-		err = common.TruncateDB(common.InMemory)
+		err = common.TruncateDB(persistencemgr.InMemory)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -175,11 +177,11 @@ func Test_sendFullPluginInventory(t *testing.T) {
 func Test_sharePluginInventory(t *testing.T) {
 	config.SetUpMockConfig(t)
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
-		err = common.TruncateDB(common.InMemory)
+		err = common.TruncateDB(persistencemgr.InMemory)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -193,11 +195,11 @@ func Test_sharePluginInventory(t *testing.T) {
 func TestSendPluginStartUpData(t *testing.T) {
 	config.SetUpMockConfig(t)
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
-		err = common.TruncateDB(common.InMemory)
+		err = common.TruncateDB(persistencemgr.InMemory)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}

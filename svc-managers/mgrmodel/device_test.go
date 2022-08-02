@@ -19,6 +19,8 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/ODIM-Project/ODIM/lib-persistence-manager/persistencemgr"
+
 	"github.com/ODIM-Project/ODIM/lib-utilities/common"
 	"github.com/ODIM-Project/ODIM/lib-utilities/config"
 	"github.com/stretchr/testify/assert"
@@ -40,7 +42,7 @@ var target = DeviceTarget{
 }
 
 func mockTarget() error {
-	connPool, err := common.GetDBConnection(common.OnDisk)
+	connPool, err := common.GetDBConnection(persistencemgr.OnDisk)
 	if err != nil {
 		return fmt.Errorf("error while trying to connecting to DB: %v", err.Error())
 	}
@@ -63,7 +65,7 @@ func getEncryptedKey(t *testing.T, key []byte) []byte {
 
 func mockPluginData(t *testing.T) error {
 	plugin.Password = getEncryptedKey(t, []byte("12345"))
-	connPool, err := common.GetDBConnection(common.OnDisk)
+	connPool, err := common.GetDBConnection(persistencemgr.OnDisk)
 	if err != nil {
 		return fmt.Errorf("error while trying to connecting to DB: %v", err.Error())
 	}
@@ -87,8 +89,8 @@ func TestGetPluginData(t *testing.T) {
 	config.SetUpMockConfig(t)
 
 	defer func() {
-		common.TruncateDB(common.OnDisk)
-		common.TruncateDB(common.InMemory)
+		common.TruncateDB(persistencemgr.OnDisk)
+		common.TruncateDB(persistencemgr.InMemory)
 	}()
 
 	validPassword := []byte("password")
@@ -104,10 +106,10 @@ func TestGetPluginData(t *testing.T) {
 		PluginType:        "RF-GENERIC",
 		PreferredAuthType: "BasicAuth",
 	}
-	mockData(t, common.OnDisk, "Plugin", "validPlugin", pluginData)
+	mockData(t, persistencemgr.OnDisk, "Plugin", "validPlugin", pluginData)
 	pluginData.Password = invalidPassword
-	mockData(t, common.OnDisk, "Plugin", "invalidPassword", pluginData)
-	mockData(t, common.OnDisk, "Plugin", "invalidPluginData", "pluginData")
+	mockData(t, persistencemgr.OnDisk, "Plugin", "invalidPassword", pluginData)
+	mockData(t, persistencemgr.OnDisk, "Plugin", "invalidPluginData", "pluginData")
 
 	type args struct {
 		pluginID string
@@ -170,7 +172,7 @@ func TestGetPluginData(t *testing.T) {
 func TestGetTarget(t *testing.T) {
 	config.SetUpMockConfig(t)
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}

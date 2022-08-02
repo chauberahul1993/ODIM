@@ -20,6 +20,8 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/ODIM-Project/ODIM/lib-persistence-manager/persistencemgr"
+
 	"github.com/ODIM-Project/ODIM/lib-utilities/common"
 	"github.com/ODIM-Project/ODIM/lib-utilities/config"
 	"github.com/stretchr/testify/assert"
@@ -36,7 +38,7 @@ var plugin = Plugin{
 
 func mockPluginData(t *testing.T) error {
 	plugin.Password = getEncryptedKey(t, []byte("12345"))
-	connPool, err := common.GetDBConnection(common.OnDisk)
+	connPool, err := common.GetDBConnection(persistencemgr.OnDisk)
 	if err != nil {
 		return fmt.Errorf("error while trying to connecting to DB: %v", err.Error())
 	}
@@ -56,7 +58,7 @@ func getEncryptedKey(t *testing.T, key []byte) []byte {
 
 func mockFabricData(fabricID, pluginID string) error {
 
-	connPool, err := common.GetDBConnection(common.OnDisk)
+	connPool, err := common.GetDBConnection(persistencemgr.OnDisk)
 	if err != nil {
 		return fmt.Errorf("error while trying to connecting to DB: %v", err.Error())
 	}
@@ -84,8 +86,8 @@ func TestGetPluginData(t *testing.T) {
 	config.SetUpMockConfig(t)
 
 	defer func() {
-		common.TruncateDB(common.OnDisk)
-		common.TruncateDB(common.InMemory)
+		common.TruncateDB(persistencemgr.OnDisk)
+		common.TruncateDB(persistencemgr.InMemory)
 	}()
 
 	validPassword := []byte("password")
@@ -101,10 +103,10 @@ func TestGetPluginData(t *testing.T) {
 		PluginType:        "Fabric",
 		PreferredAuthType: "BasicAuth",
 	}
-	mockData(t, common.OnDisk, "Plugin", "validPlugin", pluginData)
+	mockData(t, persistencemgr.OnDisk, "Plugin", "validPlugin", pluginData)
 	pluginData.Password = invalidPassword
-	mockData(t, common.OnDisk, "Plugin", "invalidPassword", pluginData)
-	mockData(t, common.OnDisk, "Plugin", "invalidPluginData", "pluginData")
+	mockData(t, persistencemgr.OnDisk, "Plugin", "invalidPassword", pluginData)
+	mockData(t, persistencemgr.OnDisk, "Plugin", "invalidPluginData", "pluginData")
 
 	type args struct {
 		pluginID string
@@ -167,7 +169,7 @@ func TestGetPluginData(t *testing.T) {
 func TestGetAllFabricPluginDetails(t *testing.T) {
 	config.SetUpMockConfig(t)
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -181,7 +183,7 @@ func TestGetAllFabricPluginDetails(t *testing.T) {
 func TestAddFabricData(t *testing.T) {
 	config.SetUpMockConfig(t)
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -201,7 +203,7 @@ func TestAddFabricData(t *testing.T) {
 func TesGetManagingPluginIDForFabricID(t *testing.T) {
 	config.SetUpMockConfig(t)
 	defer func() {
-		common.TruncateDB(common.OnDisk)
+		common.TruncateDB(persistencemgr.OnDisk)
 	}()
 	var fab = Fabric{
 		FabricUUID: "12345",
@@ -224,8 +226,8 @@ func TesGetManagingPluginIDForFabricID(t *testing.T) {
 func TestGetAllFabrics(t *testing.T) {
 	config.SetUpMockConfig(t)
 	defer func() {
-		common.TruncateDB(common.OnDisk)
-		common.TruncateDB(common.InMemory)
+		common.TruncateDB(persistencemgr.OnDisk)
+		common.TruncateDB(persistencemgr.InMemory)
 	}()
 	err := mockFabricData("d72dade0-c35a-984c-4859-1108132d72da", "CFM")
 	if err != nil {

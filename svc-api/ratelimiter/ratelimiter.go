@@ -7,6 +7,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/ODIM-Project/ODIM/lib-persistence-manager/persistencemgr"
+
 	iris "github.com/kataras/iris/v12"
 	log "github.com/sirupsen/logrus"
 
@@ -75,7 +77,7 @@ func ResourceRateLimiter(ctx iris.Context) {
 			resource := strings.Replace(resourceLimit[0], "{id}", "[a-zA-Z0-9._-]+", -1)
 			regex := regexp.MustCompile(resource)
 			if regex.MatchString(uri) {
-				conn, err := common.GetDBConnection(common.InMemory)
+				conn, err := common.GetDBConnection(persistencemgr.InMemory)
 				if err != nil {
 					log.Error(err.Error())
 					response := common.GeneralError(http.StatusInternalServerError, response.InternalError, err.Error(), nil, nil)
@@ -107,7 +109,7 @@ func ResourceRateLimiter(ctx iris.Context) {
 
 // IncrementCounter will increment the count
 func IncrementCounter(key, table string) (int, *errors.Error) {
-	conn, err := common.GetDBConnection(common.InMemory)
+	conn, err := common.GetDBConnection(persistencemgr.InMemory)
 	if err != nil {
 		return 0, err
 	}
@@ -116,7 +118,7 @@ func IncrementCounter(key, table string) (int, *errors.Error) {
 
 // DecrementCounter will decrement the count
 func DecrementCounter(key, table string) (int, *errors.Error) {
-	conn, err := common.GetDBConnection(common.InMemory)
+	conn, err := common.GetDBConnection(persistencemgr.InMemory)
 	if err != nil {
 		return 0, err
 	}

@@ -26,12 +26,15 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	dmtf "github.com/ODIM-Project/ODIM/lib-dmtf/model"
 	"io/ioutil"
 	"net/http"
 	"reflect"
 	"strings"
 	"testing"
+
+	"github.com/ODIM-Project/ODIM/lib-persistence-manager/persistencemgr"
+
+	dmtf "github.com/ODIM-Project/ODIM/lib-dmtf/model"
 
 	"github.com/ODIM-Project/ODIM/lib-utilities/common"
 	"github.com/ODIM-Project/ODIM/lib-utilities/config"
@@ -82,7 +85,7 @@ func mockEventNotification(systemID, eventType, collectionType string) {
 func mockManagersData(id string, data map[string]interface{}) error {
 	reqData, _ := json.Marshal(data)
 
-	connPool, err := common.GetDBConnection(common.InMemory)
+	connPool, err := common.GetDBConnection(persistencemgr.InMemory)
 	if err != nil {
 		return fmt.Errorf("error while trying to connecting to DB: %v", err.Error())
 	}
@@ -114,7 +117,7 @@ func mockSystemOperationInfo() *errors.Error {
 func mockLogServicesCollectionData(id string, data map[string]interface{}) error {
 	reqData, _ := json.Marshal(data)
 
-	connPool, err := common.GetDBConnection(common.InMemory)
+	connPool, err := common.GetDBConnection(persistencemgr.InMemory)
 	if err != nil {
 		return fmt.Errorf("error while trying to connecting to DB: %v", err.Error())
 	}
@@ -131,11 +134,11 @@ func TestDeleteAggregationSourceWithRediscovery(t *testing.T) {
 	}
 	config.SetUpMockConfig(t)
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
-		err = common.TruncateDB(common.InMemory)
+		err = common.TruncateDB(persistencemgr.InMemory)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -222,11 +225,11 @@ func TestExternalInterface_DeleteAggregationSourceManager(t *testing.T) {
 	config.SetUpMockConfig(t)
 	common.MuxLock.Unlock()
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
-		err = common.TruncateDB(common.InMemory)
+		err = common.TruncateDB(persistencemgr.InMemory)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -373,11 +376,11 @@ func TestExternalInterface_DeleteBMC(t *testing.T) {
 	d := getMockExternalInterface()
 	config.SetUpMockConfig(t)
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
-		err = common.TruncateDB(common.InMemory)
+		err = common.TruncateDB(persistencemgr.InMemory)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -491,11 +494,11 @@ func TestExternalInterface_DeleteBMC(t *testing.T) {
 func Test_deleteLinkDetails(t *testing.T) {
 	config.SetUpMockConfig(t)
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
-		err = common.TruncateDB(common.InMemory)
+		err = common.TruncateDB(persistencemgr.InMemory)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -548,11 +551,11 @@ func TestExternalInterface_deleteWildCardValues(t *testing.T) {
 	p := getMockExternalInterface()
 	config.SetUpMockConfig(t)
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
-		err = common.TruncateDB(common.InMemory)
+		err = common.TruncateDB(persistencemgr.InMemory)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -627,11 +630,11 @@ func TestExternalInterface_updateMemberCollection(t *testing.T) {
 	p := getMockExternalInterface()
 	config.SetUpMockConfig(t)
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
-		err = common.TruncateDB(common.InMemory)
+		err = common.TruncateDB(persistencemgr.InMemory)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}

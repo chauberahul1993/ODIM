@@ -20,6 +20,8 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/ODIM-Project/ODIM/lib-persistence-manager/persistencemgr"
+
 	log "github.com/sirupsen/logrus"
 
 	"github.com/ODIM-Project/ODIM/lib-utilities/common"
@@ -283,8 +285,8 @@ func (e *ExternalInterface) addCompute(taskID, targetURI, pluginID string, perce
 		return common.GeneralError(http.StatusInternalServerError, response.InternalError, errMsg, nil, taskInfo), "", nil
 	}
 	aggSourceIDChassisAndManager := saveSystem.DeviceUUID + "."
-	chassisList, _ := agmodel.GetAllMatchingDetails("Chassis", aggSourceIDChassisAndManager, common.InMemory)
-	managersList, _ := agmodel.GetAllMatchingDetails("Managers", aggSourceIDChassisAndManager, common.InMemory)
+	chassisList, _ := agmodel.GetAllMatchingDetails("Chassis", aggSourceIDChassisAndManager, persistencemgr.InMemory)
+	managersList, _ := agmodel.GetAllMatchingDetails("Managers", aggSourceIDChassisAndManager, persistencemgr.InMemory)
 	urlList := h.SystemURL
 	urlList = append(urlList, chassisList...)
 	urlList = append(urlList, managersList...)

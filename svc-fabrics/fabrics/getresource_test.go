@@ -34,6 +34,8 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/ODIM-Project/ODIM/lib-persistence-manager/persistencemgr"
+
 	"gotest.tools/assert"
 
 	"github.com/ODIM-Project/ODIM/lib-utilities/common"
@@ -63,7 +65,7 @@ func mockPluginData(t *testing.T, pluginID, PreferredAuthType, port string) erro
 		PluginType:        "Fabric",
 		PreferredAuthType: PreferredAuthType,
 	}
-	connPool, err := common.GetDBConnection(common.OnDisk)
+	connPool, err := common.GetDBConnection(persistencemgr.OnDisk)
 	if err != nil {
 		return fmt.Errorf("error while trying to connecting to DB: %v", err.Error())
 	}
@@ -143,7 +145,7 @@ func TestFabrics_GetFabricResource(t *testing.T) {
 	Token.Tokens = make(map[string]string)
 	config.SetUpMockConfig(t)
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -260,7 +262,7 @@ func TestFabrics_GetFabricResourceWithNoValidSession(t *testing.T) {
 	Token.Tokens["CFM"] = "234556"
 	config.SetUpMockConfig(t)
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -321,7 +323,7 @@ func TestFabricsCollection_WithInvalidPlugin(t *testing.T) {
 	Token.Tokens["CFM"] = "234556"
 	config.SetUpMockConfig(t)
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -349,7 +351,7 @@ func TestFabricsCollection_WithInvalidPlugin(t *testing.T) {
 func TestFabricsCollection_emptyCollection(t *testing.T) {
 	config.SetUpMockConfig(t)
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -375,7 +377,7 @@ func TestFabricsCollection_emptyCollection(t *testing.T) {
 func TestFabricsCollection_Collection(t *testing.T) {
 	config.SetUpMockConfig(t)
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}

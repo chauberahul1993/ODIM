@@ -28,6 +28,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/ODIM-Project/ODIM/lib-persistence-manager/persistencemgr"
+
 	log "github.com/sirupsen/logrus"
 
 	dmtf "github.com/ODIM-Project/ODIM/lib-dmtf/model"
@@ -1156,7 +1158,7 @@ func getFirmwareVersion(oid, deviceUUID string) string {
 	id := strArray[len(strArray)-1]
 	key := strings.Replace(oid, "/"+id, "/"+deviceUUID+".", -1)
 	key = strings.Replace(key, "Systems", "Managers", -1)
-	keys, dberr := agmodel.GetAllMatchingDetails("Managers", key, common.InMemory)
+	keys, dberr := agmodel.GetAllMatchingDetails("Managers", key, persistencemgr.InMemory)
 	if dberr != nil {
 		log.Error("while getting the managers data" + dberr.Error())
 		return ""

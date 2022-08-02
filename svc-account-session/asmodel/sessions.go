@@ -19,11 +19,12 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/ODIM-Project/ODIM/lib-utilities/common"
+	"github.com/ODIM-Project/ODIM/lib-persistence-manager/persistencemgr"
+
 	"github.com/ODIM-Project/ODIM/lib-utilities/errors"
 )
 
-var sessionStore = common.InMemory
+var sessionStore = persistencemgr.InMemory
 
 // Session will hold the data assosiated with the session
 type Session struct {

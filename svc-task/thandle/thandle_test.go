@@ -22,6 +22,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ODIM-Project/ODIM/lib-persistence-manager/persistencemgr"
+
 	"github.com/ODIM-Project/ODIM/lib-utilities/common"
 	"github.com/ODIM-Project/ODIM/lib-utilities/config"
 	"github.com/ODIM-Project/ODIM/lib-utilities/errors"
@@ -50,7 +52,7 @@ func createMockUser(username, roleID string) error {
 		Password: hashedPassword,
 		RoleID:   roleID,
 	}
-	conn, err := common.GetDBConnection(common.OnDisk)
+	conn, err := common.GetDBConnection(persistencemgr.OnDisk)
 	if err != nil {
 		return err
 	}
@@ -126,7 +128,7 @@ func mockDeleteTaskIndex(task string) error {
 }
 
 func mockUpdateTaskStatusModel(task *tmodel.Task, db common.DbType) error {
-	if db != common.InMemory {
+	if db != persistencemgr.InMemory {
 		return fmt.Errorf("error while trying to update task")
 	}
 	if task.ID == "invalidTaskID" {
@@ -145,7 +147,7 @@ func mockValidateTaskUserNameModel(userName string) error {
 	return nil
 }
 func mockPersistTaskModel(task *tmodel.Task, db common.DbType) error {
-	if db != common.InMemory {
+	if db != persistencemgr.InMemory {
 		return fmt.Errorf("error while trying to connecting to DB: error invalid db type selection")
 	}
 	return nil
@@ -867,11 +869,11 @@ func TestTasksRPC_CreateTask(t *testing.T) {
 func TestTasksRPC_OverWriteCompletedTaskUtil(t *testing.T) {
 	config.SetUpMockConfig(t)
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
-		err = common.TruncateDB(common.InMemory)
+		err = common.TruncateDB(persistencemgr.InMemory)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -889,7 +891,7 @@ func TestTasksRPC_OverWriteCompletedTaskUtil(t *testing.T) {
 	}
 	task.Name = "Task " + task.ID
 	// Persist in the in-memory DB
-	err := tmodel.PersistTask(&task, common.InMemory)
+	err := tmodel.PersistTask(&task, persistencemgr.InMemory)
 	if err != nil {
 		t.Fatalf("error while trying to insert the task details: %v", err)
 		return

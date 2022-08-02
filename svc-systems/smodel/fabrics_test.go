@@ -26,7 +26,7 @@ import (
 )
 
 func mockFabricData(t *testing.T, table, id string, data interface{}) error {
-	connPool, err := common.GetDBConnection(common.OnDisk)
+	connPool, err := common.GetDBConnection(persistencemgr.OnDisk)
 	if err != nil {
 		return fmt.Errorf("error while trying to connecting to DB: %v", err)
 	}
@@ -47,7 +47,7 @@ func mockPlugin(t *testing.T, pluginID, PreferredAuthType, port string) error {
 		PluginType:        "Fabric",
 		PreferredAuthType: PreferredAuthType,
 	}
-	connPool, err := common.GetDBConnection(common.OnDisk)
+	connPool, err := common.GetDBConnection(persistencemgr.OnDisk)
 	if err != nil {
 		return fmt.Errorf("error while trying to connecting to DB: %v", err.Error())
 	}
@@ -60,7 +60,7 @@ func mockPlugin(t *testing.T, pluginID, PreferredAuthType, port string) error {
 func TestGetFabricManagers(t *testing.T) {
 	config.SetUpMockConfig(t)
 	defer func() {
-		common.TruncateDB(common.OnDisk)
+		common.TruncateDB(persistencemgr.OnDisk)
 	}()
 	err := mockPlugin(t, "GRF", "XAuthToken", "9091")
 	if err != nil {

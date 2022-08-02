@@ -54,8 +54,8 @@ var OEMList = OEMPrivileges{
 func TestCreatePrivilegeRegistry(t *testing.T) {
 	common.SetUpMockConfig()
 	defer func() {
-		common.TruncateDB(common.OnDisk)
-		common.TruncateDB(common.InMemory)
+		common.TruncateDB(persistencemgr.OnDisk)
+		common.TruncateDB(persistencemgr.InMemory)
 	}()
 	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
 		return common.GetDBConnection(dbFlag)
@@ -67,13 +67,13 @@ func TestCreatePrivilegeRegistry(t *testing.T) {
 func TestGetPrivilegeRegistry(t *testing.T) {
 	common.SetUpMockConfig()
 	defer func() {
-		common.TruncateDB(common.OnDisk)
-		common.TruncateDB(common.InMemory)
+		common.TruncateDB(persistencemgr.OnDisk)
+		common.TruncateDB(persistencemgr.InMemory)
 	}()
 	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
 		return common.GetDBConnection(dbFlag)
 	}
-	mockData(common.OnDisk, "registry", "assignedprivileges", list)
+	mockData(persistencemgr.OnDisk, "registry", "assignedprivileges", list)
 	_, err := GetPrivilegeRegistry()
 	assert.Nil(t, err, "There should be no error")
 }
@@ -81,15 +81,15 @@ func TestGetPrivilegeRegistry(t *testing.T) {
 func TestGetPrivilegeRegistryNegativeTestCase(t *testing.T) {
 	common.SetUpMockConfig()
 	defer func() {
-		common.TruncateDB(common.OnDisk)
-		common.TruncateDB(common.InMemory)
+		common.TruncateDB(persistencemgr.OnDisk)
+		common.TruncateDB(persistencemgr.InMemory)
 	}()
 	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
 		return common.GetDBConnection(dbFlag)
 	}
 	_, err := GetPrivilegeRegistry()
 	assert.NotNil(t, err, "There should be an error")
-	mockData(common.OnDisk, "registry", "assignedprivileges", "list")
+	mockData(persistencemgr.OnDisk, "registry", "assignedprivileges", "list")
 	_, err = GetPrivilegeRegistry()
 	assert.NotNil(t, err, "There should be an error")
 }
@@ -97,8 +97,8 @@ func TestGetPrivilegeRegistryNegativeTestCase(t *testing.T) {
 func TestCreateOEMPrivilegeRegistry(t *testing.T) {
 	common.SetUpMockConfig()
 	defer func() {
-		common.TruncateDB(common.OnDisk)
-		common.TruncateDB(common.InMemory)
+		common.TruncateDB(persistencemgr.OnDisk)
+		common.TruncateDB(persistencemgr.InMemory)
 	}()
 	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
 		return common.GetDBConnection(dbFlag)
@@ -110,13 +110,13 @@ func TestCreateOEMPrivilegeRegistry(t *testing.T) {
 func TestGetOEMPrivileges(t *testing.T) {
 	common.SetUpMockConfig()
 	defer func() {
-		common.TruncateDB(common.OnDisk)
-		common.TruncateDB(common.InMemory)
+		common.TruncateDB(persistencemgr.OnDisk)
+		common.TruncateDB(persistencemgr.InMemory)
 	}()
 	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
 		return common.GetDBConnection(dbFlag)
 	}
-	mockData(common.OnDisk, "registry", "oemprivileges", OEMList)
+	mockData(persistencemgr.OnDisk, "registry", "oemprivileges", OEMList)
 	_, err := GetOEMPrivileges()
 	assert.Nil(t, err, "There should be no error")
 }
@@ -124,15 +124,15 @@ func TestGetOEMPrivileges(t *testing.T) {
 func TestGetOEMPrivilegesNegativeTestCase(t *testing.T) {
 	common.SetUpMockConfig()
 	defer func() {
-		common.TruncateDB(common.OnDisk)
-		common.TruncateDB(common.InMemory)
+		common.TruncateDB(persistencemgr.OnDisk)
+		common.TruncateDB(persistencemgr.InMemory)
 	}()
 	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
 		return common.GetDBConnection(dbFlag)
 	}
 	_, err := GetOEMPrivileges()
 	assert.NotNil(t, err, "There should be an error")
-	mockData(common.OnDisk, "registry", "oemprivileges", "OEMList")
+	mockData(persistencemgr.OnDisk, "registry", "oemprivileges", "OEMList")
 	_, err = GetOEMPrivileges()
 	assert.NotNil(t, err, "There should be an error")
 }

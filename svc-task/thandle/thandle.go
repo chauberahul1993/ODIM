@@ -23,6 +23,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ODIM-Project/ODIM/lib-persistence-manager/persistencemgr"
+
 	log "github.com/sirupsen/logrus"
 
 	"github.com/ODIM-Project/ODIM/lib-utilities/common"
@@ -108,13 +110,13 @@ func (ts *TasksRPC) OverWriteCompletedTaskUtil(userName string) error {
 }
 
 func (ts *TasksRPC) deleteCompletedTask(taskID string) error {
-	task, err := ts.GetTaskStatusModel(taskID, common.InMemory)
+	task, err := ts.GetTaskStatusModel(taskID, persistencemgr.InMemory)
 	if err != nil {
 		log.Error("error getting taskID - " + taskID + " status : " + err.Error())
 		return nil
 	}
 	for _, subTaskID := range task.ChildTaskIDs {
-		subTask, err := ts.GetTaskStatusModel(subTaskID, common.InMemory)
+		subTask, err := ts.GetTaskStatusModel(subTaskID, persistencemgr.InMemory)
 		if err != nil {
 			log.Error("error getting task status : " + err.Error())
 			continue
@@ -286,7 +288,7 @@ func (ts *TasksRPC) validateAndAutherize(req *taskproto.GetTaskRequest, rsp *tas
 
 	}
 	// get task status from database using task id
-	task, err := ts.GetTaskStatusModel(req.TaskID, common.InMemory)
+	task, err := ts.GetTaskStatusModel(req.TaskID, persistencemgr.InMemory)
 	if err != nil {
 		log.Error("error getting task status : " + err.Error())
 		fillProtoResponse(rsp, common.GeneralError(http.StatusNotFound, response.ResourceNotFound, err.Error(), []interface{}{"Task", req.TaskID}, nil))
@@ -308,7 +310,7 @@ func (ts *TasksRPC) validateAndAutherize(req *taskproto.GetTaskRequest, rsp *tas
 }
 
 func (ts *TasksRPC) taskCancelCallBack(taskID string) error {
-	task, err := ts.GetTaskStatusModel(taskID, common.InMemory)
+	task, err := ts.GetTaskStatusModel(taskID, persistencemgr.InMemory)
 	if err != nil {
 		log.Error("error getting task status : " + err.Error())
 		return nil
@@ -316,7 +318,7 @@ func (ts *TasksRPC) taskCancelCallBack(taskID string) error {
 	if task.TaskState == common.Completed || task.TaskState == common.Exception || task.TaskState == common.Pending {
 		// check if this task has any child tasks, if so delete them.
 		for _, subTaskID := range task.ChildTaskIDs {
-			subTask, err := ts.GetTaskStatusModel(subTaskID, common.InMemory)
+			subTask, err := ts.GetTaskStatusModel(subTaskID, persistencemgr.InMemory)
 			if err != nil {
 				log.Error("error getting task status : " + err.Error())
 				continue
@@ -327,7 +329,7 @@ func (ts *TasksRPC) taskCancelCallBack(taskID string) error {
 		return nil
 	}
 	for _, subTaskID := range task.ChildTaskIDs {
-		subTask, err := ts.GetTaskStatusModel(subTaskID, common.InMemory)
+		subTask, err := ts.GetTaskStatusModel(subTaskID, persistencemgr.InMemory)
 		if err != nil {
 			log.Error("error getting task status : " + err.Error())
 			continue
@@ -339,7 +341,7 @@ func (ts *TasksRPC) taskCancelCallBack(taskID string) error {
 			ts.DeleteTaskFromDBModel(subTask)
 		} else if subTask.TaskState != common.Cancelling {
 			subTask.TaskState = common.Cancelling
-			err := ts.UpdateTaskStatusModel(subTask, common.InMemory)
+			err := ts.UpdateTaskStatusModel(subTask, persistencemgr.InMemory)
 			if err != nil {
 				log.Error("error while updating the task: " + err.Error())
 				return err
@@ -350,7 +352,7 @@ func (ts *TasksRPC) taskCancelCallBack(taskID string) error {
 	// Delete the parent task
 	if task.TaskState != common.Cancelling {
 		task.TaskState = common.Cancelling
-		err := ts.UpdateTaskStatusModel(task, common.InMemory)
+		err := ts.UpdateTaskStatusModel(task, persistencemgr.InMemory)
 		if err != nil {
 			log.Error("error while updating the task: " + err.Error())
 			return err
@@ -368,7 +370,7 @@ func (ts *TasksRPC) asyncTaskDelete(taskID string) {
 
 	// Get the task
 	for {
-		task, err := ts.GetTaskStatusModel(taskID, common.InMemory)
+		task, err := ts.GetTaskStatusModel(taskID, persistencemgr.InMemory)
 		if err != nil {
 			log.Error("error getting task status : " + err.Error())
 			return
@@ -443,7 +445,7 @@ func (ts *TasksRPC) GetSubTask(ctx context.Context, req *taskproto.GetTaskReques
 		return &rsp, nil
 	}
 	// get task status from database using task id
-	task, err := ts.GetTaskStatusModel(req.SubTaskID, common.InMemory)
+	task, err := ts.GetTaskStatusModel(req.SubTaskID, persistencemgr.InMemory)
 	if err != nil {
 		log.Error("error getting sub task status : " + err.Error())
 		fillProtoResponse(&rsp, common.GeneralError(http.StatusNotFound, response.ResourceNotFound, err.Error(), []interface{}{"Task", req.SubTaskID}, nil))
@@ -571,7 +573,7 @@ func (ts *TasksRPC) TaskCollection(ctx context.Context, req *taskproto.GetTaskRe
 		//then its appropriate to give back all the tasks available in the DB
 		//If user has just login privelege then return his own task
 		if authResp.StatusCode == http.StatusOK && statusConfigureUsers.StatusCode != http.StatusOK {
-			task, err := ts.GetTaskStatusModel(taskID, common.InMemory)
+			task, err := ts.GetTaskStatusModel(taskID, persistencemgr.InMemory)
 			if err != nil {
 				log.Error("error getting task status : " + err.Error())
 				fillProtoResponse(&rsp, common.GeneralError(http.StatusNotFound, response.ResourceNotFound, authErrorMessage, nil, nil))
@@ -806,7 +808,7 @@ func (ts *TasksRPC) CreateTaskUtil(userName string) (string, error) {
 	task.URI = "/redfish/v1/TaskService/Tasks/" + task.ID
 
 	// Persist in the in-memory DB
-	err = ts.PersistTaskModel(&task, common.InMemory)
+	err = ts.PersistTaskModel(&task, persistencemgr.InMemory)
 	if err != nil {
 		log.Error("error while trying to insert the task details: " + err.Error())
 		return "", err
@@ -832,7 +834,7 @@ func (ts *TasksRPC) CreateChildTaskUtil(userName string, parentTaskID string) (s
 		return "", fmt.Errorf("error parent task ID is empty")
 	}
 	// Retrieve the task details from db
-	parentTask, err := ts.GetTaskStatusModel(parentTaskID, common.InMemory)
+	parentTask, err := ts.GetTaskStatusModel(parentTaskID, persistencemgr.InMemory)
 	if err != nil {
 		log.Error("error while retrieving the task details from DB: " + err.Error())
 		return "", fmt.Errorf("error while retrieing the task detais from DB: " + err.Error())
@@ -851,7 +853,7 @@ func (ts *TasksRPC) CreateChildTaskUtil(userName string, parentTaskID string) (s
 		childTaskID = strArray[len(strArray)-1]
 	}
 	// Get the Child task to update with Parent task ID
-	childTask, err = ts.GetTaskStatusModel(childTaskID, common.InMemory)
+	childTask, err = ts.GetTaskStatusModel(childTaskID, persistencemgr.InMemory)
 	if err != nil {
 		log.Error("error while retrieving the child/sub task from DB: " + err.Error())
 		return "", fmt.Errorf("error while retrieving the child/sub task from DB: " + err.Error())
@@ -859,7 +861,7 @@ func (ts *TasksRPC) CreateChildTaskUtil(userName string, parentTaskID string) (s
 	childTask.ParentID = parentTaskID
 	childTask.URI = "/redfish/v1/TaskService/Tasks/" + parentTaskID + "/" + childTaskID
 	// Store the updated task in to In Memory DB
-	err = ts.UpdateTaskStatusModel(childTask, common.InMemory)
+	err = ts.UpdateTaskStatusModel(childTask, persistencemgr.InMemory)
 	if err != nil {
 		log.Error("error while updating the child/sub task details in to DB: " + err.Error())
 		return "", fmt.Errorf("error while updating the child/sub task details: " + err.Error())
@@ -867,7 +869,7 @@ func (ts *TasksRPC) CreateChildTaskUtil(userName string, parentTaskID string) (s
 	// Add the child/sub task id in to ChildTaskIDs(array) of the parent task
 	parentTask.ChildTaskIDs = append(parentTask.ChildTaskIDs, childTaskID)
 	// Update the parent task in to In Memory DB
-	err = ts.UpdateTaskStatusModel(parentTask, common.InMemory)
+	err = ts.UpdateTaskStatusModel(parentTask, persistencemgr.InMemory)
 	if err != nil {
 		log.Error("error while updating the task details in to DB: " + err.Error())
 		return "", fmt.Errorf("error while trying to update the task details in InMemory DB: " + err.Error())
@@ -891,7 +893,7 @@ func (ts *TasksRPC) updateTaskUtil(taskID string, taskState string, taskStatus s
 	var task *tmodel.Task
 	var taskEvenMessageID, taskMessage string
 	// Retrieve the task details using taskID
-	task, err := ts.GetTaskStatusModel(taskID, common.InMemory)
+	task, err := ts.GetTaskStatusModel(taskID, persistencemgr.InMemory)
 	if err != nil {
 		return fmt.Errorf("error while retrieving the task details from db: " + err.Error())
 	}
@@ -1094,7 +1096,7 @@ func (ts *TasksRPC) updateTaskUtil(taskID string, taskState string, taskStatus s
 		return fmt.Errorf("error invalid input argument for taskState")
 	}
 	// Update the task data in the InMemory DB
-	err = ts.UpdateTaskStatusModel(task, common.InMemory)
+	err = ts.UpdateTaskStatusModel(task, persistencemgr.InMemory)
 	if err != nil {
 		log.Error("error while updating the task in to In-memory DB: " + err.Error())
 		return fmt.Errorf("error while updating the task in to In-memory DB: " + err.Error())

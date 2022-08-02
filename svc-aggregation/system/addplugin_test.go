@@ -20,6 +20,8 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/ODIM-Project/ODIM/lib-persistence-manager/persistencemgr"
+
 	"github.com/ODIM-Project/ODIM/lib-utilities/common"
 	"github.com/ODIM-Project/ODIM/lib-utilities/config"
 	"github.com/ODIM-Project/ODIM/lib-utilities/errors"
@@ -69,7 +71,7 @@ func mockDupMgrAddrPluginData(t *testing.T, pluginID string) error {
 		PreferredAuthType: "BasicAuth",
 		ManagerUUID:       "duplicate-mgr-addr",
 	}
-	connPool, err := common.GetDBConnection(common.OnDisk)
+	connPool, err := common.GetDBConnection(persistencemgr.OnDisk)
 	if err != nil {
 		return fmt.Errorf("error while trying to connecting to DB: %v", err.Error())
 	}
@@ -94,17 +96,17 @@ func TestExternalInterface_Plugin(t *testing.T) {
 		Password: []byte("password"),
 		ID:       "PluginWithBadPassword",
 	}
-	mockData(t, common.OnDisk, "Plugin", "PluginWithBadPassword_v1.0.0", pluginData)
+	mockData(t, persistencemgr.OnDisk, "Plugin", "PluginWithBadPassword_v1.0.0", pluginData)
 	// create plugin with bad data
-	mockData(t, common.OnDisk, "Plugin", "PluginWithBadData_v1.0.0", "PluginWithBadData")
+	mockData(t, persistencemgr.OnDisk, "Plugin", "PluginWithBadData_v1.0.0", "PluginWithBadData")
 
 	config.Data.AddComputeSkipResources = &addComputeRetrieval
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
-		err = common.TruncateDB(common.InMemory)
+		err = common.TruncateDB(persistencemgr.InMemory)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -293,11 +295,11 @@ func TestExternalInterface_PluginXAuth(t *testing.T) {
 
 	config.Data.AddComputeSkipResources = &addComputeRetrieval
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
-		err = common.TruncateDB(common.InMemory)
+		err = common.TruncateDB(persistencemgr.InMemory)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}

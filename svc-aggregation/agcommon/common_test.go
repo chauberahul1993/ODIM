@@ -20,6 +20,8 @@ import (
 	"net"
 	"testing"
 
+	"github.com/ODIM-Project/ODIM/lib-persistence-manager/persistencemgr"
+
 	"github.com/ODIM-Project/ODIM/lib-utilities/common"
 	"github.com/ODIM-Project/ODIM/lib-utilities/config"
 	"github.com/ODIM-Project/ODIM/lib-utilities/errors"
@@ -89,7 +91,7 @@ func stubAddConnectionMethod(data agmodel.ConnectionMethod, key string) *errors.
 	}
 	connectionMethodURI := "/redfish/v1/AggregationService/ConnectionMethods/" + uuid.NewV4().String()
 
-	connPool, err := common.GetDBConnection(common.OnDisk)
+	connPool, err := common.GetDBConnection(persistencemgr.OnDisk)
 	if err != nil {
 		return errors.PackError(err.ErrNo(), "error while trying to connecting to DB: ", err.Error())
 
@@ -211,11 +213,11 @@ func mockGetPluginStatus(plugin agmodel.Plugin) bool {
 func TestGetAllPlugins(t *testing.T) {
 	config.SetUpMockConfig(t)
 	defer func() {
-		err := common.TruncateDB(common.InMemory)
+		err := common.TruncateDB(persistencemgr.InMemory)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
-		err = common.TruncateDB(common.OnDisk)
+		err = common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -237,7 +239,7 @@ func getEncryptedKey(t *testing.T, key []byte) []byte {
 }
 
 func mockPlugins(t *testing.T) {
-	connPool, err := common.GetDBConnection(common.OnDisk)
+	connPool, err := common.GetDBConnection(persistencemgr.OnDisk)
 	if err != nil {
 		t.Errorf("error while trying to connecting to DB: %v", err.Error())
 	}

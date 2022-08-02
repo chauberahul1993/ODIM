@@ -36,6 +36,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ODIM-Project/ODIM/lib-persistence-manager/persistencemgr"
+
 	"github.com/ODIM-Project/ODIM/lib-utilities/common"
 	"github.com/ODIM-Project/ODIM/lib-utilities/config"
 	aggregatorproto "github.com/ODIM-Project/ODIM/lib-utilities/proto/aggregator"
@@ -89,7 +91,7 @@ func mockPluginData(t *testing.T, pluginID string) error {
 	case "ILO_v1.0.0":
 		plugin.ManagerUUID = "1234877451-1233"
 	}
-	connPool, err := common.GetDBConnection(common.OnDisk)
+	connPool, err := common.GetDBConnection(persistencemgr.OnDisk)
 	if err != nil {
 		return fmt.Errorf("error while trying to connecting to DB: %v", err.Error())
 	}
@@ -100,7 +102,7 @@ func mockPluginData(t *testing.T, pluginID string) error {
 }
 func mockDeviceData(uuid string, device agmodel.Target) error {
 
-	connPool, err := common.GetDBConnection(common.OnDisk)
+	connPool, err := common.GetDBConnection(persistencemgr.OnDisk)
 	if err != nil {
 		return fmt.Errorf("error while trying to connecting to DB: %v", err.Error())
 	}
@@ -298,8 +300,8 @@ func stubDevicePassword(password []byte) ([]byte, error) {
 func TestPluginContact_ResetComputerSystem(t *testing.T) {
 	config.SetUpMockConfig(t)
 	defer func() {
-		common.TruncateDB(common.OnDisk)
-		common.TruncateDB(common.InMemory)
+		common.TruncateDB(persistencemgr.OnDisk)
+		common.TruncateDB(persistencemgr.InMemory)
 	}()
 	device1 := agmodel.Target{
 		ManagerAddress: "100.0.0.1",

@@ -80,7 +80,7 @@ type OdataIDLink struct {
 //GetSystemByUUID fetches computer system details by UUID from database
 func GetSystemByUUID(systemUUID string) (string, *errors.Error) {
 	var system string
-	conn, err := GetDBConnectionFunc(common.InMemory)
+	conn, err := GetDBConnectionFunc(persistencemgr.InMemory)
 	if err != nil {
 		// connection error
 		return system, err
@@ -97,7 +97,7 @@ func GetSystemByUUID(systemUUID string) (string, *errors.Error) {
 
 //GetResource fetches a resource from database using table and key
 func GetResource(Table, key string) (string, *errors.Error) {
-	conn, err := GetDBConnectionFunc(common.InMemory)
+	conn, err := GetDBConnectionFunc(persistencemgr.InMemory)
 	if err != nil {
 		return "", err
 	}
@@ -114,7 +114,7 @@ func GetResource(Table, key string) (string, *errors.Error) {
 
 // Find fetches a resource from database using table and key and store the data to an interface
 func Find(table, key string, r interface{}) *errors.Error {
-	conn, err := GetDBConnectionFunc(common.InMemory)
+	conn, err := GetDBConnectionFunc(persistencemgr.InMemory)
 	if err != nil {
 		return err
 	}
@@ -136,7 +136,7 @@ func Find(table, key string, r interface{}) *errors.Error {
 
 // FindAll ...
 func FindAll(table, key string) ([][]byte, error) {
-	cp, cpErr := GetDBConnectionFunc(common.OnDisk)
+	cp, cpErr := GetDBConnectionFunc(persistencemgr.OnDisk)
 	if cpErr != nil {
 		return nil, cpErr
 	}
@@ -189,7 +189,7 @@ func scan(cp *persistencemgr.ConnPool, key string) ([]interface{}, error) {
 
 //GetAllKeysFromTable fetches all keys in a given table
 func GetAllKeysFromTable(table string) ([]string, error) {
-	conn, err := GetDBConnectionFunc(common.InMemory)
+	conn, err := GetDBConnectionFunc(persistencemgr.InMemory)
 	if err != nil {
 		return nil, err
 	}
@@ -204,7 +204,7 @@ func GetAllKeysFromTable(table string) ([]string, error) {
 func GetPluginData(pluginID string) (Plugin, *errors.Error) {
 	var plugin Plugin
 
-	conn, err := GetDBConnectionFunc(common.OnDisk)
+	conn, err := GetDBConnectionFunc(persistencemgr.OnDisk)
 	if err != nil {
 		return plugin, err
 	}
@@ -230,7 +230,7 @@ func GetPluginData(pluginID string) (Plugin, *errors.Error) {
 //GetTarget fetches the System(Target Device Credentials) table details
 func GetTarget(deviceUUID string) (*Target, *errors.Error) {
 	var target Target
-	conn, err := GetDBConnectionFunc(common.OnDisk)
+	conn, err := GetDBConnectionFunc(persistencemgr.OnDisk)
 	if err != nil {
 		return nil, err
 	}
@@ -246,7 +246,7 @@ func GetTarget(deviceUUID string) (*Target, *errors.Error) {
 
 //GenericSave will save any resource data into the database
 func GenericSave(body []byte, table string, key string) error {
-	connPool, err := GetDBConnectionFunc(common.InMemory)
+	connPool, err := GetDBConnectionFunc(persistencemgr.InMemory)
 	if err != nil {
 		return fmt.Errorf("error while trying to connecting to DB: %v", err.Error())
 	}
@@ -266,7 +266,7 @@ func GenericSave(body []byte, table string, key string) error {
 3. match is the search for list float type
 */
 func GetStorageList(index, condition string, match float64, regexFlag bool) ([]string, error) {
-	conn, dberr := GetDBConnectionFunc(common.InMemory)
+	conn, dberr := GetDBConnectionFunc(persistencemgr.InMemory)
 	if dberr != nil {
 		return nil, fmt.Errorf("error while trying to connecting to DB: %v", dberr.Error())
 	}
@@ -284,7 +284,7 @@ func GetStorageList(index, condition string, match float64, regexFlag bool) ([]s
 2. match is the value to match with
 */
 func GetString(index, match string, regexFlag bool) ([]string, error) {
-	conn, dberr := GetDBConnectionFunc(common.InMemory)
+	conn, dberr := GetDBConnectionFunc(persistencemgr.InMemory)
 	if dberr != nil {
 		return nil, fmt.Errorf("error while trying to connecting to DB: %v", dberr.Error())
 	}
@@ -303,7 +303,7 @@ func GetString(index, match string, regexFlag bool) ([]string, error) {
 3. max is the max value passed
 */
 func GetRange(index string, min, max int, regexFlag bool) ([]string, error) {
-	conn, dberr := GetDBConnectionFunc(common.InMemory)
+	conn, dberr := GetDBConnectionFunc(persistencemgr.InMemory)
 	if dberr != nil {
 		return nil, fmt.Errorf("error while trying to connecting to DB: %v", dberr.Error())
 	}
@@ -322,7 +322,7 @@ func GetRange(index string, min, max int, regexFlag bool) ([]string, error) {
 */
 func AddSystemResetInfo(systemID, resetType string) *errors.Error {
 
-	conn, err := GetDBConnectionFunc(common.InMemory)
+	conn, err := GetDBConnectionFunc(persistencemgr.InMemory)
 	if err != nil {
 		return err
 	}
@@ -344,7 +344,7 @@ func AddSystemResetInfo(systemID, resetType string) *errors.Error {
 func GetSystemResetInfo(systemURI string) (map[string]string, *errors.Error) {
 	var resetInfo map[string]string
 
-	conn, err := GetDBConnectionFunc(common.InMemory)
+	conn, err := GetDBConnectionFunc(persistencemgr.InMemory)
 	if err != nil {
 		return resetInfo, err
 	}
@@ -362,7 +362,7 @@ func GetSystemResetInfo(systemURI string) (map[string]string, *errors.Error) {
 
 //DeleteVolume will delete the volume from InMemory
 func DeleteVolume(key string) *errors.Error {
-	connPool, err := GetDBConnectionFunc(common.InMemory)
+	connPool, err := GetDBConnectionFunc(persistencemgr.InMemory)
 	if err != nil {
 		return errors.PackError(err.ErrNo(), "error while trying to connecting to DB: ", err.Error())
 	}

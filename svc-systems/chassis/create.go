@@ -22,6 +22,8 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/ODIM-Project/ODIM/lib-persistence-manager/persistencemgr"
+
 	"github.com/ODIM-Project/ODIM/lib-utilities/common"
 	chassisproto "github.com/ODIM-Project/ODIM/lib-utilities/proto/chassis"
 	"github.com/ODIM-Project/ODIM/lib-utilities/response"
@@ -63,7 +65,7 @@ func (h *Create) Handle(req *chassisproto.CreateChassisRequest) response.RPC {
 		return common.GeneralError(http.StatusBadRequest, response.PropertyMissing, "", []interface{}{"Links.ManagedBy[0]"}, nil)
 	}
 
-	inMemoryConn, dbErr := GetDbConnectFunc(common.InMemory)
+	inMemoryConn, dbErr := GetDbConnectFunc(persistencemgr.InMemory)
 	if dbErr != nil {
 		return common.GeneralError(http.StatusInternalServerError, response.InternalError, fmt.Sprintf("cannot acquire database connection: %v", dbErr), nil, nil)
 	}

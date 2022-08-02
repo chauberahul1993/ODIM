@@ -48,7 +48,7 @@ var target = Target{
 var invalidTarget = "Target"
 
 func mockSystemIndex(uuid string) error {
-	connPool, err := common.GetDBConnection(common.InMemory)
+	connPool, err := common.GetDBConnection(persistencemgr.InMemory)
 	if err != nil {
 		return fmt.Errorf("error while trying to connecting to DB: %v", err.Error())
 	}
@@ -67,7 +67,7 @@ func mockSystemIndex(uuid string) error {
 
 func mockPluginData(t *testing.T) error {
 	plugin.Password = getEncryptedKey(t, []byte("12345"))
-	connPool, err := common.GetDBConnection(common.OnDisk)
+	connPool, err := common.GetDBConnection(persistencemgr.OnDisk)
 	if err != nil {
 		return fmt.Errorf("error while trying to connecting to DB: %v", err.Error())
 	}
@@ -78,7 +78,7 @@ func mockPluginData(t *testing.T) error {
 }
 
 func mockInvalidPluginData() error {
-	connPool, err := common.GetDBConnection(common.OnDisk)
+	connPool, err := common.GetDBConnection(persistencemgr.OnDisk)
 	if err != nil {
 		return fmt.Errorf("error while trying to connecting to DB: %v", err.Error())
 	}
@@ -89,7 +89,7 @@ func mockInvalidPluginData() error {
 }
 
 func mockSystemResourceData(body []byte, table, key string) error {
-	connPool, err := common.GetDBConnection(common.InMemory)
+	connPool, err := common.GetDBConnection(persistencemgr.InMemory)
 	if err != nil {
 		return fmt.Errorf("error while trying to connecting to DB: %v", err.Error())
 	}
@@ -100,7 +100,7 @@ func mockSystemResourceData(body []byte, table, key string) error {
 }
 
 func mockTarget() error {
-	connPool, err := common.GetDBConnection(common.OnDisk)
+	connPool, err := common.GetDBConnection(persistencemgr.OnDisk)
 	if err != nil {
 		return fmt.Errorf("error while trying to connecting to DB: %v", err.Error())
 	}
@@ -113,7 +113,7 @@ func mockTarget() error {
 	return nil
 }
 func mockInvalidTarget() error {
-	connPool, err := common.GetDBConnection(common.OnDisk)
+	connPool, err := common.GetDBConnection(persistencemgr.OnDisk)
 	if err != nil {
 		return fmt.Errorf("error while trying to connecting to DB: %v", err.Error())
 	}
@@ -148,8 +148,8 @@ func TestGetPluginData(t *testing.T) {
 	config.SetUpMockConfig(t)
 
 	defer func() {
-		common.TruncateDB(common.OnDisk)
-		common.TruncateDB(common.InMemory)
+		common.TruncateDB(persistencemgr.OnDisk)
+		common.TruncateDB(persistencemgr.InMemory)
 	}()
 
 	validPassword := []byte("password")
@@ -165,10 +165,10 @@ func TestGetPluginData(t *testing.T) {
 		PluginType:        "RF-GENERIC",
 		PreferredAuthType: "BasicAuth",
 	}
-	mockData(t, common.OnDisk, "Plugin", "validPlugin", pluginData)
+	mockData(t, persistencemgr.OnDisk, "Plugin", "validPlugin", pluginData)
 	pluginData.Password = invalidPassword
-	mockData(t, common.OnDisk, "Plugin", "invalidPassword", pluginData)
-	mockData(t, common.OnDisk, "Plugin", "invalidPluginData", "pluginData")
+	mockData(t, persistencemgr.OnDisk, "Plugin", "invalidPassword", pluginData)
+	mockData(t, persistencemgr.OnDisk, "Plugin", "invalidPluginData", "pluginData")
 
 	type args struct {
 		pluginID string
@@ -231,11 +231,11 @@ func TestGetPluginData(t *testing.T) {
 func TestGetSystemByUUID(t *testing.T) {
 	config.SetUpMockConfig(t)
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
-		err = common.TruncateDB(common.InMemory)
+		err = common.TruncateDB(persistencemgr.InMemory)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -275,11 +275,11 @@ func TestGetSystemByUUID(t *testing.T) {
 func TestGetTarget(t *testing.T) {
 	config.SetUpMockConfig(t)
 	defer func() {
-		err := common.TruncateDB(common.InMemory)
+		err := common.TruncateDB(persistencemgr.InMemory)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
-		err = common.TruncateDB(common.OnDisk)
+		err = common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -295,11 +295,11 @@ func TestGetTarget(t *testing.T) {
 func TestGetTarget_negative(t *testing.T) {
 	config.SetUpMockConfig(t)
 	defer func() {
-		err := common.TruncateDB(common.InMemory)
+		err := common.TruncateDB(persistencemgr.InMemory)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
-		err = common.TruncateDB(common.OnDisk)
+		err = common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -312,11 +312,11 @@ func TestGetTarget_negative(t *testing.T) {
 func TestGenericSave(t *testing.T) {
 	config.SetUpMockConfig(t)
 	defer func() {
-		err := common.TruncateDB(common.InMemory)
+		err := common.TruncateDB(persistencemgr.InMemory)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
-		err = common.TruncateDB(common.OnDisk)
+		err = common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -359,11 +359,11 @@ func TestGenericSave(t *testing.T) {
 func TestGetAllkeysFromTable(t *testing.T) {
 	config.SetUpMockConfig(t)
 	defer func() {
-		err := common.TruncateDB(common.InMemory)
+		err := common.TruncateDB(persistencemgr.InMemory)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
-		err = common.TruncateDB(common.OnDisk)
+		err = common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -382,11 +382,11 @@ func TestGetAllkeysFromTable(t *testing.T) {
 
 func TestGetResourceNegativeTestCases(t *testing.T) {
 	defer func() {
-		err := common.TruncateDB(common.InMemory)
+		err := common.TruncateDB(persistencemgr.InMemory)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
-		err = common.TruncateDB(common.OnDisk)
+		err = common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -411,11 +411,11 @@ func TestGetResourceNegativeTestCases(t *testing.T) {
 func TestGetStorageList(t *testing.T) {
 	common.SetUpMockConfig()
 	defer func() {
-		err := common.TruncateDB(common.InMemory)
+		err := common.TruncateDB(persistencemgr.InMemory)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
-		err = common.TruncateDB(common.OnDisk)
+		err = common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -438,11 +438,11 @@ func TestGetStorageList(t *testing.T) {
 func TestGetString(t *testing.T) {
 	common.SetUpMockConfig()
 	defer func() {
-		err := common.TruncateDB(common.InMemory)
+		err := common.TruncateDB(persistencemgr.InMemory)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
-		err = common.TruncateDB(common.OnDisk)
+		err = common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -460,11 +460,11 @@ func TestGetString(t *testing.T) {
 func TestGetRange(t *testing.T) {
 	common.SetUpMockConfig()
 	defer func() {
-		err := common.TruncateDB(common.InMemory)
+		err := common.TruncateDB(persistencemgr.InMemory)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
-		err = common.TruncateDB(common.OnDisk)
+		err = common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -483,11 +483,11 @@ func TestSystemReset(t *testing.T) {
 	// testing  the Add SystemReset use case
 	common.SetUpMockConfig()
 	defer func() {
-		err := common.TruncateDB(common.InMemory)
+		err := common.TruncateDB(persistencemgr.InMemory)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
-		err = common.TruncateDB(common.OnDisk)
+		err = common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -508,9 +508,9 @@ func TestSystemReset(t *testing.T) {
 
 func TestDeleteVolume(t *testing.T) {
 	defer func() {
-		common.TruncateDB(common.InMemory)
+		common.TruncateDB(persistencemgr.InMemory)
 	}()
-	mockData(t, common.InMemory, "Volumes", "/redfish/v1/Systems/ef83e569-7336-492a-aaee-31c02d9db831.1/Storage/1/Volume/1", "")
+	mockData(t, persistencemgr.InMemory, "Volumes", "/redfish/v1/Systems/ef83e569-7336-492a-aaee-31c02d9db831.1/Storage/1/Volume/1", "")
 	tests := []struct {
 		name string
 		key  string
@@ -539,9 +539,9 @@ func TestDeleteVolume(t *testing.T) {
 
 func TestFind(t *testing.T) {
 	defer func() {
-		common.TruncateDB(common.InMemory)
+		common.TruncateDB(persistencemgr.InMemory)
 	}()
-	mockData(t, common.InMemory, "Volumes", "/redfish/v1/Systems/ef83e569-7336-492a-aaee-31c02d9db831.1/Storage/1/Volume/1", "")
+	mockData(t, persistencemgr.InMemory, "Volumes", "/redfish/v1/Systems/ef83e569-7336-492a-aaee-31c02d9db831.1/Storage/1/Volume/1", "")
 
 	err := Find("Volumes", "/redfish/v1/Systems/ef83e569-7336-492a-aaee-31c02d9db831.1/Storage/1/Volume/1", "")
 	assert.NotNil(t, err, "should be an error ")
@@ -571,9 +571,9 @@ func TestFind(t *testing.T) {
 
 func TestFindAll(t *testing.T) {
 	defer func() {
-		common.TruncateDB(common.InMemory)
+		common.TruncateDB(persistencemgr.InMemory)
 	}()
-	mockData(t, common.InMemory, "Volumes", "/redfish/v1/Systems/ef83e569-7336-492a-aaee-31c02d9db831.1/Storage/1/Volume/1", "")
+	mockData(t, persistencemgr.InMemory, "Volumes", "/redfish/v1/Systems/ef83e569-7336-492a-aaee-31c02d9db831.1/Storage/1/Volume/1", "")
 
 	_, err := FindAll("Volumes", "/redfish/v1/Systems/ef83e569-7336-492a-aaee-31c02d9db831.1/Storage/1/Volume/1")
 	assert.Nil(t, err, "should be no error ")
@@ -603,9 +603,9 @@ func TestFindAll(t *testing.T) {
 
 func TestGetAllKeysFromTable(t *testing.T) {
 	defer func() {
-		common.TruncateDB(common.InMemory)
+		common.TruncateDB(persistencemgr.InMemory)
 	}()
-	mockData(t, common.InMemory, "Volumes", "/redfish/v1/Systems/ef83e569-7336-492a-aaee-31c02d9db831.1/Storage/1/Volume/1", "")
+	mockData(t, persistencemgr.InMemory, "Volumes", "/redfish/v1/Systems/ef83e569-7336-492a-aaee-31c02d9db831.1/Storage/1/Volume/1", "")
 	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
 		return nil, &errors.Error{}
 	}

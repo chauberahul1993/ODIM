@@ -17,6 +17,8 @@ package system
 import (
 	"testing"
 
+	"github.com/ODIM-Project/ODIM/lib-persistence-manager/persistencemgr"
+
 	"github.com/ODIM-Project/ODIM/lib-utilities/common"
 	"github.com/ODIM-Project/ODIM/lib-utilities/config"
 	aggregatorproto "github.com/ODIM-Project/ODIM/lib-utilities/proto/aggregator"
@@ -26,8 +28,8 @@ import (
 func TestExternalInterface_UpdateSystemState(t *testing.T) {
 	config.SetUpMockConfig(t)
 	defer func() {
-		common.TruncateDB(common.OnDisk)
-		common.TruncateDB(common.InMemory)
+		common.TruncateDB(persistencemgr.OnDisk)
+		common.TruncateDB(persistencemgr.InMemory)
 	}()
 	device1 := agmodel.Target{
 		ManagerAddress: "100.0.0.1",

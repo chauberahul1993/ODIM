@@ -15,10 +15,13 @@ package auth
 
 import (
 	"encoding/base64"
-	"golang.org/x/crypto/sha3"
 	"reflect"
 	"testing"
 	"time"
+
+	"github.com/ODIM-Project/ODIM/lib-persistence-manager/persistencemgr"
+
+	"golang.org/x/crypto/sha3"
 
 	"github.com/ODIM-Project/ODIM/lib-utilities/common"
 	"github.com/ODIM-Project/ODIM/lib-utilities/config"
@@ -47,7 +50,7 @@ func TestCheckSessionCreationCredentials(t *testing.T) {
 	common.SetUpMockConfig()
 	Lock.Unlock()
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -112,7 +115,7 @@ func TestCheckSessionTimeOut(t *testing.T) {
 	Lock.Unlock()
 	config.Data.AuthConf.SessionTimeOutInMins = 0.0333333
 	defer func() {
-		err := common.TruncateDB(common.InMemory)
+		err := common.TruncateDB(persistencemgr.InMemory)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}

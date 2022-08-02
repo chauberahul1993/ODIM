@@ -20,8 +20,11 @@ package telemetry
 // ---------------------------------------------------------------------------------------
 import (
 	"encoding/json"
-	log "github.com/sirupsen/logrus"
 	"net/http"
+
+	"github.com/ODIM-Project/ODIM/lib-persistence-manager/persistencemgr"
+
+	log "github.com/sirupsen/logrus"
 
 	dmtf "github.com/ODIM-Project/ODIM/lib-dmtf/model"
 	"github.com/ODIM-Project/ODIM/lib-utilities/common"
@@ -99,7 +102,7 @@ func (e *ExternalInterface) GetTelemetryService() response.RPC {
 // resources from the added BMC's
 func (e *ExternalInterface) GetMetricDefinitionCollection(req *teleproto.TelemetryRequest) response.RPC {
 	var resp response.RPC
-	data, err := e.DB.GetResource("MetricDefinitionsCollection", req.URL, common.InMemory)
+	data, err := e.DB.GetResource("MetricDefinitionsCollection", req.URL, persistencemgr.InMemory)
 	if err != nil {
 		// return empty collection response
 		metricDefinitionCollection := tlresp.Collection{
@@ -127,7 +130,7 @@ func (e *ExternalInterface) GetMetricDefinitionCollection(req *teleproto.Telemet
 // resources from the added BMC's
 func (e *ExternalInterface) GetMetricReportDefinitionCollection(req *teleproto.TelemetryRequest) response.RPC {
 	var resp response.RPC
-	data, err := e.DB.GetResource("MetricReportDefinitionsCollection", req.URL, common.InMemory)
+	data, err := e.DB.GetResource("MetricReportDefinitionsCollection", req.URL, persistencemgr.InMemory)
 	if err != nil {
 		// return empty collection response
 		metricReportDefinitionCollection := tlresp.Collection{
@@ -155,7 +158,7 @@ func (e *ExternalInterface) GetMetricReportDefinitionCollection(req *teleproto.T
 // resources from the added BMC's
 func (e *ExternalInterface) GetMetricReportCollection(req *teleproto.TelemetryRequest) response.RPC {
 	var resp response.RPC
-	data, err := e.DB.GetResource("MetricReportsCollection", req.URL, common.InMemory)
+	data, err := e.DB.GetResource("MetricReportsCollection", req.URL, persistencemgr.InMemory)
 	if err != nil {
 		// return empty collection response
 		metricReportCollection := tlresp.Collection{
@@ -183,7 +186,7 @@ func (e *ExternalInterface) GetMetricReportCollection(req *teleproto.TelemetryRe
 // resources from the added BMC's
 func (e *ExternalInterface) GetTriggerCollection(req *teleproto.TelemetryRequest) response.RPC {
 	var resp response.RPC
-	data, err := e.DB.GetResource("TriggersCollection", req.URL, common.InMemory)
+	data, err := e.DB.GetResource("TriggersCollection", req.URL, persistencemgr.InMemory)
 	if err != nil {
 		// return empty collection response
 		triggersCollection := tlresp.Collection{
@@ -210,7 +213,7 @@ func (e *ExternalInterface) GetTriggerCollection(req *teleproto.TelemetryRequest
 // GetMetricReportDefinition ...
 func (e *ExternalInterface) GetMetricReportDefinition(req *teleproto.TelemetryRequest) response.RPC {
 	var resp response.RPC
-	data, gerr := e.DB.GetResource("MetricReportDefinitions", req.URL, common.InMemory)
+	data, gerr := e.DB.GetResource("MetricReportDefinitions", req.URL, persistencemgr.InMemory)
 	if gerr != nil {
 		log.Warn("Unable to get MetricReportDefinition details : " + gerr.Error())
 		errorMessage := gerr.Error()
@@ -260,7 +263,7 @@ func (e *ExternalInterface) GetMetricReport(req *teleproto.TelemetryRequest) res
 // GetMetricDefinition ...
 func (e *ExternalInterface) GetMetricDefinition(req *teleproto.TelemetryRequest) response.RPC {
 	var resp response.RPC
-	data, gerr := e.DB.GetResource("MetricDefinitions", req.URL, common.InMemory)
+	data, gerr := e.DB.GetResource("MetricDefinitions", req.URL, persistencemgr.InMemory)
 	if gerr != nil {
 		log.Warn("Unable to get MetricDefinition details : " + gerr.Error())
 		errorMessage := gerr.Error()
@@ -282,7 +285,7 @@ func (e *ExternalInterface) GetMetricDefinition(req *teleproto.TelemetryRequest)
 // GetTrigger ...
 func (e *ExternalInterface) GetTrigger(req *teleproto.TelemetryRequest) response.RPC {
 	var resp response.RPC
-	data, gerr := e.DB.GetResource("Triggers", req.URL, common.InMemory)
+	data, gerr := e.DB.GetResource("Triggers", req.URL, persistencemgr.InMemory)
 	if gerr != nil {
 		log.Warn("Unable to get Triggers details `: " + gerr.Error())
 		errorMessage := gerr.Error()

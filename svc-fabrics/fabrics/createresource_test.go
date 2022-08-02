@@ -17,12 +17,15 @@ package fabrics
 
 import (
 	"encoding/json"
-	"github.com/ODIM-Project/ODIM/lib-utilities/common"
-	fabricsproto "github.com/ODIM-Project/ODIM/lib-utilities/proto/fabrics"
-	"github.com/ODIM-Project/ODIM/lib-utilities/response"
 	"net/http"
 	"reflect"
 	"testing"
+
+	"github.com/ODIM-Project/ODIM/lib-persistence-manager/persistencemgr"
+
+	"github.com/ODIM-Project/ODIM/lib-utilities/common"
+	fabricsproto "github.com/ODIM-Project/ODIM/lib-utilities/proto/fabrics"
+	"github.com/ODIM-Project/ODIM/lib-utilities/response"
 )
 
 func mockAuth(sessionToken string, privileges []string, oemPrivileges []string) response.RPC {
@@ -37,7 +40,7 @@ func TestFabrics_UpdateFabricResource(t *testing.T) {
 	Token.Tokens = make(map[string]string)
 	common.SetUpMockConfig()
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -158,7 +161,7 @@ func TestFabrics_UpdateFabricResourceWithNoValidSession(t *testing.T) {
 	Token.Tokens["CFM"] = "234556"
 	common.SetUpMockConfig()
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}

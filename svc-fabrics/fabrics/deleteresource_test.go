@@ -31,6 +31,8 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/ODIM-Project/ODIM/lib-persistence-manager/persistencemgr"
+
 	"github.com/ODIM-Project/ODIM/lib-utilities/common"
 	fabricsproto "github.com/ODIM-Project/ODIM/lib-utilities/proto/fabrics"
 	"github.com/ODIM-Project/ODIM/lib-utilities/response"
@@ -40,7 +42,7 @@ func TestFabrics_DeleteFabricResource(t *testing.T) {
 	Token.Tokens = make(map[string]string)
 	common.SetUpMockConfig()
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -154,7 +156,7 @@ func TestFabrics_DeleteFabricResourceWithNoValidSession(t *testing.T) {
 	Token.Tokens["CFM"] = "234556"
 	common.SetUpMockConfig()
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}

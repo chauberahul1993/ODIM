@@ -21,6 +21,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ODIM-Project/ODIM/lib-persistence-manager/persistencemgr"
+
 	"github.com/ODIM-Project/ODIM/lib-utilities/common"
 	"github.com/ODIM-Project/ODIM/lib-utilities/config"
 	"github.com/ODIM-Project/ODIM/lib-utilities/errors"
@@ -42,11 +44,11 @@ func TestExternalInterface_AddBMC(t *testing.T) {
 	}
 	config.Data.AddComputeSkipResources = &addComputeRetrieval
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
-		err = common.TruncateDB(common.InMemory)
+		err = common.TruncateDB(persistencemgr.InMemory)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -269,11 +271,11 @@ func TestExternalInterface_AddBMCForPasswordEncryptFail(t *testing.T) {
 	}
 	config.Data.AddComputeSkipResources = &addComputeRetrieval
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
-		err = common.TruncateDB(common.InMemory)
+		err = common.TruncateDB(persistencemgr.InMemory)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -336,8 +338,8 @@ func TestExternalInterface_AddBMCDuplicate(t *testing.T) {
 	}
 	config.Data.AddComputeSkipResources = &addComputeRetrieval
 	defer func() {
-		common.TruncateDB(common.OnDisk)
-		common.TruncateDB(common.InMemory)
+		common.TruncateDB(persistencemgr.OnDisk)
+		common.TruncateDB(persistencemgr.InMemory)
 	}()
 	mockPluginData(t, "GRF_v1.0.0")
 	mockManagersData("/redfish/v1/Managers/1s7sda8asd-asdas8as0", map[string]interface{}{
@@ -421,17 +423,17 @@ func TestExternalInterface_Manager(t *testing.T) {
 		Password: []byte("password"),
 		ID:       "PluginWithBadPassword",
 	}
-	mockData(t, common.OnDisk, "Plugin", "PluginWithBadPassword_v1.0.0", pluginData)
+	mockData(t, persistencemgr.OnDisk, "Plugin", "PluginWithBadPassword_v1.0.0", pluginData)
 	// create plugin with bad data
-	mockData(t, common.OnDisk, "Plugin", "PluginWithBadData_v1.0.0", "PluginWithBadData")
+	mockData(t, persistencemgr.OnDisk, "Plugin", "PluginWithBadData_v1.0.0", "PluginWithBadData")
 
 	config.Data.AddComputeSkipResources = &addComputeRetrieval
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
-		err = common.TruncateDB(common.InMemory)
+		err = common.TruncateDB(persistencemgr.InMemory)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -612,11 +614,11 @@ func TestExternalInterface_ManagerXAuth(t *testing.T) {
 	}
 	config.Data.AddComputeSkipResources = &addComputeRetrieval
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
-		err = common.TruncateDB(common.InMemory)
+		err = common.TruncateDB(persistencemgr.InMemory)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -805,8 +807,8 @@ func TestExternalInterface_ManagerWithMultipleRequest(t *testing.T) {
 	}
 	config.Data.AddComputeSkipResources = &addComputeRetrieval
 	defer func() {
-		common.TruncateDB(common.OnDisk)
-		common.TruncateDB(common.InMemory)
+		common.TruncateDB(persistencemgr.OnDisk)
+		common.TruncateDB(persistencemgr.InMemory)
 	}()
 
 	reqSuccess, _ := json.Marshal(AggregationSource{

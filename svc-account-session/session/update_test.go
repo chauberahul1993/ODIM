@@ -14,9 +14,12 @@
 package session
 
 import (
+	"testing"
+
+	"github.com/ODIM-Project/ODIM/lib-persistence-manager/persistencemgr"
+
 	"github.com/ODIM-Project/ODIM/lib-utilities/common"
 	"github.com/ODIM-Project/ODIM/svc-account-session/auth"
-	"testing"
 )
 
 func TestUpdateLastUsedTime(t *testing.T) {
@@ -55,11 +58,11 @@ func TestUpdateLastUsedTime(t *testing.T) {
 			}
 		})
 	}
-	err := common.TruncateDB(common.OnDisk)
+	err := common.TruncateDB(persistencemgr.OnDisk)
 	if err != nil {
 		t.Fatalf("error: %v", err)
 	}
-	err = common.TruncateDB(common.InMemory)
+	err = common.TruncateDB(persistencemgr.InMemory)
 	if err != nil {
 		t.Fatalf("error: %v", err)
 	}

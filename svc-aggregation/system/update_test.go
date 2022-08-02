@@ -36,6 +36,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ODIM-Project/ODIM/lib-persistence-manager/persistencemgr"
+
 	"github.com/ODIM-Project/ODIM/lib-utilities/common"
 	"github.com/ODIM-Project/ODIM/lib-utilities/config"
 	aggregatorproto "github.com/ODIM-Project/ODIM/lib-utilities/proto/aggregator"
@@ -46,7 +48,7 @@ import (
 )
 
 func testSystemIndex(uuid string, indexData map[string]interface{}) error {
-	connPool, err := common.GetDBConnection(common.InMemory)
+	connPool, err := common.GetDBConnection(persistencemgr.InMemory)
 	if err != nil {
 		return fmt.Errorf("error while trying to connecting to DB: %v", err.Error())
 	}
@@ -283,8 +285,8 @@ func TestExternalInterface_UpdateAggregationSource(t *testing.T) {
 		t.Fatalf("error: %v", dbErr)
 	}
 	defer func() {
-		common.TruncateDB(common.OnDisk)
-		common.TruncateDB(common.InMemory)
+		common.TruncateDB(persistencemgr.OnDisk)
+		common.TruncateDB(persistencemgr.InMemory)
 	}()
 	successReqManager, _ := json.Marshal(map[string]string{
 		"HostName": "100.0.0.1:50000",

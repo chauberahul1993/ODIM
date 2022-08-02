@@ -19,6 +19,8 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/ODIM-Project/ODIM/lib-persistence-manager/persistencemgr"
+
 	dmtf "github.com/ODIM-Project/ODIM/lib-dmtf/model"
 	"github.com/ODIM-Project/ODIM/lib-utilities/common"
 	"github.com/ODIM-Project/ODIM/lib-utilities/errors"
@@ -162,7 +164,7 @@ type UpdateBMCAccount struct {
 
 //GetResource fetches a resource from database using table and key
 func GetResource(Table, key string) (string, *errors.Error) {
-	conn, err := GetDBConnectionFunc(common.InMemory)
+	conn, err := GetDBConnectionFunc(persistencemgr.InMemory)
 	if err != nil {
 		return "", err
 	}
@@ -179,7 +181,7 @@ func GetResource(Table, key string) (string, *errors.Error) {
 
 //GetAllKeysFromTable fetches all keys in a given table
 func GetAllKeysFromTable(table string) ([]string, error) {
-	conn, err := GetDBConnectionFunc(common.InMemory)
+	conn, err := GetDBConnectionFunc(persistencemgr.InMemory)
 	if err != nil {
 		return nil, err
 	}
@@ -193,7 +195,7 @@ func GetAllKeysFromTable(table string) ([]string, error) {
 // GetManagerByURL fetches computer manager details by URL from database
 func GetManagerByURL(url string) (string, *errors.Error) {
 	var manager string
-	conn, err := GetDBConnectionFunc(common.InMemory)
+	conn, err := GetDBConnectionFunc(persistencemgr.InMemory)
 	if err != nil {
 		// connection error
 		return manager, err
@@ -210,7 +212,7 @@ func GetManagerByURL(url string) (string, *errors.Error) {
 
 // UpdateData will modify the current details to given changes
 func UpdateData(key string, updateData map[string]interface{}, table string) error {
-	conn, err := GetDBConnectionFunc(common.InMemory)
+	conn, err := GetDBConnectionFunc(persistencemgr.InMemory)
 	if err != nil {
 		return fmt.Errorf("unable to connect DB: %v", err)
 	}
@@ -227,7 +229,7 @@ func UpdateData(key string, updateData map[string]interface{}, table string) err
 //GenericSave will save any resource data into the database
 func GenericSave(body []byte, table string, key string) error {
 
-	connPool, err := GetDBConnectionFunc(common.InMemory)
+	connPool, err := GetDBConnectionFunc(persistencemgr.InMemory)
 	if err != nil {
 		return fmt.Errorf("unable to connect DB: %v", err.Error())
 	}
@@ -244,7 +246,7 @@ func AddManagertoDB(mgr RAManager) error {
 	if err != nil {
 		return fmt.Errorf("unable to marshal manager data: %v", err)
 	}
-	connPool, connErr := GetDBConnectionFunc(common.InMemory)
+	connPool, connErr := GetDBConnectionFunc(persistencemgr.InMemory)
 	if connErr != nil {
 		return fmt.Errorf("unable to connect DB: %v", connErr.Error())
 	}

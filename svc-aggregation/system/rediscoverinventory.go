@@ -21,9 +21,10 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/ODIM-Project/ODIM/lib-persistence-manager/persistencemgr"
+
 	log "github.com/sirupsen/logrus"
 
-	"github.com/ODIM-Project/ODIM/lib-utilities/common"
 	"github.com/ODIM-Project/ODIM/lib-utilities/config"
 	"github.com/ODIM-Project/ODIM/lib-utilities/errors"
 	"github.com/ODIM-Project/ODIM/lib-utilities/response"
@@ -295,7 +296,7 @@ func (e *ExternalInterface) isServerRediscoveryRequired(deviceUUID string, syste
 	}
 
 	key = strings.Replace(systemKey, "Systems", "Chassis", -1)
-	keys, err := agmodel.GetAllMatchingDetails("Chassis", key, common.InMemory)
+	keys, err := agmodel.GetAllMatchingDetails("Chassis", key, persistencemgr.InMemory)
 	if err != nil || len(keys) == 0 {
 		log.Info("Rediscovery required for the server with UUID: " + deviceUUID)
 		return true
@@ -309,7 +310,7 @@ func (e *ExternalInterface) isServerRediscoveryRequired(deviceUUID string, syste
 	}
 
 	key = strings.Replace(systemKey, "Systems", "Managers", -1)
-	keys, err = agmodel.GetAllMatchingDetails("Managers", key, common.InMemory)
+	keys, err = agmodel.GetAllMatchingDetails("Managers", key, persistencemgr.InMemory)
 	if err != nil || len(keys) == 0 {
 		log.Info("Rediscovery required for the server with UUID: " + deviceUUID)
 		return true
@@ -333,7 +334,7 @@ func (e *ExternalInterface) publishResourceUpdatedEvent(systemIDs []string, coll
 }
 
 func deleteResourceResetInfo(pattern string) {
-	keys, err := agmodel.GetAllMatchingDetails("SystemReset", pattern, common.InMemory)
+	keys, err := agmodel.GetAllMatchingDetails("SystemReset", pattern, persistencemgr.InMemory)
 	if err != nil {
 		log.Error("Unable to fetch all matching keys from system reset table: " + err.Error())
 	}
@@ -346,7 +347,7 @@ func deleteResourceResetInfo(pattern string) {
 func deleteSubordinateResource(deviceUUID string) {
 	log.Info("Initiated removal of subordinate resource for the BMC with ID " +
 		deviceUUID + " from the in-memory DB")
-	keys, err := agmodel.GetAllMatchingDetails("*", deviceUUID, common.InMemory)
+	keys, err := agmodel.GetAllMatchingDetails("*", deviceUUID, persistencemgr.InMemory)
 	if err != nil {
 		log.Error("Unable to fetch all matching keys from system reset table: " + err.Error())
 		return
@@ -357,9 +358,9 @@ func deleteSubordinateResource(deviceUUID string) {
 		case "ComputerSystem", "SystemReset", "SystemOperation", "Chassis", "Managers", "FirmwareInventory", "SoftwareInventory":
 			continue
 		default:
-			if err = agmodel.Delete(resourceDetails[0], resourceDetails[1], common.InMemory); err != nil {
+			if err = agmodel.Delete(resourceDetails[0], resourceDetails[1], persistencemgr.InMemory); err != nil {
 				log.Error("Delete of " + resourceDetails[1] + " from " + resourceDetails[0] + " in " +
-					string(common.InMemory) + " DB failed due to the error: " + err.Error())
+					string(persistencemgr.InMemory) + " DB failed due to the error: " + err.Error())
 			}
 		}
 	}

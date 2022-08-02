@@ -17,6 +17,8 @@ package mgrmodel
 import (
 	"encoding/json"
 
+	"github.com/ODIM-Project/ODIM/lib-persistence-manager/persistencemgr"
+
 	"github.com/ODIM-Project/ODIM/lib-utilities/common"
 	"github.com/ODIM-Project/ODIM/lib-utilities/errors"
 )
@@ -45,7 +47,7 @@ type Plugin struct {
 //GetSystemByUUID fetches computer system details by UUID from database
 func GetSystemByUUID(systemUUID string) (string, *errors.Error) {
 	var system string
-	conn, err := common.GetDBConnection(common.InMemory)
+	conn, err := common.GetDBConnection(persistencemgr.InMemory)
 	if err != nil {
 		// connection error
 		return system, err
@@ -64,7 +66,7 @@ func GetSystemByUUID(systemUUID string) (string, *errors.Error) {
 func GetPluginData(pluginID string) (Plugin, *errors.Error) {
 	var plugin Plugin
 
-	conn, err := common.GetDBConnection(common.OnDisk)
+	conn, err := common.GetDBConnection(persistencemgr.OnDisk)
 	if err != nil {
 		return plugin, err
 	}
@@ -90,7 +92,7 @@ func GetPluginData(pluginID string) (Plugin, *errors.Error) {
 //GetTarget fetches the System(Target Device Credentials) table details
 func GetTarget(deviceUUID string) (*DeviceTarget, *errors.Error) {
 	var target DeviceTarget
-	conn, err := common.GetDBConnection(common.OnDisk)
+	conn, err := common.GetDBConnection(persistencemgr.OnDisk)
 	if err != nil {
 		return nil, err
 	}

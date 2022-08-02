@@ -20,6 +20,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ODIM-Project/ODIM/lib-persistence-manager/persistencemgr"
+
 	"github.com/ODIM-Project/ODIM/lib-utilities/common"
 	"github.com/ODIM-Project/ODIM/lib-utilities/config"
 	"github.com/satori/uuid"
@@ -42,7 +44,7 @@ func createMockUser(username, roleID string) error {
 		Password: hashedPassword,
 		RoleID:   roleID,
 	}
-	conn, err := common.GetDBConnection(common.OnDisk)
+	conn, err := common.GetDBConnection(persistencemgr.OnDisk)
 	if err != nil {
 		return err
 	}
@@ -78,7 +80,7 @@ func TestPersistTask(t *testing.T) {
 		return
 	}
 	// Persist in the in-memory DB
-	err = PersistTask(&task, common.InMemory)
+	err = PersistTask(&task, persistencemgr.InMemory)
 	if err != nil {
 		t.Fatalf("error while trying to insert the task details: %v", err)
 		return
@@ -100,20 +102,20 @@ func TestUpdateTaskStatus(t *testing.T) {
 	}
 	task.Name = "Task " + task.ID
 	// Persist in the in-memory DB
-	err := PersistTask(&task, common.InMemory)
+	err := PersistTask(&task, persistencemgr.InMemory)
 	if err != nil {
 		t.Fatalf("error while trying to insert the task details: %v", err)
 		return
 	}
 	task1 := new(Task)
-	task1, err = GetTaskStatus(task.ID, common.InMemory)
+	task1, err = GetTaskStatus(task.ID, persistencemgr.InMemory)
 	if err != nil {
 		t.Fatalf("error while retreving the Task details with Get: %v", err)
 		return
 	}
 	// Positive Test Case
 	task1.TaskState = "Running"
-	err = UpdateTaskStatus(task1, common.InMemory)
+	err = UpdateTaskStatus(task1, persistencemgr.InMemory)
 	if err != nil {
 		t.Fatalf("error while updating the task details in the db: %v", err)
 		return
@@ -126,7 +128,7 @@ func TestUpdateTaskStatus(t *testing.T) {
 		return
 	}
 	// Positive Test case
-	err = UpdateTaskStatus(task1, common.InMemory)
+	err = UpdateTaskStatus(task1, persistencemgr.InMemory)
 	if err != nil {
 		t.Fatalf("error while updating the task details in the db: %v", err)
 		return
@@ -136,11 +138,11 @@ func TestUpdateTaskStatus(t *testing.T) {
 func TestGetCompletedTasksIndex(t *testing.T) {
 	common.SetUpMockConfig()
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
-		err = common.TruncateDB(common.InMemory)
+		err = common.TruncateDB(persistencemgr.InMemory)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -157,19 +159,19 @@ func TestGetCompletedTasksIndex(t *testing.T) {
 	}
 	task.Name = "Task " + task.ID
 	// Persist in the in-memory DB
-	err := PersistTask(&task, common.InMemory)
+	err := PersistTask(&task, persistencemgr.InMemory)
 	if err != nil {
 		t.Fatalf("error while trying to insert the task details: %v", err)
 		return
 	}
 
 	task1 := new(Task)
-	task1, err = GetTaskStatus(task.ID, common.InMemory)
+	task1, err = GetTaskStatus(task.ID, persistencemgr.InMemory)
 	if err != nil {
 		t.Fatalf("error while retreving the Task details with Get: %v", err)
 		return
 	}
-	err = UpdateTaskStatus(task1, common.InMemory)
+	err = UpdateTaskStatus(task1, persistencemgr.InMemory)
 	if err != nil {
 		t.Fatalf("error while retreving the Task details with Get: %v", err)
 		return
@@ -191,19 +193,19 @@ func TestGetCompletedTasksIndex(t *testing.T) {
 	}
 	task2.Name = "Task " + task.ID
 	// Persist in the in-memory DB
-	err = PersistTask(&task2, common.InMemory)
+	err = PersistTask(&task2, persistencemgr.InMemory)
 	if err != nil {
 		t.Fatalf("error while trying to insert the task details: %v", err)
 		return
 	}
 
 	task3 := new(Task)
-	task3, err = GetTaskStatus(task.ID, common.InMemory)
+	task3, err = GetTaskStatus(task.ID, persistencemgr.InMemory)
 	if err != nil {
 		t.Fatalf("error while retreving the Task details with Get: %v", err)
 		return
 	}
-	err = UpdateTaskStatus(task3, common.InMemory)
+	err = UpdateTaskStatus(task3, persistencemgr.InMemory)
 	if err != nil {
 		t.Fatalf("error while retreving the Task details with Get: %v", err)
 		return
@@ -218,11 +220,11 @@ func TestGetCompletedTasksIndex(t *testing.T) {
 func TestDeleteTaskFromDB(t *testing.T) {
 	common.SetUpMockConfig()
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
-		err = common.TruncateDB(common.InMemory)
+		err = common.TruncateDB(persistencemgr.InMemory)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -239,13 +241,13 @@ func TestDeleteTaskFromDB(t *testing.T) {
 	}
 	task.Name = "Task " + task.ID
 	// Persist in the in-memory DB
-	err := PersistTask(&task, common.InMemory)
+	err := PersistTask(&task, persistencemgr.InMemory)
 	if err != nil {
 		t.Fatalf("error while trying to insert the task details: %v", err)
 		return
 	}
 	task1 := new(Task)
-	task1, err = GetTaskStatus(task.ID, common.InMemory)
+	task1, err = GetTaskStatus(task.ID, persistencemgr.InMemory)
 	if err != nil {
 		t.Fatalf("error while retreving the Task details with Get: %v", err)
 		return
@@ -268,11 +270,11 @@ func TestDeleteTaskFromDB(t *testing.T) {
 func TestDeleteTaskIndex(t *testing.T) {
 	common.SetUpMockConfig()
 	defer func() {
-		err := common.TruncateDB(common.OnDisk)
+		err := common.TruncateDB(persistencemgr.OnDisk)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
-		err = common.TruncateDB(common.InMemory)
+		err = common.TruncateDB(persistencemgr.InMemory)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -289,7 +291,7 @@ func TestDeleteTaskIndex(t *testing.T) {
 	}
 	task.Name = "Task " + task.ID
 	// Persist in the in-memory DB
-	err := PersistTask(&task, common.InMemory)
+	err := PersistTask(&task, persistencemgr.InMemory)
 	if err != nil {
 		t.Fatalf("error while trying to insert the task details: %v", err)
 		return
@@ -306,18 +308,18 @@ func TestDeleteTaskIndex(t *testing.T) {
 	}
 	task2.Name = "Task " + task2.ID
 	// Persist in the in-memory DB
-	err = PersistTask(&task2, common.InMemory)
+	err = PersistTask(&task2, persistencemgr.InMemory)
 	if err != nil {
 		t.Fatalf("error while trying to insert the task details: %v", err)
 		return
 	}
 	task1 := new(Task)
-	task1, err = GetTaskStatus(task.ID, common.InMemory)
+	task1, err = GetTaskStatus(task.ID, persistencemgr.InMemory)
 	if err != nil {
 		t.Fatalf("error while retreving the Task details with Get: %v", err)
 		return
 	}
-	err = UpdateTaskStatus(task1, common.InMemory)
+	err = UpdateTaskStatus(task1, persistencemgr.InMemory)
 	if err != nil {
 		t.Fatalf("error while retreving the Task details with Get: %v", err)
 		return
@@ -345,19 +347,19 @@ func TestGetTaskStatus(t *testing.T) {
 	}
 	task.Name = "Task " + task.ID
 	// Persist in the in-memory DB
-	err := PersistTask(&task, common.InMemory)
+	err := PersistTask(&task, persistencemgr.InMemory)
 	if err != nil {
 		t.Fatalf("error while trying to insert the task details: %v", err)
 		return
 	}
 	// Negetive Test case with wrong task ID
-	_, err = GetTaskStatus("", common.InMemory)
+	_, err = GetTaskStatus("", persistencemgr.InMemory)
 	if err == nil {
 		t.Fatalf("error: expected error here but got no error")
 		return
 	}
 	// Positive test case
-	_, err = GetTaskStatus(task.ID, common.InMemory)
+	_, err = GetTaskStatus(task.ID, persistencemgr.InMemory)
 	if err != nil {
 		t.Fatalf("error while retreving the Task details with Get: %v", err)
 		return
@@ -398,7 +400,7 @@ func createTaskInDB(t *testing.T) {
 	}
 	task.Name = "Task " + task.ID
 	// Persist in the in-memory DB
-	err = PersistTask(&task, common.InMemory)
+	err = PersistTask(&task, persistencemgr.InMemory)
 	if err != nil {
 		t.Fatalf("error while trying to insert the task details: %v", err)
 		return
@@ -499,11 +501,11 @@ func TestValidateTaskUserName(t *testing.T) {
 	}
 }
 func flushDB(t *testing.T) {
-	err := common.TruncateDB(common.OnDisk)
+	err := common.TruncateDB(persistencemgr.OnDisk)
 	if err != nil {
 		t.Fatalf("error: %v", err)
 	}
-	err = common.TruncateDB(common.InMemory)
+	err = common.TruncateDB(persistencemgr.InMemory)
 	if err != nil {
 		t.Fatalf("error: %v", err)
 	}

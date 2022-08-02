@@ -24,6 +24,8 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/ODIM-Project/ODIM/lib-persistence-manager/persistencemgr"
+
 	"github.com/ODIM-Project/ODIM/lib-utilities/common"
 	"github.com/ODIM-Project/ODIM/lib-utilities/config"
 	updateproto "github.com/ODIM-Project/ODIM/lib-utilities/proto/update"
@@ -46,7 +48,7 @@ func (e *ExternalInterface) StartUpdate(taskID string, sessionUserName string, r
 
 	taskInfo := &common.TaskUpdateInfo{TaskID: taskID, TargetURI: targetURI, UpdateTask: e.External.UpdateTask, TaskRequest: string(req.RequestBody)}
 	// Read all the requests from database
-	targetList, err := GetAllKeysFromTableFunc("SimpleUpdate", common.OnDisk)
+	targetList, err := GetAllKeysFromTableFunc("SimpleUpdate", persistencemgr.OnDisk)
 	if err != nil {
 		errMsg := "Unable to read SimpleUpdate requests from database: " + err.Error()
 		log.Warn(errMsg)
@@ -74,7 +76,7 @@ func (e *ExternalInterface) StartUpdate(taskID string, sessionUserName string, r
 		return resp
 	}
 	for _, target := range targetList {
-		data, gerr := e.DB.GetResource("SimpleUpdate", target, common.OnDisk)
+		data, gerr := e.DB.GetResource("SimpleUpdate", target, persistencemgr.OnDisk)
 		if gerr != nil {
 			errMsg := "Unable to retrive the start update request" + gerr.Error()
 			log.Warn(errMsg)

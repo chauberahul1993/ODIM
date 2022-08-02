@@ -31,6 +31,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ODIM-Project/ODIM/lib-persistence-manager/persistencemgr"
+
 	log "github.com/sirupsen/logrus"
 
 	"github.com/ODIM-Project/ODIM/lib-utilities/common"
@@ -572,7 +574,7 @@ func (e *ExternalInterfaces) checkUndeliveredEvents(destination string) {
 		if err != nil {
 			log.Error("error while setting undelivered events flag: ", err.Error())
 		}
-		destData, _ := e.GetAllMatchingDetails(evmodel.UndeliveredEvents, destination, common.OnDisk)
+		destData, _ := e.GetAllMatchingDetails(evmodel.UndeliveredEvents, destination, persistencemgr.OnDisk)
 		for _, dest := range destData {
 			event, err := e.GetUndeliveredEvents(dest)
 			if err != nil {
