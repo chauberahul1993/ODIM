@@ -15,12 +15,13 @@
 package tcommon
 
 import (
-	"ODIM/lib-persistence-manager/persistencemgr"
 	"bytes"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"testing"
+
+	"github.com/ODIM-Project/ODIM/lib-persistence-manager/persistencemgr"
 
 	"github.com/ODIM-Project/ODIM/lib-utilities/common"
 	"github.com/ODIM-Project/ODIM/lib-utilities/config"

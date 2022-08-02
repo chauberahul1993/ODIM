@@ -15,12 +15,13 @@
 package update
 
 import (
-	"ODIM/lib-persistence-manager/persistencemgr"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"runtime"
 	"time"
+
+	"github.com/ODIM-Project/ODIM/lib-persistence-manager/persistencemgr"
 
 	"github.com/ODIM-Project/ODIM/lib-rest-client/pmbhandle"
 	"github.com/ODIM-Project/ODIM/lib-utilities/common"

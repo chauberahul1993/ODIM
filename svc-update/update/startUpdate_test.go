@@ -14,12 +14,13 @@
 package update
 
 import (
-	"ODIM/lib-persistence-manager/persistencemgr"
 	"errors"
 	"fmt"
 	"net/http"
 	"reflect"
 	"testing"
+
+	"github.com/ODIM-Project/ODIM/lib-persistence-manager/persistencemgr"
 
 	"github.com/ODIM-Project/ODIM/lib-utilities/config"
 	updateproto "github.com/ODIM-Project/ODIM/lib-utilities/proto/update"

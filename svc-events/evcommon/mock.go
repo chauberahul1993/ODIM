@@ -16,13 +16,14 @@
 package evcommon
 
 import (
-	"ODIM/lib-persistence-manager/persistencemgr"
 	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
+
+	"github.com/ODIM-Project/ODIM/lib-persistence-manager/persistencemgr"
 
 	"github.com/ODIM-Project/ODIM/lib-utilities/common"
 	"github.com/ODIM-Project/ODIM/lib-utilities/errors"

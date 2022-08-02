@@ -8,7 +8,6 @@
 package events
 
 import (
-	"ODIM/lib-persistence-manager/persistencemgr"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -17,6 +16,8 @@ import (
 	"runtime"
 	"strings"
 	"time"
+
+	"github.com/ODIM-Project/ODIM/lib-persistence-manager/persistencemgr"
 
 	"github.com/ODIM-Project/ODIM/lib-utilities/common"
 	"github.com/ODIM-Project/ODIM/lib-utilities/errors"

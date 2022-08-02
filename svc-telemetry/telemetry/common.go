@@ -15,8 +15,9 @@
 package telemetry
 
 import (
-	"ODIM/lib-persistence-manager/persistencemgr"
 	"net/http"
+
+	"github.com/ODIM-Project/ODIM/lib-persistence-manager/persistencemgr"
 
 	"github.com/ODIM-Project/ODIM/lib-rest-client/pmbhandle"
 	"github.com/ODIM-Project/ODIM/lib-utilities/common"
