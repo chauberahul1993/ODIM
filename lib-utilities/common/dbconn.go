@@ -22,22 +22,12 @@ import (
 	"github.com/ODIM-Project/ODIM/lib-utilities/errors"
 )
 
-// DbType is a alias name for int32
-type DbType int32
-
-const (
-	//InMemory - To select in-memory db connection pool
-	InMemory DbType = iota
-	// OnDisk - To select in-disk db connection pool
-	OnDisk
-)
-
 // TruncateDB will clear DB. It will be useful for test cases
 // Takes DbFlag of type DbType/int32 to choose Inmemory or OnDisk db to truncate
 //dbFlag:
 //    InMemory: Truncates InMemory DB
 //    OnDisk: Truncates OnDisk DB
-func TruncateDB(dbFlag DbType) *errors.Error {
+func TruncateDB(dbFlag persistencemgr.DbType) *errors.Error {
 	conn, err := persistencemgr.GetDBConnection(dbFlag)
 	if err != nil {
 		return errors.PackError(err.ErrNo(), "unable to connect DB: ", err.Error())

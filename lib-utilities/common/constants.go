@@ -332,4 +332,5 @@ var URIWithNoAuth = []string{
 	"/redfish/v1/SessionService/Sessions",
 }
 
+// SessionURI ....
 var SessionURI = "/redfish/v1/SessionService/Sessions"

@@ -193,7 +193,7 @@ func TestTruncateDBOnDisk(t *testing.T) {
 	if len(keys) == 0 {
 		reportError(t, redisEmptyDBErr)
 	}
-	err = TruncateDB(OnDisk)
+	err = TruncateDB(persistencemgr.OnDisk)
 	if err != nil {
 		reportError(t, redisDBFlushErr, err)
 	}
