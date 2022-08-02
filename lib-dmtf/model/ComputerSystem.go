@@ -15,7 +15,7 @@
 package model
 
 import (
-	"ODIM/lib-persistence-manager/persistencemgr"
+	"github.com/ODIM-Project/ODIM/lib-persistence-manager/persistencemgr"
 
 	"github.com/ODIM-Project/ODIM/lib-utilities/errors"
 )
