@@ -39,7 +39,7 @@ func TestCreateRedfishRoles(t *testing.T) {
 		common.TruncateDB(persistencemgr.InMemory)
 	}()
 	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
-		return common.GetDBConnection(dbFlag)
+		return persistencemgr.GetDBConnection(dbFlag)
 	}
 	err := roles.Create()
 	assert.Nil(t, err, "There should be no error")
@@ -52,7 +52,7 @@ func TestGetRedfishRoles(t *testing.T) {
 		common.TruncateDB(persistencemgr.InMemory)
 	}()
 	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
-		return common.GetDBConnection(dbFlag)
+		return persistencemgr.GetDBConnection(dbFlag)
 	}
 	mockData(persistencemgr.OnDisk, "roles", "redfishdefined", roles)
 	_, err := GetRedfishRoles()
@@ -66,7 +66,7 @@ func TestGetRedfishRolesNegativeTestCase(t *testing.T) {
 		common.TruncateDB(persistencemgr.InMemory)
 	}()
 	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
-		return common.GetDBConnection(dbFlag)
+		return persistencemgr.GetDBConnection(dbFlag)
 	}
 	_, err := GetRedfishRoles()
 	assert.NotNil(t, err, "There should be an error")

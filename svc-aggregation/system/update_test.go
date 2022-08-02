@@ -48,7 +48,7 @@ import (
 )
 
 func testSystemIndex(uuid string, indexData map[string]interface{}) error {
-	connPool, err := common.GetDBConnection(persistencemgr.InMemory)
+	connPool, err := persistencemgr.GetDBConnection(persistencemgr.InMemory)
 	if err != nil {
 		return fmt.Errorf("error while trying to connecting to DB: %v", err.Error())
 	}

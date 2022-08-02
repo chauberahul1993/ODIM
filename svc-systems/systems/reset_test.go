@@ -45,7 +45,7 @@ func mockPluginData(t *testing.T) error {
 		ID:                "GRF",
 		PreferredAuthType: "BasicAuth",
 	}
-	connPool, err := common.GetDBConnection(persistencemgr.OnDisk)
+	connPool, err := persistencemgr.GetDBConnection(persistencemgr.OnDisk)
 	if err != nil {
 		return fmt.Errorf("error while trying to connecting to DB: %v", err)
 	}
@@ -58,7 +58,7 @@ func mockPluginData(t *testing.T) error {
 }
 func mockDeviceData(uuid string, device smodel.Target) error {
 
-	connPool, err := common.GetDBConnection(persistencemgr.OnDisk)
+	connPool, err := persistencemgr.GetDBConnection(persistencemgr.OnDisk)
 	if err != nil {
 		return fmt.Errorf("error while trying to connecting to DB: %v", err)
 	}

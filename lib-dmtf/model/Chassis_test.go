@@ -20,7 +20,6 @@ import (
 	"testing"
 
 	"github.com/ODIM-Project/ODIM/lib-persistence-manager/persistencemgr"
-	"github.com/ODIM-Project/ODIM/lib-utilities/common"
 	"github.com/ODIM-Project/ODIM/lib-utilities/config"
 )
 
@@ -42,7 +41,7 @@ func TestChassis_SaveInMemory(t *testing.T) {
 		t.Fatalf("error while trying to persist the data: %v", err.Error())
 		return
 	}
-	connPool, errs := common.GetDBConnection(persistencemgr.InMemory)
+	connPool, errs := persistencemgr.GetDBConnection(persistencemgr.InMemory)
 	if errs != nil {
 		t.Fatalf("error while db connection pool: %v", errs.Error())
 		return

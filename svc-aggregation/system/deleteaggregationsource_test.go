@@ -85,7 +85,7 @@ func mockEventNotification(systemID, eventType, collectionType string) {
 func mockManagersData(id string, data map[string]interface{}) error {
 	reqData, _ := json.Marshal(data)
 
-	connPool, err := common.GetDBConnection(persistencemgr.InMemory)
+	connPool, err := persistencemgr.GetDBConnection(persistencemgr.InMemory)
 	if err != nil {
 		return fmt.Errorf("error while trying to connecting to DB: %v", err.Error())
 	}
@@ -117,7 +117,7 @@ func mockSystemOperationInfo() *errors.Error {
 func mockLogServicesCollectionData(id string, data map[string]interface{}) error {
 	reqData, _ := json.Marshal(data)
 
-	connPool, err := common.GetDBConnection(persistencemgr.InMemory)
+	connPool, err := persistencemgr.GetDBConnection(persistencemgr.InMemory)
 	if err != nil {
 		return fmt.Errorf("error while trying to connecting to DB: %v", err.Error())
 	}

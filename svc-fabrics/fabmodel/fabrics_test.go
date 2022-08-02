@@ -38,7 +38,7 @@ var plugin = Plugin{
 
 func mockPluginData(t *testing.T) error {
 	plugin.Password = getEncryptedKey(t, []byte("12345"))
-	connPool, err := common.GetDBConnection(persistencemgr.OnDisk)
+	connPool, err := persistencemgr.GetDBConnection(persistencemgr.OnDisk)
 	if err != nil {
 		return fmt.Errorf("error while trying to connecting to DB: %v", err.Error())
 	}
@@ -58,7 +58,7 @@ func getEncryptedKey(t *testing.T, key []byte) []byte {
 
 func mockFabricData(fabricID, pluginID string) error {
 
-	connPool, err := common.GetDBConnection(persistencemgr.OnDisk)
+	connPool, err := persistencemgr.GetDBConnection(persistencemgr.OnDisk)
 	if err != nil {
 		return fmt.Errorf("error while trying to connecting to DB: %v", err.Error())
 	}
@@ -73,7 +73,7 @@ func mockFabricData(fabricID, pluginID string) error {
 }
 
 func mockData(t *testing.T, dbType common.DbType, table, id string, data interface{}) {
-	connPool, err := common.GetDBConnection(dbType)
+	connPool, err := persistencemgr.GetDBConnection(dbType)
 	if err != nil {
 		t.Fatalf("error: mockData() failed to DB connection: %v", err)
 	}

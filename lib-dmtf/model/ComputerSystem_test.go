@@ -20,7 +20,6 @@ import (
 	"testing"
 
 	"github.com/ODIM-Project/ODIM/lib-persistence-manager/persistencemgr"
-	"github.com/ODIM-Project/ODIM/lib-utilities/common"
 	"github.com/ODIM-Project/ODIM/lib-utilities/config"
 )
 
@@ -44,7 +43,7 @@ func TestComputerSystem_SaveInMemory(t *testing.T) {
 		return
 	}
 
-	connPool, err := common.GetDBConnection(persistencemgr.InMemory)
+	connPool, err := persistencemgr.GetDBConnection(persistencemgr.InMemory)
 	if err != nil {
 		t.Fatalf("error while db connection pool: %v", err.Error())
 		return

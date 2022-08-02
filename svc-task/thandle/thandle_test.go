@@ -52,7 +52,7 @@ func createMockUser(username, roleID string) error {
 		Password: hashedPassword,
 		RoleID:   roleID,
 	}
-	conn, err := common.GetDBConnection(persistencemgr.OnDisk)
+	conn, err := persistencemgr.GetDBConnection(persistencemgr.OnDisk)
 	if err != nil {
 		return err
 	}

@@ -725,7 +725,7 @@ func TestAggregator_DeleteAggregationSource(t *testing.T) {
 }
 
 func mockSystemResourceData(body []byte, table, key string) error {
-	connPool, err := common.GetDBConnection(persistencemgr.InMemory)
+	connPool, err := persistencemgr.GetDBConnection(persistencemgr.InMemory)
 	if err != nil {
 		return fmt.Errorf("error while trying to connecting to DB: %v", err.Error())
 	}
@@ -735,7 +735,7 @@ func mockSystemResourceData(body []byte, table, key string) error {
 	return nil
 }
 func mockData(t *testing.T, dbType common.DbType, table, id string, data interface{}) {
-	connPool, err := common.GetDBConnection(dbType)
+	connPool, err := persistencemgr.GetDBConnection(dbType)
 	if err != nil {
 		t.Fatalf("error: mockData() failed to DB connection: %v", err)
 	}

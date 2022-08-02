@@ -139,7 +139,7 @@ func mockEventNotification(systemID, eventType, collectionType string) {
 func mockManagersData(id string, data map[string]interface{}) error {
 	reqData, _ := json.Marshal(data)
 
-	connPool, err := common.GetDBConnection(persistencemgr.InMemory)
+	connPool, err := persistencemgr.GetDBConnection(persistencemgr.InMemory)
 	if err != nil {
 		return fmt.Errorf("error while trying to connecting to DB: %v", err.Error())
 	}
@@ -215,7 +215,7 @@ func mockSystemData(systemID string) error {
 		"Id": "1",
 	})
 
-	connPool, err := common.GetDBConnection(persistencemgr.InMemory)
+	connPool, err := persistencemgr.GetDBConnection(persistencemgr.InMemory)
 	if err != nil {
 		return fmt.Errorf("error while trying to connecting to DB: %v", err.Error())
 	}
@@ -259,7 +259,7 @@ func mockPluginData(t *testing.T, pluginID string) error {
 	case "NoStatusPlugin":
 		plugin.Username = "noStatusUser"
 	}
-	connPool, err := common.GetDBConnection(persistencemgr.OnDisk)
+	connPool, err := persistencemgr.GetDBConnection(persistencemgr.OnDisk)
 	if err != nil {
 		return fmt.Errorf("error while trying to connecting to DB: %v", err.Error())
 	}
@@ -270,7 +270,7 @@ func mockPluginData(t *testing.T, pluginID string) error {
 }
 func mockDeviceData(uuid string, device agmodel.Target) error {
 
-	connPool, err := common.GetDBConnection(persistencemgr.OnDisk)
+	connPool, err := persistencemgr.GetDBConnection(persistencemgr.OnDisk)
 	if err != nil {
 		return fmt.Errorf("error while trying to connecting to DB: %v", err.Error())
 	}

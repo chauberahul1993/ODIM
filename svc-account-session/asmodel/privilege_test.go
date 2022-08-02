@@ -58,7 +58,7 @@ func TestCreatePrivilegeRegistry(t *testing.T) {
 		common.TruncateDB(persistencemgr.InMemory)
 	}()
 	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
-		return common.GetDBConnection(dbFlag)
+		return persistencemgr.GetDBConnection(dbFlag)
 	}
 	err := list.Create()
 	assert.Nil(t, err, "There should be no error")
@@ -71,7 +71,7 @@ func TestGetPrivilegeRegistry(t *testing.T) {
 		common.TruncateDB(persistencemgr.InMemory)
 	}()
 	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
-		return common.GetDBConnection(dbFlag)
+		return persistencemgr.GetDBConnection(dbFlag)
 	}
 	mockData(persistencemgr.OnDisk, "registry", "assignedprivileges", list)
 	_, err := GetPrivilegeRegistry()
@@ -85,7 +85,7 @@ func TestGetPrivilegeRegistryNegativeTestCase(t *testing.T) {
 		common.TruncateDB(persistencemgr.InMemory)
 	}()
 	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
-		return common.GetDBConnection(dbFlag)
+		return persistencemgr.GetDBConnection(dbFlag)
 	}
 	_, err := GetPrivilegeRegistry()
 	assert.NotNil(t, err, "There should be an error")
@@ -101,7 +101,7 @@ func TestCreateOEMPrivilegeRegistry(t *testing.T) {
 		common.TruncateDB(persistencemgr.InMemory)
 	}()
 	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
-		return common.GetDBConnection(dbFlag)
+		return persistencemgr.GetDBConnection(dbFlag)
 	}
 	err := OEMList.Create()
 	assert.Nil(t, err, "There should be no error")
@@ -114,7 +114,7 @@ func TestGetOEMPrivileges(t *testing.T) {
 		common.TruncateDB(persistencemgr.InMemory)
 	}()
 	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
-		return common.GetDBConnection(dbFlag)
+		return persistencemgr.GetDBConnection(dbFlag)
 	}
 	mockData(persistencemgr.OnDisk, "registry", "oemprivileges", OEMList)
 	_, err := GetOEMPrivileges()
@@ -128,7 +128,7 @@ func TestGetOEMPrivilegesNegativeTestCase(t *testing.T) {
 		common.TruncateDB(persistencemgr.InMemory)
 	}()
 	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
-		return common.GetDBConnection(dbFlag)
+		return persistencemgr.GetDBConnection(dbFlag)
 	}
 	_, err := GetOEMPrivileges()
 	assert.NotNil(t, err, "There should be an error")

@@ -47,7 +47,7 @@ func TestPersist(t *testing.T) {
 		common.TruncateDB(persistencemgr.InMemory)
 	}()
 	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
-		return common.GetDBConnection(dbFlag)
+		return persistencemgr.GetDBConnection(dbFlag)
 	}
 	err := session.Persist()
 	assert.Nil(t, err, "There should be no error")
@@ -59,7 +59,7 @@ func TestGetAllSessionKeys(t *testing.T) {
 		common.TruncateDB(persistencemgr.InMemory)
 	}()
 	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
-		return common.GetDBConnection(dbFlag)
+		return persistencemgr.GetDBConnection(dbFlag)
 	}
 	mockData(persistencemgr.InMemory, "session", session.Token, session)
 	_, err := GetAllSessionKeys()
@@ -100,7 +100,7 @@ func TestGetSession(t *testing.T) {
 				key: "token",
 			},
 			GetDBConnectionFunc: func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
-				return common.GetDBConnection(dbFlag)
+				return persistencemgr.GetDBConnection(dbFlag)
 			},
 			want:    session,
 			wantErr: false,
@@ -111,7 +111,7 @@ func TestGetSession(t *testing.T) {
 				key: "InvalidID",
 			},
 			GetDBConnectionFunc: func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
-				return common.GetDBConnection(dbFlag)
+				return persistencemgr.GetDBConnection(dbFlag)
 			},
 			want:    Session{},
 			wantErr: true,
@@ -141,7 +141,7 @@ func TestDelete(t *testing.T) {
 		common.TruncateDB(persistencemgr.InMemory)
 	}()
 	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
-		return common.GetDBConnection(dbFlag)
+		return persistencemgr.GetDBConnection(dbFlag)
 	}
 	mockData(persistencemgr.InMemory, "session", session.Token, session)
 	tests := []struct {
@@ -159,14 +159,14 @@ func TestDelete(t *testing.T) {
 		{
 			name: "success case",
 			GetDBConnectionFunc: func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
-				return common.GetDBConnection(dbFlag)
+				return persistencemgr.GetDBConnection(dbFlag)
 			},
 			want: nil,
 		},
 		{
 			name: "not found case",
 			GetDBConnectionFunc: func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
-				return common.GetDBConnection(dbFlag)
+				return persistencemgr.GetDBConnection(dbFlag)
 			},
 			want: errors.PackError(errors.DBKeyNotFound, "error while trying to delete session: no data with the with key token found"),
 		},
@@ -189,7 +189,7 @@ func TestUpdate(t *testing.T) {
 		common.TruncateDB(persistencemgr.InMemory)
 	}()
 	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
-		return common.GetDBConnection(dbFlag)
+		return persistencemgr.GetDBConnection(dbFlag)
 	}
 	mockData(persistencemgr.InMemory, "session", session.Token, session)
 	err := session.Update()
@@ -203,7 +203,7 @@ func TestUpdateNegativeTestCase(t *testing.T) {
 		common.TruncateDB(persistencemgr.InMemory)
 	}()
 	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
-		return common.GetDBConnection(dbFlag)
+		return persistencemgr.GetDBConnection(dbFlag)
 	}
 	mockData(persistencemgr.InMemory, "session", session.Token, "session")
 	err := invalidSession.Update()

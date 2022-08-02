@@ -20,14 +20,13 @@ import (
 
 	"github.com/ODIM-Project/ODIM/lib-persistence-manager/persistencemgr"
 
-	"github.com/ODIM-Project/ODIM/lib-utilities/common"
 	"github.com/ODIM-Project/ODIM/lib-utilities/errors"
 	log "github.com/sirupsen/logrus"
 )
 
 //GetRegistryFile fetches a resource from database using table and key
 func GetRegistryFile(Table, key string) ([]byte, *errors.Error) {
-	conn, err := common.GetDBConnection(persistencemgr.OnDisk)
+	conn, err := persistencemgr.GetDBConnection(persistencemgr.OnDisk)
 	if err != nil {
 		return nil, errors.PackError(err.ErrNo(), err)
 	}
@@ -47,7 +46,7 @@ func GetRegistryFile(Table, key string) ([]byte, *errors.Error) {
 //GetAllRegistryFileNamesFromDB return all key in given table
 func GetAllRegistryFileNamesFromDB(table string) ([]string, *errors.Error) {
 
-	conn, err := common.GetDBConnection(persistencemgr.OnDisk)
+	conn, err := persistencemgr.GetDBConnection(persistencemgr.OnDisk)
 	if err != nil {
 		return nil, err
 	}

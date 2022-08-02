@@ -91,7 +91,7 @@ func stubAddConnectionMethod(data agmodel.ConnectionMethod, key string) *errors.
 	}
 	connectionMethodURI := "/redfish/v1/AggregationService/ConnectionMethods/" + uuid.NewV4().String()
 
-	connPool, err := common.GetDBConnection(persistencemgr.OnDisk)
+	connPool, err := persistencemgr.GetDBConnection(persistencemgr.OnDisk)
 	if err != nil {
 		return errors.PackError(err.ErrNo(), "error while trying to connecting to DB: ", err.Error())
 
@@ -109,7 +109,7 @@ func stubDeleteConnectionMethod(table, key string, dbtype common.DbType) *errors
 }
 
 func mockData(t *testing.T, dbType common.DbType, table, id string, data interface{}) {
-	connPool, err := common.GetDBConnection(dbType)
+	connPool, err := persistencemgr.GetDBConnection(dbType)
 	if err != nil {
 		t.Fatalf("error: mockData() failed to DB connection: %v", err)
 	}
@@ -239,7 +239,7 @@ func getEncryptedKey(t *testing.T, key []byte) []byte {
 }
 
 func mockPlugins(t *testing.T) {
-	connPool, err := common.GetDBConnection(persistencemgr.OnDisk)
+	connPool, err := persistencemgr.GetDBConnection(persistencemgr.OnDisk)
 	if err != nil {
 		t.Errorf("error while trying to connecting to DB: %v", err.Error())
 	}

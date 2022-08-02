@@ -62,7 +62,7 @@ func mockPluginData(t *testing.T) error {
 		ID:                "CFM",
 		PreferredAuthType: "XAuthTOken",
 	}
-	connPool, err := common.GetDBConnection(persistencemgr.OnDisk)
+	connPool, err := persistencemgr.GetDBConnection(persistencemgr.OnDisk)
 	if err != nil {
 		return fmt.Errorf("error while trying to connecting to DB: %v", err.Error())
 	}

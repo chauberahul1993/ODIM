@@ -91,7 +91,7 @@ type Message struct {
 
 //BuildCompletedTaskIndex is used to build the index for Completed Task
 func BuildCompletedTaskIndex(completedTask *Task, table string) error {
-	conn, err := common.GetDBConnection(persistencemgr.InMemory)
+	conn, err := persistencemgr.GetDBConnection(persistencemgr.InMemory)
 	if err != nil {
 		log.Error("BuildCompletedTaskIndex : error while trying to get DB Connection : " + err.Error())
 		return fmt.Errorf("error while trying to connecting to DB: %v", err.Error())
@@ -108,7 +108,7 @@ func BuildCompletedTaskIndex(completedTask *Task, table string) error {
 // GetCompletedTasksIndex Searches Complete Tasks in the db using secondary index with provided search Key
 func GetCompletedTasksIndex(searchKey string) ([]string, error) {
 	var taskData []string
-	conn, err := common.GetDBConnection(persistencemgr.InMemory)
+	conn, err := persistencemgr.GetDBConnection(persistencemgr.InMemory)
 	if err != nil {
 		log.Error("GetCompletedTasksIndex : error while trying to get DB Connection : " + err.Error())
 		return taskData, fmt.Errorf("error while trying to connecting to DB: %v", err.Error())
@@ -131,7 +131,7 @@ type Oem struct {
 //	t pointer to Task to be stored.
 //	db of type common.DbType(int32)
 func PersistTask(t *Task, db common.DbType) error {
-	connPool, err := common.GetDBConnection(db)
+	connPool, err := persistencemgr.GetDBConnection(db)
 	if err != nil {
 		log.Error("PersistTask : error while trying to get DB Connection : " + err.Error())
 		return fmt.Errorf("error while trying to connecting to DB: %v", err.Error())
@@ -152,7 +152,7 @@ func PersistTask(t *Task, db common.DbType) error {
 //	On Success - return nil value
 //	On Failure - return non nill value
 func UpdateTaskStatus(t *Task, db common.DbType) error {
-	connPool, err := common.GetDBConnection(db)
+	connPool, err := persistencemgr.GetDBConnection(db)
 	if err != nil {
 		log.Error("UpdateTaskStatus : error while trying to get DB Connection : " + err.Error())
 		return fmt.Errorf("error while trying to connecting to DB: %v", err.Error())
@@ -180,7 +180,7 @@ func UpdateTaskStatus(t *Task, db common.DbType) error {
 //      On Success - return nil value
 //      On Failure - return non nill value
 func DeleteTaskFromDB(t *Task) error {
-	connPool, err := common.GetDBConnection(persistencemgr.InMemory)
+	connPool, err := persistencemgr.GetDBConnection(persistencemgr.InMemory)
 	if err != nil {
 		log.Error("DeleteTaskFromDB : error while trying to get DB Connection : " + err.Error())
 		return fmt.Errorf("error while trying to connecting to DB: %v", err.Error())
@@ -195,7 +195,7 @@ func DeleteTaskFromDB(t *Task) error {
 //DeleteTaskIndex is used to delete the completed task index
 //taskID is the ID with which the completed task index is deleted
 func DeleteTaskIndex(taskID string) error {
-	connPool, err := common.GetDBConnection(persistencemgr.InMemory)
+	connPool, err := persistencemgr.GetDBConnection(persistencemgr.InMemory)
 	if err != nil {
 		log.Error("DeleteTaskIndex : error while trying to get DB Connection : " + err.Error())
 		return fmt.Errorf("error while trying to connecting to DB: %v", err.Error())
@@ -219,7 +219,7 @@ func DeleteTaskIndex(taskID string) error {
 func GetTaskStatus(taskID string, db common.DbType) (*Task, error) {
 	task := new(Task)
 	var taskData string
-	connPool, err := common.GetDBConnection(persistencemgr.InMemory)
+	connPool, err := persistencemgr.GetDBConnection(persistencemgr.InMemory)
 	if err != nil {
 		log.Error("GetTaskStatus : error while trying to get DB Connection : " + err.Error())
 		return task, fmt.Errorf("error while trying to connnect to DB: %v", err.Error())
@@ -244,7 +244,7 @@ func GetTaskStatus(taskID string, db common.DbType) (*Task, error) {
 //	On Failure - error is set to appropriate reason why it got failed
 //	and slice of task is set to nil
 func GetAllTaskKeys() ([]string, error) {
-	connPool, err := common.GetDBConnection(persistencemgr.InMemory)
+	connPool, err := persistencemgr.GetDBConnection(persistencemgr.InMemory)
 	if err != nil {
 		log.Error("GetAllTaskKeys : error while trying to get DB Connection : " + err.Error())
 		return nil, fmt.Errorf("error while trying to connecting to DB: %v", err.Error())
@@ -259,7 +259,7 @@ func GetAllTaskKeys() ([]string, error) {
 
 //Transaction - is for performing atomic oprations using optimitic locking
 func Transaction(key string, cb func(string) error) error {
-	connPool, err := common.GetDBConnection(persistencemgr.InMemory)
+	connPool, err := persistencemgr.GetDBConnection(persistencemgr.InMemory)
 	if err != nil {
 		log.Error("Transaction : error while trying to get DB Connection : " + err.Error())
 		return fmt.Errorf("error while trying to connecting to DB: %v", err.Error())
@@ -275,7 +275,7 @@ func Transaction(key string, cb func(string) error) error {
 // Returns error with non nil value if username is not found in the db,
 // if username found in the db error is set to nil.
 func ValidateTaskUserName(userName string) error {
-	connPool, err := common.GetDBConnection(persistencemgr.OnDisk)
+	connPool, err := persistencemgr.GetDBConnection(persistencemgr.OnDisk)
 	if err != nil {
 		log.Error("ValidateTaskUserName : error while trying to get DB Connection : " + err.Error())
 		return fmt.Errorf("error while trying to connecting to DB: %v", err)

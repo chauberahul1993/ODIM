@@ -22,12 +22,11 @@ import (
 	"github.com/ODIM-Project/ODIM/lib-persistence-manager/persistencemgr"
 
 	dmtf "github.com/ODIM-Project/ODIM/lib-dmtf/model"
-	"github.com/ODIM-Project/ODIM/lib-utilities/common"
 	"github.com/ODIM-Project/ODIM/lib-utilities/errors"
 )
 
 var (
-	GetDBConnectionFunc = common.GetDBConnection
+	GetDBConnectionFunc = persistencemgr.GetDBConnection
 	MarshalFunc         = json.Marshal
 )
 

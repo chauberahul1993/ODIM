@@ -67,7 +67,7 @@ func Test_checkPluginStatus(t *testing.T) {
 }
 
 func mockPlugins(t *testing.T) {
-	connPool, err := common.GetDBConnection(persistencemgr.OnDisk)
+	connPool, err := persistencemgr.GetDBConnection(persistencemgr.OnDisk)
 	if err != nil {
 		t.Errorf("error while trying to connecting to DB: %v", err.Error())
 	}

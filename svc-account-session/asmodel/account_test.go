@@ -35,7 +35,7 @@ var user = User{
 }
 
 func mockData(dbType common.DbType, table, id string, data interface{}) {
-	connPool, _ := common.GetDBConnection(dbType)
+	connPool, _ := persistencemgr.GetDBConnection(dbType)
 	connPool.Create(table, id, data)
 }
 
@@ -47,7 +47,7 @@ func TestCreate(t *testing.T) {
 		common.TruncateDB(persistencemgr.InMemory)
 	}()
 	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
-		return common.GetDBConnection(dbFlag)
+		return persistencemgr.GetDBConnection(dbFlag)
 	}
 	err := CreateUser(user)
 	assert.Nil(t, err, "There should be no error")
@@ -60,7 +60,7 @@ func TestGetAllUsers(t *testing.T) {
 		common.TruncateDB(persistencemgr.InMemory)
 	}()
 	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
-		return common.GetDBConnection(dbFlag)
+		return persistencemgr.GetDBConnection(dbFlag)
 	}
 	mockData(persistencemgr.OnDisk, "User", "successID", User{UserName: "successID"})
 	_, err := GetAllUsers()
@@ -101,7 +101,7 @@ func TestGetUserDetails(t *testing.T) {
 				key: "successID",
 			},
 			GetDBConnectionFunc: func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
-				return common.GetDBConnection(dbFlag)
+				return persistencemgr.GetDBConnection(dbFlag)
 			},
 			want:    User{UserName: "successID"},
 			wantErr: false,
@@ -163,7 +163,7 @@ func TestDeleteUser(t *testing.T) {
 				key: "successID",
 			},
 			GetDBConnectionFunc: func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
-				return common.GetDBConnection(dbFlag)
+				return persistencemgr.GetDBConnection(dbFlag)
 			},
 			want: nil,
 		},
@@ -173,7 +173,7 @@ func TestDeleteUser(t *testing.T) {
 				key: "InvalidID",
 			},
 			GetDBConnectionFunc: func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
-				return common.GetDBConnection(dbFlag)
+				return persistencemgr.GetDBConnection(dbFlag)
 			},
 			want: errors.PackError(errors.DBKeyNotFound, "no data with the with key InvalidID found"),
 		},
@@ -242,7 +242,7 @@ func TestUpdateUserDetails(t *testing.T) {
 			name: "positive case",
 			args: args{userData: User{UserName: "successID"}},
 			GetDBConnectionFunc: func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
-				return common.GetDBConnection(dbFlag)
+				return persistencemgr.GetDBConnection(dbFlag)
 			},
 			wantErr: false,
 		},
@@ -250,7 +250,7 @@ func TestUpdateUserDetails(t *testing.T) {
 			name: "positive case1",
 			args: args{userData: user1},
 			GetDBConnectionFunc: func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
-				return common.GetDBConnection(dbFlag)
+				return persistencemgr.GetDBConnection(dbFlag)
 			},
 			wantErr: false,
 		},
@@ -258,7 +258,7 @@ func TestUpdateUserDetails(t *testing.T) {
 			name: "positive case2",
 			args: args{userData: user2},
 			GetDBConnectionFunc: func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
-				return common.GetDBConnection(dbFlag)
+				return persistencemgr.GetDBConnection(dbFlag)
 			},
 			wantErr: false,
 		},
@@ -266,7 +266,7 @@ func TestUpdateUserDetails(t *testing.T) {
 			name: "positive case3",
 			args: args{userData: user3},
 			GetDBConnectionFunc: func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
-				return common.GetDBConnection(dbFlag)
+				return persistencemgr.GetDBConnection(dbFlag)
 			},
 			wantErr: false,
 		},
@@ -274,7 +274,7 @@ func TestUpdateUserDetails(t *testing.T) {
 			name: "positive case4",
 			args: args{userData: user4},
 			GetDBConnectionFunc: func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
-				return common.GetDBConnection(dbFlag)
+				return persistencemgr.GetDBConnection(dbFlag)
 			},
 			wantErr: false,
 		},

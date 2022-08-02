@@ -52,8 +52,8 @@ type Plugin struct {
 }
 
 var (
-	// GetDBConnectionFunc  function pointer for the common.GetDBConnection
-	GetDBConnectionFunc = common.GetDBConnection
+	// GetDBConnectionFunc  function pointer for the persistencemgr.GetDBConnection
+	GetDBConnectionFunc = persistencemgr.GetDBConnection
 	// JSONUnmarshalFunc  function pointer for the json.Unmarshal
 	JSONUnmarshalFunc = json.Unmarshal
 	// scanFunc function pointer for the scan

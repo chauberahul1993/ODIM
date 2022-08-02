@@ -64,7 +64,7 @@ func TestManager_Update(t *testing.T) {
 	table := "Managers"
 	key := "xyz"
 	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
-		return common.GetDBConnection(dbFlag)
+		return persistencemgr.GetDBConnection(dbFlag)
 	}
 	err := GenericSave(body, table, key)
 	assert.Nil(t, err, "There should be no error while saving data")
@@ -75,7 +75,7 @@ func TestManager_Update(t *testing.T) {
 		},
 	}
 	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
-		return common.GetDBConnection(dbFlag)
+		return persistencemgr.GetDBConnection(dbFlag)
 	}
 	err = UpdateData(key, m, "Managers")
 
@@ -131,7 +131,7 @@ func TestGetAllkeysFromTable(t *testing.T) {
 	table := "EthernetInterfaces"
 	key := "/redfish/v1/Managers/uuid.1/EthernetInterfaces/1"
 	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
-		return common.GetDBConnection(dbFlag)
+		return persistencemgr.GetDBConnection(dbFlag)
 	}
 	err := GenericSave(body, table, key)
 	assert.Nil(t, err, "There should be no error")
@@ -160,7 +160,7 @@ func TestGetManagerByURL(t *testing.T) {
 	table := "Managers"
 	key := "/redfish/v1/Managers/uuid.1"
 	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
-		return common.GetDBConnection(dbFlag)
+		return persistencemgr.GetDBConnection(dbFlag)
 	}
 	err := GenericSave(body, table, key)
 	assert.Nil(t, err, "There should be no error")
@@ -211,7 +211,7 @@ func TestAddManagertoDB(t *testing.T) {
 		State:           "Enabled",
 	}
 	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
-		return common.GetDBConnection(dbFlag)
+		return persistencemgr.GetDBConnection(dbFlag)
 	}
 	MarshalFunc = func(v interface{}) ([]byte, error) {
 		return json.Marshal(v)
@@ -236,7 +236,7 @@ func TestAddManagertoDB(t *testing.T) {
 	err = AddManagertoDB(mngr)
 	assert.NotNil(t, err, "unable to marshal data for updating: %v")
 	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
-		return common.GetDBConnection(dbFlag)
+		return persistencemgr.GetDBConnection(dbFlag)
 	}
 	MarshalFunc = func(v interface{}) ([]byte, error) {
 		return nil, &errors.Error{}

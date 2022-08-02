@@ -91,7 +91,7 @@ func mockPluginData(t *testing.T, pluginID string) error {
 	case "ILO_v1.0.0":
 		plugin.ManagerUUID = "1234877451-1233"
 	}
-	connPool, err := common.GetDBConnection(persistencemgr.OnDisk)
+	connPool, err := persistencemgr.GetDBConnection(persistencemgr.OnDisk)
 	if err != nil {
 		return fmt.Errorf("error while trying to connecting to DB: %v", err.Error())
 	}
@@ -102,7 +102,7 @@ func mockPluginData(t *testing.T, pluginID string) error {
 }
 func mockDeviceData(uuid string, device agmodel.Target) error {
 
-	connPool, err := common.GetDBConnection(persistencemgr.OnDisk)
+	connPool, err := persistencemgr.GetDBConnection(persistencemgr.OnDisk)
 	if err != nil {
 		return fmt.Errorf("error while trying to connecting to DB: %v", err.Error())
 	}

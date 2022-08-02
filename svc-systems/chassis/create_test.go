@@ -121,7 +121,7 @@ func TestNewCreateHandler(t *testing.T) {
 	assert.NotNil(t, response, "Can not acquire database connection")
 
 	GetDbConnectFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
-		return common.GetDBConnection(dbFlag)
+		return persistencemgr.GetDBConnection(dbFlag)
 	}
 	//Mocking GenericSave Func
 	GenericSaveFunc = func(body []byte, table, key string) error {
@@ -208,7 +208,7 @@ func Test_NewCreateHandler(t *testing.T) {
 }
 
 func mockAddManagertoDB(table, key string, data []byte, dbtype common.DbType) error {
-	connPool, connErr := common.GetDBConnection(dbtype)
+	connPool, connErr := persistencemgr.GetDBConnection(dbtype)
 	if connErr != nil {
 		return fmt.Errorf("unable to connect DB: %v", connErr.Error())
 	}
@@ -219,7 +219,7 @@ func mockAddManagertoDB(table, key string, data []byte, dbtype common.DbType) er
 }
 func mockAddPlugonToDB(table, key string, data []byte, dbtype common.DbType) error {
 
-	connPool, connErr := common.GetDBConnection(dbtype)
+	connPool, connErr := persistencemgr.GetDBConnection(dbtype)
 	if connErr != nil {
 		return fmt.Errorf("unable to connect DB: %v", connErr.Error())
 	}

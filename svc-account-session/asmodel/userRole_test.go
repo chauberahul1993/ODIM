@@ -40,7 +40,7 @@ func TestCreateRole(t *testing.T) {
 		common.TruncateDB(persistencemgr.InMemory)
 	}()
 	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
-		return common.GetDBConnection(dbFlag)
+		return persistencemgr.GetDBConnection(dbFlag)
 	}
 	err := role.Create()
 	assert.Nil(t, err, "There should be no error")
@@ -53,7 +53,7 @@ func TestGetAllRoles(t *testing.T) {
 		common.TruncateDB(persistencemgr.InMemory)
 	}()
 	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
-		return common.GetDBConnection(dbFlag)
+		return persistencemgr.GetDBConnection(dbFlag)
 	}
 	mockData(persistencemgr.OnDisk, "role", role.ID, role)
 	_, err := GetAllRoles()
@@ -94,7 +94,7 @@ func TestGetRole(t *testing.T) {
 				key: role.ID,
 			},
 			GetDBConnectionFunc: func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
-				return common.GetDBConnection(dbFlag)
+				return persistencemgr.GetDBConnection(dbFlag)
 			},
 			want:    role,
 			wantErr: false,
@@ -105,7 +105,7 @@ func TestGetRole(t *testing.T) {
 				key: "InvalidID",
 			},
 			GetDBConnectionFunc: func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
-				return common.GetDBConnection(dbFlag)
+				return persistencemgr.GetDBConnection(dbFlag)
 			},
 			want:    Role{},
 			wantErr: true,
@@ -149,14 +149,14 @@ func TestDeleteRole(t *testing.T) {
 		{
 			name: "success case",
 			GetDBConnectionFunc: func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
-				return common.GetDBConnection(dbFlag)
+				return persistencemgr.GetDBConnection(dbFlag)
 			},
 			want: nil,
 		},
 		{
 			name: "not found case",
 			GetDBConnectionFunc: func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
-				return common.GetDBConnection(dbFlag)
+				return persistencemgr.GetDBConnection(dbFlag)
 			},
 			want: errors.PackError(errors.DBKeyNotFound, "no data with the with key someID found"),
 		},
@@ -180,7 +180,7 @@ func TestUpdateRoleDetails(t *testing.T) {
 		common.TruncateDB(persistencemgr.InMemory)
 	}()
 	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
-		return common.GetDBConnection(dbFlag)
+		return persistencemgr.GetDBConnection(dbFlag)
 	}
 	mockData(persistencemgr.OnDisk, "role", role.ID, role)
 	err := role.UpdateRoleDetails()
@@ -194,7 +194,7 @@ func TestUpdateRoleNegativeTestCase(t *testing.T) {
 		common.TruncateDB(persistencemgr.InMemory)
 	}()
 	GetDBConnectionFunc = func(dbFlag common.DbType) (*persistencemgr.ConnPool, *errors.Error) {
-		return common.GetDBConnection(dbFlag)
+		return persistencemgr.GetDBConnection(dbFlag)
 	}
 	mockData(persistencemgr.OnDisk, "role", role.ID, "role")
 	err := invalidRole.UpdateRoleDetails()
