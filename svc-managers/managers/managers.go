@@ -148,7 +148,7 @@ func (e *ExternalInterface) GetManagers(req *managersproto.ManagerRequest) respo
 				}
 			} else {
 				fmt.Println("Data 1 ", managerData)
-				fmt.Println("Data 2 ", managerData)
+				fmt.Println("Data 2 ", deviceData)
 
 				jerr := json.Unmarshal([]byte(deviceData), &managerData)
 				if jerr != nil {
