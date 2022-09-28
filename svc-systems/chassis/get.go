@@ -73,7 +73,7 @@ func (h *Get) Handle(req *chassisproto.GetChassisRequest) response.RPC {
 			GetPluginStatus: pc.GetPluginStatus,
 			ResourceName:    "ComputerSystem",
 		}
-		fmt.Println("Step 2 ********** ", requestData[1])
+		fmt.Println("Step 2 ********** ", req.URL, uuid, requestData[1])
 		data, err := GetResourceInfoFromDeviceFunc(getDeviceInfoRequest, true)
 		if err != nil {
 			return common.GeneralError(http.StatusNotFound, response.ResourceNotFound, err.Error(), []interface{}{"ComputerSystem", req.URL}, nil)
