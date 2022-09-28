@@ -131,6 +131,9 @@ func GetResourceInfoFromDevice(req ResourceInfoRequest, saveRequired bool) (stri
 	}
 	//replace the uuid:system id with the system to the @odata.id from request url
 	contactRequest.OID = strings.Replace(req.URL, req.UUID+"."+req.SystemID, req.SystemID, -1)
+	fmt.Println("Step 3 ************ 111 ***** ", req.URL, req.UUID+"."+req.SystemID, req.SystemID, -1)
+	fmt.Println("Step 4 ************ 111 ***** ", req.URL, req.UUID+"."+req.SystemID, req.SystemID, -1)
+
 	contactRequest.HTTPMethodType = http.MethodGet
 	body, _, _, err := ContactPlugin(contactRequest, "error while getting the details "+contactRequest.OID+": ")
 	if err != nil {
@@ -158,6 +161,7 @@ func GetResourceInfoFromDevice(req ResourceInfoRequest, saveRequired bool) (stri
 
 	if saveRequired && checkRetrievalInfo(contactRequest.OID) {
 		oidKey = keyFormation(contactRequest.OID, req.SystemID, req.UUID)
+		fmt.Println("Step 5 *************** ", oidKey, contactRequest.OID, req.SystemID, req.UUID)
 		var memberFlag bool
 		if _, ok := resourceData["Members"]; ok {
 			memberFlag = true
@@ -169,6 +173,7 @@ func GetResourceInfoFromDevice(req ResourceInfoRequest, saveRequired bool) (stri
 			resourceName = getResourceName(contactRequest.OID, memberFlag)
 		}
 		// persist the response with table resourceName and key as system UUID + Oid Needs relook TODO
+		fmt.Println("Step 6 ****** ", resourceName, oidKey)
 		err = smodel.GenericSave([]byte(updatedData), resourceName, oidKey)
 		if err != nil {
 			return "", err

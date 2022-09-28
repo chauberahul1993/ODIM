@@ -18,6 +18,7 @@ package chassis
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -51,6 +52,7 @@ func (h *Get) Handle(req *chassisproto.GetChassisRequest) response.RPC {
 	managedChassis.ID = req.RequestParam
 	if e == nil {
 		requestData := strings.SplitN(req.RequestParam, ".", 2)
+		fmt.Println("Step 1 ********** ", requestData)
 		if len(requestData) <= 1 {
 			errorMessage := "error: SystemUUID not found"
 			return common.GeneralError(http.StatusNotFound, response.ResourceNotFound, errorMessage, []interface{}{"ComputerSystem", req.RequestParam}, nil)
@@ -71,6 +73,7 @@ func (h *Get) Handle(req *chassisproto.GetChassisRequest) response.RPC {
 			GetPluginStatus: pc.GetPluginStatus,
 			ResourceName:    "ComputerSystem",
 		}
+		fmt.Println("Step 2 ********** ", requestData[1])
 		data, err := GetResourceInfoFromDeviceFunc(getDeviceInfoRequest, true)
 		if err != nil {
 			return common.GeneralError(http.StatusNotFound, response.ResourceNotFound, err.Error(), []interface{}{"ComputerSystem", req.URL}, nil)
