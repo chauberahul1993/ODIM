@@ -71,7 +71,7 @@ func (h *Get) Handle(req *chassisproto.GetChassisRequest) response.RPC {
 			ContactClient:   pc.ContactClient,
 			DevicePassword:  pc.DevicePassword,
 			GetPluginStatus: pc.GetPluginStatus,
-			ResourceName:    "ComputerSystem",
+			ResourceName:    "Chassis",
 		}
 		fmt.Println("Step 2 ********** ", req.URL, uuid, requestData[1])
 		data, err := GetResourceInfoFromDeviceFunc(getDeviceInfoRequest, true)
