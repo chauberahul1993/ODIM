@@ -309,6 +309,8 @@ func (e *ExternalInterface) deletePlugin(oid string) response.RPC {
 }
 
 func (e *ExternalInterface) deleteCompute(key string, index int, pluginID string) response.RPC {
+	fmt.Println("Step 1 ******** ")
+	fmt.Println("Step 2 ******** ", key, index, pluginID)
 	var resp response.RPC
 	// check whether the any system operation is under progress
 	systemOperation, dbErr := agmodel.GetSystemOperationInfo(strings.TrimSuffix(key, "/"))
@@ -402,6 +404,7 @@ func (e *ExternalInterface) deleteCompute(key string, index int, pluginID string
 	if derr := e.DeleteComputeSystem(index, key); derr != nil {
 		errMsg := "error while trying to delete compute system: " + derr.Error()
 		l.Log.Error(errMsg)
+		fmt.Println("Step 3 ******** ", key, index, pluginID)
 		if errors.DBKeyNotFound == derr.ErrNo() {
 			return common.GeneralError(http.StatusNotFound, response.ResourceNotFound, errMsg, []interface{}{index, key}, nil)
 		}
