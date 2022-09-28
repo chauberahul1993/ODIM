@@ -88,6 +88,7 @@ func (e *ExternalInterface) DeleteAggregationSource(req *aggregatorproto.Aggrega
 			}
 			return common.GeneralError(http.StatusInternalServerError, response.InternalError, errMsg, nil, nil)
 		}
+		fmt.Println("Data ******** ", systemList, data[0])
 		for _, systemURI := range systemList {
 			index := strings.LastIndexAny(systemURI, "/")
 			resp = e.deleteCompute(systemURI, index, target.PluginID)
