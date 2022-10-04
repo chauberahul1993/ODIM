@@ -46,6 +46,10 @@ func TrackConfigFileChanges(configFilePath string, eventChan chan<- interface{})
 					if err := config.SetConfiguration(); err != nil {
 						l.Log.Error("error while trying to set configuration: " + err.Error())
 					}
+					if l.Log.Level != config.Data.LogLevel {
+						l.Log.Info("Log level is updated, new log level is ", config.Data.LogLevel)
+						l.Log.Logger.SetLevel(config.Data.LogLevel)
+					}
 					config.TLSConfMutex.Unlock()
 					eventChan <- "config file modified"
 				}
