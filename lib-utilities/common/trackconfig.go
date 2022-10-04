@@ -16,6 +16,8 @@
 package common
 
 import (
+	"fmt"
+
 	l "github.com/ODIM-Project/ODIM/lib-utilities/logs"
 	"github.com/fsnotify/fsnotify"
 
@@ -41,6 +43,7 @@ func TrackConfigFileChanges(configFilePath string, eventChan chan<- interface{})
 				}
 				if fileEvent.Op&fsnotify.Write == fsnotify.Write || fileEvent.Op&fsnotify.Remove == fsnotify.Remove {
 					l.Log.Info("modified file:" + fileEvent.Name)
+					fmt.Println("File Modied *********** ")
 					// update the odim config
 					config.TLSConfMutex.Lock()
 					if err := config.SetConfiguration(); err != nil {
