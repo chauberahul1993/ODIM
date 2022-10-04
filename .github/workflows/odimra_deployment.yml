@@ -237,83 +237,6 @@ jobs:
            
            
         echo "$VM_IP"
-               
-        echo " ====================== Adding URP Plugin ==================================="
-        
-        sudo mkdir -p /var/log/urplugin_logs/
-        sudo chown odimra:odimra /var/log/urplugin_logs/
-                       
-        odimPassword=`echo -n 'Od!m12$4' |openssl pkeyutl -encrypt -inkey ${ODIM_CONTROLLER_PATH}/scripts/certs/OneNodeDeployment/odimra_rsa.private -pkeyopt rsa_padding_mode:oaep -pkeyopt rsa_oaep_md:sha512|openssl base64 -A`
-        
-        cd ${ODIM_CONTROLLER_PATH}/helmcharts/urplugin/
-        
-        sed -i "s#.*groupID.*#  groupID: ${ODIMRA_GROUP_ID}#" urplugin-config.yaml
-        sed -i "s#.*odimPassword.*#  odimPassword: ${odimPassword}#" urplugin-config.yaml
-        sed -i "s#.*urPluginRootServiceUUID.*#  urPluginRootServiceUUID: ${rootServiceUUID}#" urplugin-config.yaml
-        sed -i "s#.*odimUsername.*#  odimUsername: admin#" urplugin-config.yaml
-        
-        mkdir -p ${ODIM_PLUGIN_PATH}/urplugin
-        
-        helm package ${ODIM_CONTROLLER_PATH}/helmcharts/urplugin/urplugin -d ${ODIM_PLUGIN_PATH}/urplugin
-        cp urplugin-config.yaml ${ODIM_PLUGIN_PATH}/urplugin
-        
-        echo "Checking the list of images available after the odimra build..."
-        docker images
-        docker save urplugin -o ${ODIM_PLUGIN_PATH}/urplugin/urplugin.tar
-        cat urplugin-config.yaml
-        
-        cd ${ODIM_CONTROLLER_PATH}/scripts
-        
-        odimraKafkaClientCertFQDNSan=odim-controller.odim.com,grfplugin,grfplugin-events,urplugin,api
-        odimraServerCertFQDNSan=odim-controller.odim.com,grfplugin,grfplugin-events,urplugin,api
-        ConnectionMethodType=Redfish
-        ConnectionMethodVariant=Compute:BasicAuth:URP_v1.0.0
-        
-        sed -i "s#.*odimraKafkaClientCertFQDNSan.*#  odimraKafkaClientCertFQDNSan: ${odimraKafkaClientCertFQDNSan}#" kube_deploy_nodes.yaml
-        sed -i "s#.*odimraKafkaClientCertIPSan.*#  odimraKafkaClientCertIPSan: ${odimraServerCertFQDNSan}#" kube_deploy_nodes.yaml
-        sed -i "s#.*ConnectionMethodType.*#  \ \- \ConnectionMethodType: ${ConnectionMethodType}#" kube_deploy_nodes.yaml
-        sed -i "s#.*ConnectionMethodVariant.*#  \ \ \ \ConnectionMethodVariant: ${ConnectionMethodVariant}#" kube_deploy_nodes.yaml
-        
-        
-        cat kube_deploy_nodes.yaml
-        
-        python3 odim-controller.py --config ${ODIM_CONTROLLER_PATH}/scripts/kube_deploy_nodes.yaml --add plugin --plugin urplugin        
-        
-        python3 odim-controller.py --config ${ODIM_CONTROLLER_PATH}/scripts/kube_deploy_nodes.yaml --upgrade odimra-config
-        echo 
-        echo "[$(date)] -- INFO  -- list pods in odim namespace"
-        count=0
-        while [[ $(kubectl get pods -n odim -o wide | grep "Running" | wc -l) -ne 15 ]]; do
-                if [[ $count -eq 6 ]]; then
-                        break
-                fi
-                sleep 10
-                count=$((count+1))
-        done
-        kubectl get pods -n odim -o wide | grep urplugin*
-        
-        sleep 30s
-        
-        urplugin=`curl -i -s -k -X GET -H "Authorization:Basic YWRtaW46T2QhbTEyJDQ="  'https://'$FQDN':30080/redfish/v1/AggregationService/ConnectionMethods/' | awk 'BEGIN{FS=":"; OFS=":"} {print $8}' | cut -d '"' -f 2`
-        
-        echo $urplugin
-        
-        urplugin_taskid=`curl -i -s -k -X POST -H "Authorization:Basic YWRtaW46T2QhbTEyJDQ=" -H "Content-Type:application/json" -d '{"HostName":"urplugin:45007", "UserName":"admin", "Password":"Plug!n12$4", "Links":{ "ConnectionMethod": {"@odata.id": "${urplugin}" }}}'  'https://'$FQDN':30080/redfish/v1/AggregationService/AggregationSources/' | grep Location | awk '{print $2}' | cut -d '/' -f2-`
-         
-        echo $?
-        echo $urplugin_taskid
-        
-        task=`curl -i -s -k -X GET -H "Authorization:Basic YWRtaW46T2QhbTEyJDQ="  'https://'$FQDN':30080/${urplugin_taskid}' | grep -oe 202`
-        
-        echo $task
-        while [[ $(task) -eq 202 ]]; do
-                if [[ $task -eq 201 ]]; then
-                       
-                        break
-                fi
-                sleep 5
-                
-        done
         
         echo " ====================== Adding Dell Plugin ==================================="
         
@@ -364,13 +287,13 @@ jobs:
         
         sleep 30s
         
-        dellplugin=`curl -i -s -k -X GET -H "Authorization:Basic YWRtaW46T2QhbTEyJDQ="  'https://'$FQDN':30080/redfish/v1/AggregationService/ConnectionMethods/' | awk 'BEGIN{FS=":"; OFS=":"} {print $9}' | cut -d '"' -f 2`
+        dellplugin=`curl -i -s -k -X GET -H "Authorization:Basic YWRtaW46MGQhbU80MjI="  'https://'$FQDN':30080/redfish/v1/AggregationService/ConnectionMethods/' | awk 'BEGIN{FS=":"; OFS=":"} {print $9}' | cut -d '"' -f 2`
         echo $dellplugin
-        dellplugin_taskid=`curl -i -s -k -X POST -H "Authorization:Basic YWRtaW46T2QhbTEyJDQ=" -H "Content-Type:application/json" -d '{"HostName":"dellplugin:45005", "UserName":"admin", "Password":"Plug!n12$4", "Links":{ "ConnectionMethod": {"@odata.id": "${dellplugin}" }}}'  'https://'$FQDN':30080/redfish/v1/AggregationService/AggregationSources/' | grep Location | awk '{print $2}' | cut -d '/' -f2-`
+        dellplugin_taskid=`curl -i -s -k -X POST -H "Authorization:Basic YWRtaW46MGQhbU80MjI=" -H "Content-Type:application/json" -d '{"HostName":"dellplugin:45005", "UserName":"admin", "Password":"Plug!nO422", "Links":{ "ConnectionMethod": {"@odata.id": "${dellplugin}" }}}'  'https://'$FQDN':30080/redfish/v1/AggregationService/AggregationSources/' | grep Location | awk '{print $2}' | cut -d '/' -f2-`
         echo $?
         echo $dellplugin_taskid
         
-        task_dell=`curl -i -s -k -X GET -H "Authorization:Basic YWRtaW46T2QhbTEyJDQ="  'https://'$FQDN':30080/${dellplugin_taskid}' | grep -oe 202`
+        task_dell=`curl -i -s -k -X GET -H "Authorization:Basic YWRtaW46MGQhbU80MjI="  'https://'$FQDN':30080/${dellplugin_taskid}' | grep -oe 202`
         
         echo $task_dell
         while [[ $(task_dell) -eq 202 ]]; do
@@ -431,18 +354,18 @@ jobs:
         kubectl get pods -n odim -o wide | grep grfplugin*
       
         
-        grfplugin=`curl -i -s -k -X GET -H "Authorization:Basic YWRtaW46T2QhbTEyJDQ="  'https://'$FQDN':30080/redfish/v1/AggregationService/ConnectionMethods/' | awk 'BEGIN{FS=":"; OFS=":"} {print $10}' | cut -d '"' -f 2`
+        grfplugin=`curl -i -s -k -X GET -H "Authorization:Basic YWRtaW46MGQhbU80MjI="  'https://'$FQDN':30080/redfish/v1/AggregationService/ConnectionMethods/' | awk 'BEGIN{FS=":"; OFS=":"} {print $10}' | cut -d '"' -f 2`
         
         echo $grfplugin
         
         
-        grfplugin_taskid=`curl -i -s -k -X POST -H "Authorization:Basic YWRtaW46T2QhbTEyJDQ=" -H "Content-Type:application/json" -d '{"HostName":"grfplugin:45001", "UserName":"admin", "Password":"GRFPlug!n12$4", "Links":{ "ConnectionMethod": {"@odata.id": "${grfplugin}" }}}'  'https://'$FQDN':30080/redfish/v1/AggregationService/AggregationSources/' | grep Location | awk '{print $2}' | cut -d '/' -f2-`
+        grfplugin_taskid=`curl -i -s -k -X POST -H "Authorization:Basic YWRtaW46MGQhbU80MjI=" -H "Content-Type:application/json" -d '{"HostName":"grfplugin:45001", "UserName":"admin", "Password":"Plug!nO422", "Links":{ "ConnectionMethod": {"@odata.id": "${grfplugin}" }}}'  'https://'$FQDN':30080/redfish/v1/AggregationService/AggregationSources/' | grep Location | awk '{print $2}' | cut -d '/' -f2-`
         
          
         echo $?
         echo $grfplugin_taskid
         
-        task_grf=`curl -i -s -k -X GET -H "Authorization:Basic YWRtaW46T2QhbTEyJDQ="  'https://'$FQDN':30080/${grfplugin_taskid}' | grep -oe 202`
+        task_grf=`curl -i -s -k -X GET -H "Authorization:Basic YWRtaW46MGQhbU80MjI="  'https://'$FQDN':30080/${grfplugin_taskid}' | grep -oe 202`
         
         echo $task_grf
         while [[ $(task_grf) -eq 202 ]]; do
@@ -456,7 +379,7 @@ jobs:
         
         sleep 50s
         
-        curl -i -s -k -X GET -H "Authorization:Basic YWRtaW46T2QhbTEyJDQ="  'https://'$FQDN':30080/redfish/v1/AggregationService/ConnectionMethods/'
+        curl -i -s -k -X GET -H "Authorization:Basic YWRtaW46MGQhbU80MjI="  'https://'$FQDN':30080/redfish/v1/AggregationService/ConnectionMethods/'
           
       
         echo "====================Sanity test==========================="
@@ -473,7 +396,7 @@ jobs:
         
         export FQDN="odim.controller.com"
        
-        run=$(curl -i -s -k -X POST -H "Authorization:Basic YWRtaW46T2QhbTEyJDQ=" -H "Content-Type:application/json" -d '{"UserName": "admin","Password": "Od!m12$4"}' 'https://'$FQDN':30080/redfish/v1/SessionService/Sessions' | head -1 | awk '{print $2}')
+        run=$(curl -i -s -k -X POST -H "Authorization:Basic YWRtaW46MGQhbU80MjI=" -H "Content-Type:application/json" -d '{"UserName": "admin","Password": "0d!mO422"}' 'https://'$FQDN':30080/redfish/v1/SessionService/Sessions' | head -1 | awk '{print $2}')
       
         echo $run  
         
@@ -493,7 +416,7 @@ jobs:
         
         
         
-        run2=$(curl -i -s -k -X POST -H "Authorization:Basic YWRtaW46T2QhbTEyJDQ=" -H "Content-Type:application/json" -d '{"UserName":"SanityUser","Password":"San!ty123$45","RoleId":"Administrator"}' 'https://'$FQDN':30080/redfish/v1/AccountService/Accounts' | head -1 | awk '{print $2}')
+        run2=$(curl -i -s -k -X POST -H "Authorization:Basic YWRtaW46MGQhbU80MjI=" -H "Content-Type:application/json" -d '{"UserName":"SanityUser","Password":"San!ty123$45","RoleId":"Administrator"}' 'https://'$FQDN':30080/redfish/v1/AccountService/Accounts' | head -1 | awk '{print $2}')
         
         
         
