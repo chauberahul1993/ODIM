@@ -264,6 +264,10 @@ func TrackConfigFileChanges() {
 	go common.TrackConfigFileChanges(ConfigFilePath, eventChan)
 	for {
 		l.Log.Info(<-eventChan) // new data arrives through eventChan channel
-		l.Log.Logger.Level = config.Data.LogLevel
+		if l.Log.Level != config.Data.LogLevel {
+			l.Log.Info("Log level is updated, new log level is ", config.Data.LogLevel)
+			l.Log.Logger.SetLevel(config.Data.LogLevel)
+		}
+
 	}
 }
