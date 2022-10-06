@@ -317,5 +317,9 @@ func TrackConfigFileChanges(configFilePath string) {
 		if err != nil {
 			l.Log.Error("error while trying to fetch search/filter schema json" + err.Error())
 		}
+		if l.Log.Level != config.Data.LogLevel {
+			l.Log.Info("Log level is updated, new log level is ", config.Data.LogLevel)
+			l.Log.Logger.SetLevel(config.Data.LogLevel)
+		}
 	}
 }
