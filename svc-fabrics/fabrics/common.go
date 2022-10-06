@@ -40,6 +40,8 @@ var (
 	RequestParamsCaseValidatorFunc = common.RequestParamsCaseValidator
 	//GetAllFabricPluginDetailsFunc ...
 	GetAllFabricPluginDetailsFunc = fabmodel.GetAllFabricPluginDetails
+	// ConfigFilePath holds the value of odim config file path
+	ConfigFilePath string
 )
 
 // Fabrics struct helps to hold the behaviours
@@ -447,4 +449,13 @@ func validateReqParamsCase(req *fabricsproto.FabricRequest) (response.RPC, error
 	}
 
 	return resp, nil
+}
+
+func TrackConfigFileChanges() {
+	eventChan := make(chan interface{})
+	go common.TrackConfigFileChanges(ConfigFilePath, eventChan)
+	for {
+		l.Log.Info(<-eventChan) // new data arrives through eventChan channel
+		l.Log.Logger.Level = config.Data.LogLevel
+	}
 }

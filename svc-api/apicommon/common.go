@@ -1,4 +1,4 @@
-package tcommon
+package apicommon
 
 import (
 	"github.com/ODIM-Project/ODIM/lib-utilities/common"
