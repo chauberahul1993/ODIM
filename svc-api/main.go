@@ -21,17 +21,17 @@ import (
 	"os"
 	"strings"
 
-	"github.com/sirupsen/logrus"
-
 	"github.com/ODIM-Project/ODIM/lib-utilities/common"
 	"github.com/ODIM-Project/ODIM/lib-utilities/config"
 	"github.com/ODIM-Project/ODIM/lib-utilities/logs"
 	sessionproto "github.com/ODIM-Project/ODIM/lib-utilities/proto/session"
 	"github.com/ODIM-Project/ODIM/lib-utilities/response"
 	"github.com/ODIM-Project/ODIM/lib-utilities/services"
+	"github.com/ODIM-Project/ODIM/svc-api/apicommon"
 	"github.com/ODIM-Project/ODIM/svc-api/router"
 	"github.com/ODIM-Project/ODIM/svc-api/rpc"
 	iris "github.com/kataras/iris/v12"
+	"github.com/sirupsen/logrus"
 )
 
 func main() {
@@ -80,7 +80,7 @@ func main() {
 			for _, item := range urlNoBasicAuth {
 				if item == path {
 					authRequired = false
-					log.Warn("Basic auth is provided but not used as URL is: " + path)
+					logs.Log.Warn("Basic auth is provided but not used as URL is: " + path)
 					break
 				}
 			}
@@ -91,21 +91,21 @@ func main() {
 					spl := strings.Split(basicAuth, " ")
 					if len(spl) != 2 {
 						errorMessage := "Invalid basic auth provided"
-						log.Error(errorMessage)
+						logs.Log.Error(errorMessage)
 						invalidAuthResp(errorMessage, w)
 						return
 					}
 					data, err := base64.StdEncoding.DecodeString(spl[1])
 					if err != nil {
 						errorMessage := "Decoding the authorization failed: " + err.Error()
-						log.Error(err.Error())
+						logs.Log.Error(err.Error())
 						invalidAuthResp(errorMessage, w)
 						return
 					}
 					userCred := strings.SplitN(string(data), ":", 2)
 					if len(userCred) < 2 {
 						errorMessage := "Invalid basic auth provided"
-						log.Error(errorMessage)
+						logs.Log.Error(errorMessage)
 						invalidAuthResp(errorMessage, w)
 						return
 					}
@@ -113,7 +113,7 @@ func main() {
 					password = userCred[1]
 				} else {
 					errorMessage := "Invalid basic auth provided"
-					log.Error(errorMessage)
+					logs.Log.Error(errorMessage)
 					invalidAuthResp(errorMessage, w)
 					return
 				}
@@ -131,7 +131,7 @@ func main() {
 				resp, err := rpc.DoSessionCreationRequest(req)
 				if err != nil && resp == nil {
 					errorMessage := "error: something went wrong with the RPC calls: " + err.Error()
-					log.Error(errorMessage)
+					logs.Log.Error(errorMessage)
 					common.SetCommonHeaders(w)
 					w.WriteHeader(http.StatusInternalServerError)
 					body, _ := json.Marshal(common.GeneralError(http.StatusInternalServerError, response.InternalError, errorMessage, nil, nil).Body)
@@ -142,12 +142,12 @@ func main() {
 					common.SetCommonHeaders(w)
 					w.WriteHeader(int(resp.StatusCode))
 					if resp.StatusCode == http.StatusServiceUnavailable {
-						log.Error("error: unable to establish connection with db")
+						logs.Log.Error("error: unable to establish connection with db")
 						w.Write(resp.Body)
 						return
 					}
-					errorMessage := "error: failed to create a sesssion"
-					log.Println(errorMessage)
+					errorMessage := "error: failed to create a session"
+					logs.Log.Fatal("service initialization failed: " + err.Error())
 					body, _ := json.Marshal(common.GeneralError(resp.StatusCode, resp.StatusMessage, errorMessage, nil, nil).Body)
 					w.Write([]byte(body))
 					return
@@ -174,7 +174,7 @@ func main() {
 
 	err = services.InitializeClient(services.APIClient)
 	if err != nil {
-		log.Fatal("service initialisation failed: " + err.Error())
+		logs.Log.Fatal("service initialization failed: " + err.Error())
 	}
 
 	conf := &config.HTTPConfig{
@@ -189,13 +189,12 @@ func main() {
 		log.Fatal("service initialisation failed: " + err.Error())
 	}
 
-	configFilePath := os.Getenv("CONFIG_FILE_PATH")
-	if configFilePath == "" {
-		log.Fatal("error: no value get the environment variable CONFIG_FILE_PATH")
+	apicommon.ConfigFilePath = os.Getenv("CONFIG_FILE_PATH")
+	if apicommon.ConfigFilePath == "" {
+		logs.Log.Fatal("error: no value get the environment variable CONFIG_FILE_PATH")
 	}
-	eventChan := make(chan interface{})
 	// TrackConfigFileChanges monitors the odim config changes using fsnotfiy
-	go common.TrackConfigFileChanges(configFilePath, eventChan)
+	go apicommon.TrackConfigFileChanges()
 
 	router.Run(iris.Server(apiServer))
 }

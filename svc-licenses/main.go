@@ -23,8 +23,8 @@ import (
 	"github.com/ODIM-Project/ODIM/lib-utilities/logs"
 	licenseproto "github.com/ODIM-Project/ODIM/lib-utilities/proto/licenses"
 	"github.com/ODIM-Project/ODIM/lib-utilities/services"
+	lcommon "github.com/ODIM-Project/ODIM/svc-licenses/lcommon"
 	"github.com/ODIM-Project/ODIM/svc-licenses/rpc"
-
 	"github.com/sirupsen/logrus"
 )
 
@@ -56,13 +56,11 @@ func main() {
 	if err := common.CheckDBConnection(); err != nil {
 		log.Error("error while trying to check DB connection health: " + err.Error())
 	}
-	configFilePath := os.Getenv("CONFIG_FILE_PATH")
-	if configFilePath == "" {
+	lcommon.ConfigFilePath = os.Getenv("CONFIG_FILE_PATH")
+	if lcommon.ConfigFilePath == "" {
 		log.Fatal("error: no value get the environment variable CONFIG_FILE_PATH")
 	}
-	eventChan := make(chan interface{})
-
-	go common.TrackConfigFileChanges(configFilePath, eventChan)
+	go lcommon.TrackConfigFileChanges()
 
 	registerHandlers()
 
