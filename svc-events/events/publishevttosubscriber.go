@@ -126,9 +126,11 @@ func (e *ExternalInterfaces) PublishEventsToDestination(data interface{}) bool {
 		l.Log.Info("no origin resources found in device subscriptions")
 		return false
 	}
-	fmt.Println("Raw Data before ", string(requestData))
-	requestData, deviceUUID = formatEvent(requestData, deviceSubscription.OriginResources[0], host)
-	fmt.Println("Raw Data After ", string(requestData))
+	fmt.Printf("Raw Data before %+v \n ", rawMessage)
+	message, deviceUUID = formatEvent(rawMessage, deviceSubscription.OriginResources[0], host)
+	fmt.Printf("Raw Data before1111  %+v \n", rawMessage)
+
+	fmt.Printf("Raw Data After 1 %+v \n ", message)
 	searchKey = evcommon.GetSearchKey(host, evmodel.SubscriptionIndex)
 	subscriptions, err := e.GetEvtSubscriptions(searchKey)
 	if err != nil {
@@ -274,18 +276,22 @@ func filterEventsToBeForwarded(subscription evmodel.Subscription, event common.E
 
 // formatEvent will format the event string according to the odimra
 // add uuid:systemid/chassisid inplace of systemid/chassisid
-func formatEvent(event, originResource, hostIP string) (string, string) {
+func formatEvent(event common.MessageData, originResource, hostIP string) (common.MessageData, string) {
 	deviceUUID, _ := getUUID(originResource)
 	if !strings.Contains(hostIP, "Collection") {
-		str := "/redfish/v1/Systems/" + deviceUUID + "."
-		event = strings.Replace(event, "/redfish/v1/Systems/", str, -1)
-		str = "/redfish/v1/systems/" + deviceUUID + "."
-		event = strings.Replace(event, "/redfish/v1/systems/", str, -1)
-		str = "/redfish/v1/Chassis/" + deviceUUID + "."
-		event = strings.Replace(event, "/redfish/v1/Chassis/", str, -1)
-		str = "/redfish/v1/Managers/" + deviceUUID + "."
-		event = strings.Replace(event, "/redfish/v1/Managers/", str, -1)
+
+		for _, event := range event.Events {
+			str := "/redfish/v1/Systems/" + deviceUUID + "."
+			event.OriginOfCondition.Oid = strings.Replace(event.OriginOfCondition.Oid, "/redfish/v1/Systems/", str, -1)
+			str = "/redfish/v1/systems/" + deviceUUID + "."
+			event.OriginOfCondition.Oid = strings.Replace(event.OriginOfCondition.Oid, "/redfish/v1/systems/", str, -1)
+			str = "/redfish/v1/Chassis/" + deviceUUID + "."
+			event.OriginOfCondition.Oid = strings.Replace(event.OriginOfCondition.Oid, "/redfish/v1/Chassis/", str, -1)
+			str = "/redfish/v1/Managers/" + deviceUUID + "."
+			event.OriginOfCondition.Oid = strings.Replace(event.OriginOfCondition.Oid, "/redfish/v1/Managers/", str, -1)
+		}
 	}
+	fmt.Printf("Event %+v", event)
 	return event, deviceUUID
 }
 
