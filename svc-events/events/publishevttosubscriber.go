@@ -126,9 +126,9 @@ func (e *ExternalInterfaces) PublishEventsToDestination(data interface{}) bool {
 		l.Log.Info("no origin resources found in device subscriptions")
 		return false
 	}
-
+	fmt.Println("Raw Data before ", string(requestData))
 	requestData, deviceUUID = formatEvent(requestData, deviceSubscription.OriginResources[0], host)
-
+	fmt.Println("Raw Data After ", string(requestData))
 	searchKey = evcommon.GetSearchKey(host, evmodel.SubscriptionIndex)
 	subscriptions, err := e.GetEvtSubscriptions(searchKey)
 	if err != nil {
