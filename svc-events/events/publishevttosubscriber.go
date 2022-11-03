@@ -278,6 +278,8 @@ func filterEventsToBeForwarded(subscription evmodel.Subscription, event common.E
 // add uuid:systemid/chassisid inplace of systemid/chassisid
 func formatEvent(event common.MessageData, originResource, hostIP string) (common.MessageData, string) {
 	deviceUUID, _ := getUUID(originResource)
+	data, _ := json.Marshal(event)
+	fmt.Println("Event11  ", data)
 	if !strings.Contains(hostIP, "Collection") {
 
 		for _, event := range event.Events {
@@ -290,8 +292,10 @@ func formatEvent(event common.MessageData, originResource, hostIP string) (commo
 			str = "/redfish/v1/Managers/" + deviceUUID + "."
 			event.OriginOfCondition.Oid = strings.Replace(event.OriginOfCondition.Oid, "/redfish/v1/Managers/", str, -1)
 		}
+
 	}
-	fmt.Printf("Event %+v", event)
+	data, _ = json.Marshal(event)
+	fmt.Println("Event22  ", data)
 	return event, deviceUUID
 }
 
