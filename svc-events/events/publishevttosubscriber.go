@@ -279,7 +279,7 @@ func filterEventsToBeForwarded(subscription evmodel.Subscription, event common.E
 func formatEvent(event common.MessageData, originResource, hostIP string) (common.MessageData, string) {
 	deviceUUID, _ := getUUID(originResource)
 	data, _ := json.Marshal(event)
-	fmt.Println("Event11  ", data)
+	fmt.Println("Event11  ", string(data))
 	if !strings.Contains(hostIP, "Collection") {
 
 		for _, event := range event.Events {
@@ -295,7 +295,7 @@ func formatEvent(event common.MessageData, originResource, hostIP string) (commo
 
 	}
 	data, _ = json.Marshal(event)
-	fmt.Println("Event22  ", data)
+	fmt.Println("Event22  ", string(data))
 	return event, deviceUUID
 }
 
