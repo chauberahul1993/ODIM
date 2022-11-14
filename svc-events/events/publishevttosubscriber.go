@@ -116,7 +116,6 @@ func (e *ExternalInterfaces) PublishEventsToDestination(data interface{}) bool {
 	}
 
 	e.addFabric(rawMessage, host)
-	// searchKey := evcommon.GetSearchKey(host, evmodel.DeviceSubscriptionIndex)
 
 	deviceSubscription := cacheDeviceSubscription[host]
 
