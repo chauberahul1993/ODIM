@@ -37,8 +37,8 @@ import (
 	"github.com/ODIM-Project/ODIM/svc-events/evresponse"
 )
 
-//StartUpInteraface Holds the function pointer of  external interface functions
-type StartUpInteraface struct {
+//StartUpInterface Holds the function pointer of  external interface functions
+type StartUpInterface struct {
 	DecryptPassword                  func([]byte) ([]byte, error)
 	EMBConsume                       func(string)
 	GetAllPlugins                    func() ([]evmodel.Plugin, *errors.Error)
@@ -100,11 +100,11 @@ type PluginToken struct {
 // Token variable hold the all the XAuthToken  against the plguin ID
 var Token PluginToken
 
-// StoreToken to store the token ioto the  map
-func (p *PluginToken) StoreToken(plguinID, token string) {
+// StoreToken to store the token into the  map
+func (p *PluginToken) StoreToken(pluginID, token string) {
 	p.lock.Lock()
 	defer p.lock.Unlock()
-	p.Tokens[plguinID] = token
+	p.Tokens[pluginID] = token
 }
 
 // GetToken to get the token from map
@@ -132,7 +132,7 @@ var EMBTopics EmbTopic
 var PluginStartUp = false
 
 // GetAllPluginStatus ...
-func (st *StartUpInteraface) GetAllPluginStatus() {
+func (st *StartUpInterface) GetAllPluginStatus() {
 	for {
 		pluginList, err := evmodel.GetAllPlugins()
 		if err != nil {
@@ -151,7 +151,7 @@ func (st *StartUpInteraface) GetAllPluginStatus() {
 
 }
 
-func (st *StartUpInteraface) getPluginStatus(plugin evmodel.Plugin) {
+func (st *StartUpInterface) getPluginStatus(plugin evmodel.Plugin) {
 	PluginsMap := make(map[string]bool)
 	StartUpResourceBatchSize := config.Data.PluginStatusPolling.StartUpResouceBatchSize
 	config.TLSConfMutex.RLock()
@@ -217,7 +217,7 @@ func (st *StartUpInteraface) getPluginStatus(plugin evmodel.Plugin) {
 	return
 }
 
-func (st *StartUpInteraface) getAllServers(pluginID string) ([]SavedSystems, error) {
+func (st *StartUpInterface) getAllServers(pluginID string) ([]SavedSystems, error) {
 	var matchedServers []SavedSystems
 	allServers, err := st.GetAllSystems()
 	if err != nil {
@@ -272,7 +272,7 @@ func GetPluginStatus(plugin *evmodel.Plugin) bool {
 	return status
 }
 
-func (st *StartUpInteraface) callPluginStartUp(servers []SavedSystems, pluginID string) error {
+func (st *StartUpInterface) callPluginStartUp(servers []SavedSystems, pluginID string) error {
 	var startUpMap []StartUpMap
 	plugin, errs := st.GetPluginData(pluginID)
 	if errs != nil {
@@ -344,7 +344,7 @@ func callPlugin(req PluginContactRequest) (*http.Response, error) {
 
 }
 
-func (st *StartUpInteraface) getSubscribedEventsDetails(serverAddress string) (string, []string, error) {
+func (st *StartUpInterface) getSubscribedEventsDetails(serverAddress string) (string, []string, error) {
 	var location string
 	var eventTypes []string
 	var emptyListFlag bool
@@ -524,7 +524,7 @@ func ProcessCtrlMsg(data interface{}) bool {
 }
 
 // SubscribePluginEMB is for subscribing to plugin EMB
-func (st *StartUpInteraface) SubscribePluginEMB() {
+func (st *StartUpInterface) SubscribePluginEMB() {
 	time.Sleep(time.Second * 2)
 	pluginList, err := GetAllPluginsFunc()
 	if err != nil {
@@ -536,7 +536,7 @@ func (st *StartUpInteraface) SubscribePluginEMB() {
 	}
 }
 
-func (st *StartUpInteraface) getPluginEMB(plugin evmodel.Plugin) {
+func (st *StartUpInterface) getPluginEMB(plugin evmodel.Plugin) {
 	config.TLSConfMutex.RLock()
 	var pluginStatus = common.PluginStatus{
 		Method: http.MethodGet,
@@ -565,7 +565,6 @@ func (st *StartUpInteraface) getPluginEMB(plugin evmodel.Plugin) {
 	for j := 0; j < len(topicsList); j++ {
 		EMBTopics.ConsumeTopic(topicsList[j])
 	}
-	return
 }
 
 func TrackConfigFileChanges() {

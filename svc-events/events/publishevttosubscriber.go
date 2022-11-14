@@ -37,7 +37,6 @@ import (
 	aggregatorproto "github.com/ODIM-Project/ODIM/lib-utilities/proto/aggregator"
 	fabricproto "github.com/ODIM-Project/ODIM/lib-utilities/proto/fabrics"
 	"github.com/ODIM-Project/ODIM/lib-utilities/services"
-	"github.com/ODIM-Project/ODIM/svc-events/evcommon"
 	"github.com/ODIM-Project/ODIM/svc-events/evmodel"
 	uuid "github.com/satori/go.uuid"
 )
@@ -51,12 +50,7 @@ var (
 
 // addFabric will add the new fabric resource to db when an event is ResourceAdded and
 // originofcondition has fabrics odataid.
-func (e *ExternalInterfaces) addFabric(requestData, host string) {
-	var message common.MessageData
-	if err := json.Unmarshal([]byte(requestData), &message); err != nil {
-		l.Log.Error("failed to unmarshal the incoming event: " + requestData + " with the error: " + err.Error())
-		return
-	}
+func (e *ExternalInterfaces) addFabric(message common.MessageData, host string) {
 	for _, inEvent := range message.Events {
 		if inEvent.OriginOfCondition == nil || len(inEvent.OriginOfCondition.Oid) < 1 {
 			l.Log.Info("event not forwarded : Originofcondition is empty in incoming event")
@@ -79,6 +73,8 @@ func (e *ExternalInterfaces) addFabric(requestData, host string) {
 //Returns:
 //	bool: return false if any error occurred during execution, else returns true
 func (e *ExternalInterfaces) PublishEventsToDestination(data interface{}) bool {
+	t := time.Now()
+	defer l.Log.Debug("Time take to PublishEventsToDestination ", time.Since(t))
 
 	if data == nil {
 		l.Log.Info("invalid input params")
@@ -101,7 +97,7 @@ func (e *ExternalInterfaces) PublishEventsToDestination(data interface{}) bool {
 	l.Log.Info("After splitting host address, IP is: ", host)
 
 	var requestData = string(event.Request)
-	//replacing the resposne with north bound translation URL
+	//replacing the response with north bound translation URL
 	for key, value := range config.Data.URLTranslation.NorthBoundURL {
 		requestData = strings.Replace(requestData, key, value, -1)
 	}
@@ -112,66 +108,40 @@ func (e *ExternalInterfaces) PublishEventsToDestination(data interface{}) bool {
 
 	var flag bool
 	var deviceUUID string
-	var message common.MessageData
+	var message, rawMessage common.MessageData
 
-	if err = json.Unmarshal([]byte(requestData), &message); err != nil {
+	if err = json.Unmarshal([]byte(requestData), &rawMessage); err != nil {
 		l.Log.Error("failed to unmarshal the incoming event: ", requestData, " with the error: ", err.Error())
 		return false
 	}
 
-	e.addFabric(requestData, host)
-	searchKey := evcommon.GetSearchKey(host, evmodel.DeviceSubscriptionIndex)
+	e.addFabric(rawMessage, host)
+	// searchKey := evcommon.GetSearchKey(host, evmodel.DeviceSubscriptionIndex)
 
-	deviceSubscription, err := e.GetDeviceSubscriptions(searchKey)
-	if err != nil {
-		l.Log.Error("Failed to get the event destinations: ", err.Error())
-		return false
-	}
+	deviceSubscription := cacheDeviceSubscription[host]
 
-	if len(deviceSubscription.OriginResources) < 1 {
+	if len(deviceSubscription) < 1 {
 		l.Log.Info("no origin resources found in device subscriptions")
 		return false
 	}
 
-	requestData, deviceUUID = formatEvent(requestData, deviceSubscription.OriginResources[0], host)
+	message, deviceUUID = formatEvent(rawMessage, deviceSubscription[0], host)
+	// searchKey = evcommon.GetSearchKey(host, evmodel.SubscriptionIndex)
+	subscriptions := cacheSubscriptions[host]
 
-	searchKey = evcommon.GetSearchKey(host, evmodel.SubscriptionIndex)
-	subscriptions, err := e.GetEvtSubscriptions(searchKey)
-	if err != nil {
-		return false
-	}
 	// Getting Aggregate List
-	searchKeyAgg := evcommon.GetSearchKey(host, evmodel.SubscriptionIndex)
-	aggregateList, err := e.GetAggregateList(searchKeyAgg)
-	if err != nil {
-		l.Log.Info("No Aggregate subscription Found ", err)
-	}
-	var aggregateSubscriptionList []evmodel.Subscription
+	aggregateList := cacheAggregateList[host]
 	for _, aggregateID := range aggregateList {
-		searchKeyAgg := evcommon.GetSearchKey(aggregateID, evmodel.SubscriptionIndex)
-
-		subscription, _ := e.GetEvtSubscriptions(searchKeyAgg)
-		aggregateSubscriptionList = append(aggregateSubscriptionList, subscription...)
-	}
-	err = json.Unmarshal([]byte(requestData), &message)
-	if err != nil {
-		l.Log.Error("failed to unmarshal the incoming event: ", requestData, " with the error: ", err.Error())
-		return false
+		aggregateSubscription := cacheSubscriptions[aggregateID]
+		subscriptions = append(subscriptions, aggregateSubscription...)
 	}
 	eventUniqueID := uuid.NewV4().String()
-
 	eventMap := make(map[string][]common.Event)
-	for _, inEvent := range message.Events {
-		if inEvent.OriginOfCondition == nil {
+	for index, inEvent := range message.Events {
+		if inEvent.OriginOfCondition == nil || len(inEvent.OriginOfCondition.Oid) < 1 {
 			l.Log.Info("event not forwarded as Originofcondition is empty in incoming event: ", requestData)
 			continue
 		}
-
-		if len(inEvent.OriginOfCondition.Oid) < 1 {
-			l.Log.Info("event not forwarded as Originofcondition is empty in incoming event: ", requestData)
-			continue
-		}
-
 		var resTypePresent bool
 		originofCond := strings.Split(strings.TrimSuffix(inEvent.OriginOfCondition.Oid, "/"), "/")
 		if len(originofCond) > 2 {
@@ -192,12 +162,6 @@ func (e *ExternalInterfaces) PublishEventsToDestination(data interface{}) bool {
 		}
 		collectionSubscriptions := e.getCollectionSubscriptionInfoForOID(inEvent.OriginOfCondition.Oid, host)
 		subscriptions = append(subscriptions, collectionSubscriptions...)
-		for _, sub := range aggregateSubscriptionList {
-			if filterEventsToBeForwarded(sub, inEvent, deviceSubscription.OriginResources) {
-				eventMap[sub.Destination] = append(eventMap[sub.Destination], inEvent)
-				flag = true
-			}
-		}
 		for _, sub := range subscriptions {
 
 			// filter and send events to destination if destination is not empty
@@ -205,25 +169,24 @@ func (e *ExternalInterfaces) PublishEventsToDestination(data interface{}) bool {
 			if sub.Destination != "" {
 				// check if hostip present in the hosts slice to make sure that it doesn't filter with the destination ip
 				if isHostPresentInEventForward(sub.Hosts, host) {
-					if filterEventsToBeForwarded(sub, inEvent, deviceSubscription.OriginResources) {
+					if filterEventsToBeForwardedTemp(sub, inEvent, deviceSubscription) {
 						eventMap[sub.Destination] = append(eventMap[sub.Destination], inEvent)
 						flag = true
 					}
 				} else {
-					l.Log.Info("event not forwarded : No subscription for the incoming event's originofcondition")
+					l.Log.Info("event not forwarded : No subscription for the incoming event's originofcondition", sub.SubscriptionID)
 					flag = false
 				}
 
 			}
 		}
-
 		if strings.EqualFold("Alert", inEvent.EventType) {
 			if strings.Contains(inEvent.MessageID, "ServerPostDiscoveryComplete") || strings.Contains(inEvent.MessageID, "ServerPostComplete") {
 				go rediscoverSystemInventory(deviceUUID, inEvent.OriginOfCondition.Oid)
 				flag = true
 			}
 			if strings.Contains(inEvent.MessageID, "ServerPoweredOn") || strings.Contains(inEvent.MessageID, "ServerPoweredOff") {
-				go updateSystemPowerState(deviceUUID, inEvent.OriginOfCondition.Oid, inEvent.MessageID)
+				go updateSystemPowerState(deviceUUID, rawMessage.Events[index].OriginOfCondition.Oid, inEvent.MessageID)
 				flag = true
 			}
 		} else if strings.EqualFold("ResourceAdded", message.Events[0].EventType) || strings.EqualFold("ResourceRemoved", message.Events[0].EventType) {
@@ -235,7 +198,6 @@ func (e *ExternalInterfaces) PublishEventsToDestination(data interface{}) bool {
 			}
 		}
 	}
-
 	for key, value := range eventMap {
 		message.Events = value
 		data, err := json.Marshal(message)
@@ -285,20 +247,54 @@ func filterEventsToBeForwarded(subscription evmodel.Subscription, event common.E
 	l.Log.Info("Event not forwarded : No subscription for the incoming event's originofcondition")
 	return false
 }
+func filterEventsToBeForwardedTemp(subscription evmodel.CacheSubscription, event common.Event, originResources []string) bool {
+
+	eventTypes := subscription.EventTypes
+	messageIds := subscription.MessageIds
+	resourceTypes := subscription.ResourceTypes
+	originCondition := strings.TrimSuffix(event.OriginOfCondition.Oid, "/")
+	if (len(eventTypes) == 0 || isStringPresentInSlice(eventTypes, event.EventType, "event type")) &&
+		(len(messageIds) == 0 || isStringPresentInSlice(messageIds, event.MessageID, "message id")) &&
+		(len(resourceTypes) == 0 || isResourceTypeSubscribed(resourceTypes, event.OriginOfCondition.Oid, subscription.SubordinateResources)) {
+
+		// if SubordinateResources is true then check if originofresource is top level of originofcondition
+		// if SubordinateResources is false then check originofresource is same as originofcondition
+		for _, origin := range originResources {
+
+			if subscription.SubordinateResources {
+				if strings.Contains(originCondition, origin) {
+					return true
+				}
+			} else {
+				if origin == originCondition {
+					return true
+				}
+			}
+		}
+	}
+	l.Log.Info("Event not forwarded  : No subscription for the incoming event's originofcondition filterEventsToBeForwarded")
+	return false
+}
 
 // formatEvent will format the event string according to the odimra
 // add uuid:systemid/chassisid inplace of systemid/chassisid
-func formatEvent(event, originResource, hostIP string) (string, string) {
+func formatEvent(event common.MessageData, originResource, hostIP string) (common.MessageData, string) {
 	deviceUUID, _ := getUUID(originResource)
 	if !strings.Contains(hostIP, "Collection") {
-		str := "/redfish/v1/Systems/" + deviceUUID + "."
-		event = strings.Replace(event, "/redfish/v1/Systems/", str, -1)
-		str = "/redfish/v1/systems/" + deviceUUID + "."
-		event = strings.Replace(event, "/redfish/v1/systems/", str, -1)
-		str = "/redfish/v1/Chassis/" + deviceUUID + "."
-		event = strings.Replace(event, "/redfish/v1/Chassis/", str, -1)
-		str = "/redfish/v1/Managers/" + deviceUUID + "."
-		event = strings.Replace(event, "/redfish/v1/Managers/", str, -1)
+		for _, event := range event.Events {
+			if event.OriginOfCondition == nil || len(event.OriginOfCondition.Oid) < 1 {
+				continue
+			}
+			str := "/redfish/v1/Systems/" + deviceUUID + "."
+			event.OriginOfCondition.Oid = strings.Replace(event.OriginOfCondition.Oid, "/redfish/v1/Systems/", str, -1)
+			str = "/redfish/v1/systems/" + deviceUUID + "."
+			event.OriginOfCondition.Oid = strings.Replace(event.OriginOfCondition.Oid, "/redfish/v1/systems/", str, -1)
+			str = "/redfish/v1/Chassis/" + deviceUUID + "."
+			event.OriginOfCondition.Oid = strings.Replace(event.OriginOfCondition.Oid, "/redfish/v1/Chassis/", str, -1)
+			str = "/redfish/v1/Managers/" + deviceUUID + "."
+			event.OriginOfCondition.Oid = strings.Replace(event.OriginOfCondition.Oid, "/redfish/v1/Managers/", str, -1)
+		}
+
 	}
 	return event, deviceUUID
 }
@@ -359,7 +355,7 @@ func (e *ExternalInterfaces) postEvent(destination, eventUniqueID string, event 
 	resp, err := SendEventFunc(destination, event)
 	if err == nil {
 		resp.Body.Close()
-		l.Log.Info("Event is successfully forwarded")
+		l.Log.Info("Event is successfully forwarded ", destination)
 		// check any undelivered events are present in db for the destination and publish those
 		go e.checkUndeliveredEvents(destination)
 		return
@@ -370,7 +366,7 @@ func (e *ExternalInterfaces) postEvent(destination, eventUniqueID string, event 
 		l.Log.Error("error while saving undelivered event: ", serr.Error())
 	}
 	go e.reAttemptEvents(destination, undeliveredEventID, event)
-	return
+
 }
 
 func sendEvent(destination string, event []byte) (*http.Response, error) {
@@ -446,11 +442,11 @@ func rediscoverSystemInventory(systemID, systemURL string) {
 		SystemURL: systemURL,
 	})
 	if err != nil {
-		l.Log.Info("Error while rediscoverSystemInventroy")
+		l.Log.Info("Error while rediscoverSystemInventory")
 		return
 	}
-	l.Log.Info("rediscovery of system and chasis started.")
-	return
+	l.Log.Info("rediscovery of system and chassis started.")
+
 }
 
 func (e *ExternalInterfaces) addFabricRPCCall(origin, address string) {
@@ -474,7 +470,6 @@ func (e *ExternalInterfaces) addFabricRPCCall(origin, address string) {
 	}
 	e.checkCollectionSubscription(origin, "Redfish")
 	l.Log.Info("Fabric Added")
-	return
 }
 func (e *ExternalInterfaces) removeFabricRPCCall(origin, address string) {
 	if strings.Contains(origin, "Zones") || strings.Contains(origin, "Endpoints") || strings.Contains(origin, "AddressPools") {
@@ -496,7 +491,6 @@ func (e *ExternalInterfaces) removeFabricRPCCall(origin, address string) {
 		return
 	}
 	l.Log.Info("Fabric Removed")
-	return
 }
 
 // updateSystemPowerState will be triggered when ever the System Powered Off event is received
@@ -539,7 +533,6 @@ func updateSystemPowerState(systemUUID, systemURI, state string) {
 		return
 	}
 	l.Log.Info("system power state update initiated")
-	return
 }
 
 func callPluginStartUp(event common.Events) {
@@ -565,7 +558,6 @@ func callPluginStartUp(event common.Events) {
 		return
 	}
 	l.Log.Info("successfully sent plugin startup data to " + event.IP)
-	return
 }
 
 func (e *ExternalInterfaces) checkUndeliveredEvents(destination string) {
@@ -610,7 +602,7 @@ func (e *ExternalInterfaces) checkUndeliveredEvents(destination string) {
 	}
 }
 
-func (e *ExternalInterfaces) getCollectionSubscriptionInfoForOID(oid, host string) []evmodel.Subscription {
+func (e *ExternalInterfaces) getCollectionSubscriptionInfoForOID(oid, host string) []evmodel.CacheSubscription {
 	var key string
 	if strings.Contains(oid, "Systems") && host != "SystemsCollection" {
 		key = "SystemsCollection"
@@ -621,10 +613,109 @@ func (e *ExternalInterfaces) getCollectionSubscriptionInfoForOID(oid, host strin
 	} else if strings.Contains(oid, "Fabrics") && host != "FabricsCollection" {
 		key = "FabricsCollection"
 	} else {
-		return []evmodel.Subscription{}
+		return []evmodel.CacheSubscription{}
 	}
 
-	searchKey := evcommon.GetSearchKey(key, evmodel.SubscriptionIndex)
-	subscriptions, _ := e.GetEvtSubscriptions(searchKey)
+	subscriptions, _ := cacheSubscriptions[key]
 	return subscriptions
+}
+
+var (
+	cacheSubscriptions      = make(map[string][]evmodel.CacheSubscription)
+	cacheAggregateList      = make(map[string][]string)
+	cacheDeviceSubscription = make(map[string][]string)
+)
+
+func LoadSubscriptionData() {
+	l.Log.Debug("Event data load initialized ")
+	t := time.Now()
+	defer l.Log.Debug("Time take to read Complete LoadSubscriptionData ", time.Since(t))
+	subscriptions, err := evmodel.GetAllEvtSubscriptions()
+	if err != nil {
+		l.Log.Error("Error while reading all subscription data ", err)
+		return
+	}
+	for _, subscription := range subscriptions {
+		var sub evmodel.CacheSubscription
+		err = json.Unmarshal([]byte(subscription), &sub)
+		if err != nil {
+			continue
+		}
+		loadSubscriptionCacheData(sub)
+	}
+	// Remove after test
+	for i, v := range cacheSubscriptions {
+		fmt.Printf("Index of map is %s And it hold value is %d  and  %+v \n ", i, len(v), v)
+	}
+	loadAggregateData()
+	loadDeviceSubscriptionData()
+
+}
+func loadAggregateData() {
+	t := time.Now()
+	defer l.Log.Debug("Time take to read complete aggregateToHost ", time.Since(t))
+	aggregateList, err := evmodel.GetAllAggregateList()
+	if err != nil {
+		l.Log.Error("Error while reading all aggregate data ", err)
+		return
+	}
+	for _, aggregate := range aggregateList {
+		devSub := strings.Split(aggregate, "||")
+		for _, host := range evmodel.GetSliceFromString(devSub[1]) {
+			updateAggregateCatchData(host, devSub[0])
+		}
+	}
+
+}
+func loadDeviceSubscriptionData() {
+	t := time.Now()
+	defer l.Log.Debug("Time take to read complete aggregateToHost ", time.Since(t))
+	deviceSubscriptionList, err := evmodel.GetAllDeviceSubscriptions()
+	if err != nil {
+		l.Log.Error("Error while reading all aggregate data ", err)
+		return
+	}
+	for _, device := range deviceSubscriptionList {
+		devSub := strings.Split(device, "||")
+		updateCatchDeviceSubscriptionData(devSub[0], evmodel.GetSliceFromString(devSub[2]))
+	}
+}
+
+func loadSubscriptionCacheData(sub evmodel.CacheSubscription) {
+	if len(sub.Hosts) == 0 && sub.SubscriptionID != "0" {
+		addSubscription("SystemsCollection", sub)
+		addSubscription("ChassisCollection", sub)
+		addSubscription("ManagerCollection", sub)
+		addSubscription("FabricsCollection", sub)
+	}
+	for _, host := range sub.Hosts {
+		addSubscription(host, sub)
+	}
+}
+func addSubscription(key string, sub evmodel.CacheSubscription) {
+	data, isExists := cacheSubscriptions[key]
+	if isExists {
+		data = append(data, sub)
+		cacheSubscriptions[key] = data
+	} else {
+		cacheSubscriptions[key] = []evmodel.CacheSubscription{sub}
+	}
+}
+func updateAggregateCatchData(key string, value string) {
+	data, isExists := cacheAggregateList[key]
+	if isExists {
+		data = append(data, value)
+		cacheAggregateList[key] = data
+	} else {
+		cacheAggregateList[key] = []string{value}
+	}
+}
+func updateCatchDeviceSubscriptionData(key string, value []string) {
+	data, isExists := cacheDeviceSubscription[key]
+	if isExists {
+		data = append(data, value...)
+		cacheDeviceSubscription[key] = data
+	} else {
+		cacheDeviceSubscription[key] = value
+	}
 }

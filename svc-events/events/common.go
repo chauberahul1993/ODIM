@@ -79,6 +79,7 @@ type DB struct {
 	GetAggregateHosts                func(aggregateIP string) ([]string, error)
 	UpdateAggregateHosts             func(aggregateId string, hostIP []string) error
 	GetAggregateList                 func(hostIP string) ([]string, error)
+	GetAllEvtSubscriptions           func() ([]evmodel.Subscription, error)
 }
 
 // fillTaskData is to fill task information in TaskData struct
@@ -410,7 +411,7 @@ func getAggregateID(origin string) string {
 	return ""
 }
 
-// callPlugin check the given request url and PrefereAuth type plugin
+// callPlugin check the given request url and PreferAuth type plugin
 func (e *ExternalInterfaces) callPlugin(req evcommon.PluginContactRequest) (*http.Response, error) {
 	var reqURL = "https://" + req.Plugin.IP + ":" + req.Plugin.Port + req.URL
 	if strings.EqualFold(req.Plugin.PreferredAuthType, "BasicAuth") {
@@ -455,8 +456,8 @@ func (e *ExternalInterfaces) checkCollection(origin string) ([]string, string, b
 // isHostPresentInEventForward will check if hostip present in the hosts slice
 func isHostPresentInEventForward(hosts []string, hostip string) bool {
 
-	if len(hosts) < 1 {
-		return false
+	if len(hosts) == 0 {
+		return true
 	}
 
 	front := 0

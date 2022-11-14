@@ -19,6 +19,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/ODIM-Project/ODIM/lib-utilities/common"
 	"github.com/ODIM-Project/ODIM/lib-utilities/errors"
@@ -99,7 +100,7 @@ type Subscription struct {
 	SubordinateResources bool     `json:"SubordinateResources"`
 	ResourceTypes        []string `json:"ResourceTypes"`
 	// To store origin resource
-	OriginResource string `json:"OriginResource"`
+	OriginResource string `json:"OriginResource,omitempty"`
 	// To store multiple origin resource
 	OriginResources []string `json:"OriginResources"`
 	// To store all Device address
@@ -110,6 +111,18 @@ type Subscription struct {
 	ExcludeMessageIds       []string `json:"ExcludeMessageIds,omitempty"`
 	ExcludeRegistryPrefixes []string `json:"ExcludeRegistryPrefixes,omitempty"`
 	DeliveryRetryPolicy     string   `json:"DeliveryRetryPolicy"`
+}
+
+//CacheSubscription is a model to store the subscription details
+type CacheSubscription struct {
+	Hosts                []string `json:"Hosts"`
+	SubscriptionID       string   `json:"SubscriptionID"`
+	Destination          string   `json:"Destination"`
+	EventTypes           []string `json:"EventTypes"`
+	MessageIds           []string `json:"MessageIds"`
+	SubordinateResources bool     `json:"SubordinateResources"`
+	ResourceTypes        []string `json:"ResourceTypes"`
+	// OriginResources      []string `json:"OriginResources"`
 }
 
 //DeviceSubscription is a model to store the subscription details of a device
@@ -132,12 +145,12 @@ type EvtSubPost struct {
 	DeliveryRetryPolicy  string        `json:"DeliveryRetryPolicy,omitempty"`
 }
 
-//HTTPHeaders required for the suscribing for events
+//HTTPHeaders required for the subscribing for events
 type HTTPHeaders struct {
 	ContentType string `json:"Content-Type"`
 }
 
-//Target is for sending the requst to south bound/plugin
+//Target is for sending the request to south bound/plugin
 type Target struct {
 	ManagerAddress string `json:"ManagerAddress"`
 	Password       []byte `json:"Password"`
@@ -267,7 +280,7 @@ func GetAllPlugins() ([]Plugin, *errors.Error) {
 	return plugins, nil
 }
 
-//GetAllKeysFromTable retrun all matching data give table name
+//GetAllKeysFromTable return all matching data give table name
 func GetAllKeysFromTable(table string) ([]string, error) {
 	conn, err := GetDbConnection(common.InMemory)
 	if err != nil {
@@ -280,7 +293,7 @@ func GetAllKeysFromTable(table string) ([]string, error) {
 	return keysArray, nil
 }
 
-//GetAllSystems retrives all the compute systems in odimra
+//GetAllSystems retrieves all the compute systems in odimra
 func GetAllSystems() ([]string, error) {
 	conn, err := GetDbConnection(common.OnDisk)
 	if err != nil {
@@ -293,7 +306,7 @@ func GetAllSystems() ([]string, error) {
 	return keysArray, nil
 }
 
-//GetSingleSystem retrives specific compute system in odimra based on the ID
+//GetSingleSystem retrieves specific compute system in odimra based on the ID
 func GetSingleSystem(id string) (string, error) {
 	conn, err := GetDbConnection(common.OnDisk)
 	if err != nil {
@@ -346,7 +359,7 @@ func GetAggregateData(aggreagetKey string) (Aggregate, error) {
 	return aggregate, nil
 }
 
-//GetAllFabrics retrun all Fabrics
+//GetAllFabrics return all Fabrics
 func GetAllFabrics() ([]string, error) {
 	conn, err := GetDbConnection(common.OnDisk)
 	if err != nil {
@@ -377,7 +390,7 @@ func GetDeviceSubscriptions(hostIP string) (*DeviceSubscription, error) {
 	var deviceSubscription = &DeviceSubscription{
 		EventHostIP:     devSub[0],
 		Location:        devSub[1],
-		OriginResources: getSliceFromString(devSub[2]),
+		OriginResources: GetSliceFromString(devSub[2]),
 	}
 
 	return deviceSubscription, nil
@@ -422,8 +435,8 @@ func DeleteDeviceSubscription(hostIP string) error {
 	return nil
 }
 
-// getSliceFromString is to convert the string to array
-func getSliceFromString(sliceString string) []string {
+// GetSliceFromString is to convert the string to array
+func GetSliceFromString(sliceString string) []string {
 	// EX : array stored in db in string("[alert statuschange]")
 	// to convert into an array removing "[" ,"]" and splitting
 	slice := strings.Replace(sliceString, "[", "", -1)
@@ -563,11 +576,10 @@ func SetUndeliveredEventsFlag(destination string) error {
 	if err = conn.AddResourceData(ReadInProgres, destination, "true"); err != nil {
 		return fmt.Errorf("error while trying to create new %v resource: %v", ReadInProgres, err.Error())
 	}
-	data, err := conn.Read(ReadInProgres, destination)
+	_, err = conn.Read(ReadInProgres, destination)
 	if err != nil {
-		fmt.Println(err)
+		l.Log.Error(err)
 	}
-	fmt.Println(data)
 	return nil
 }
 
@@ -635,7 +647,7 @@ func GetAggregateHosts(aggregateID string) ([]string, error) {
 		return nil, fmt.Errorf("error while trying to get aggregate host of device %v", gerr.Error())
 	}
 	devSub := strings.Split(aggregateList[0], "||")
-	hostsIP := getSliceFromString(devSub[1])
+	hostsIP := GetSliceFromString(devSub[1])
 	return hostsIP, nil
 }
 
@@ -658,4 +670,50 @@ func GetAggregateList(hostIP string) ([]string, error) {
 		aggregates = append(aggregates, devSub[0])
 	}
 	return aggregates, nil
+}
+
+// GetAllEvtSubscriptions is to get all event subscription details
+func GetAllEvtSubscriptions() ([]string, error) {
+	t := time.Now()
+	defer l.Log.Debug("Time take to read Complete GetAllEvtSubscriptions ", time.Since(t))
+	conn, err := GetDbConnection(common.OnDisk)
+	if err != nil {
+		return nil, err
+	}
+	evtSub, gerr := conn.GetAllEvtSubscriptions(SubscriptionIndex)
+	if gerr != nil {
+		return nil, fmt.Errorf("error while trying to get subscription of device %v", gerr.Error())
+	}
+	return evtSub, nil
+}
+
+// GetAllAggregateData  will fetch aggregate list
+func GetAllAggregateList() ([]string, error) {
+	t := time.Now()
+	defer l.Log.Debug("Time take to read Complete GetAllAggregate ", time.Since(t))
+
+	conn, err := GetDbConnection(common.OnDisk)
+	if err != nil {
+		return nil, err
+	}
+	aggregateList, gerr := conn.GetAllAggregateHosts(AggregateSubscriptionIndex)
+	if gerr != nil {
+		return []string{}, fmt.Errorf("error while trying to get aggregate host list of device %v", gerr.Error())
+	}
+	return aggregateList, nil
+}
+
+// GetAllDeviceSubscriptions is to get subscription details of device
+func GetAllDeviceSubscriptions() ([]string, error) {
+	t := time.Now()
+	defer l.Log.Debug("Time take to read Complete GetAllDeviceSubscriptions ", time.Since(t))
+	conn, err := GetDbConnection(common.OnDisk)
+	if err != nil {
+		return nil, err
+	}
+	devSubscription, gerr := conn.GetAllDeviceSubscription(DeviceSubscriptionIndex)
+	if gerr != nil {
+		return nil, fmt.Errorf("error while trying to get subscription of device %v", gerr.Error())
+	}
+	return devSubscription, nil
 }

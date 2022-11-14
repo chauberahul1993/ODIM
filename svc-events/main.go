@@ -25,6 +25,7 @@ import (
 	"github.com/ODIM-Project/ODIM/lib-utilities/services"
 	"github.com/ODIM-Project/ODIM/svc-events/consumer"
 	"github.com/ODIM-Project/ODIM/svc-events/evcommon"
+	ev "github.com/ODIM-Project/ODIM/svc-events/events"
 	"github.com/ODIM-Project/ODIM/svc-events/rpc"
 	"github.com/sirupsen/logrus"
 )
@@ -100,16 +101,16 @@ func main() {
 	// TrackConfigFileChanges monitors the odim config changes using fsnotfiy
 	go evcommon.TrackConfigFileChanges()
 
-	// Subscribe to intercomm messagebus queue
+	// Subscribe to intercoms messagebus queue
 	go consumer.SubscribeCtrlMsgQueue(config.Data.MessageBusConf.MessageBusQueue[0])
 
 	// Subscribe to EMBs of all the available plugins
-	startUPInterface := evcommon.StartUpInteraface{
+	startUPInterface := evcommon.StartUpInterface{
 		DecryptPassword: common.DecryptWithPrivateKey,
 		EMBConsume:      consumer.Consume,
 	}
+	go ev.LoadSubscriptionData()
 	go startUPInterface.SubscribePluginEMB()
-
 	// Run server
 	if err := services.ODIMService.Run(); err != nil {
 		log.Fatal(err.Error())
