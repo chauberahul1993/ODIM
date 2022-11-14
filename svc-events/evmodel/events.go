@@ -122,7 +122,6 @@ type CacheSubscription struct {
 	MessageIds           []string `json:"MessageIds"`
 	SubordinateResources bool     `json:"SubordinateResources"`
 	ResourceTypes        []string `json:"ResourceTypes"`
-	// OriginResources      []string `json:"OriginResources"`
 }
 
 //DeviceSubscription is a model to store the subscription details of a device

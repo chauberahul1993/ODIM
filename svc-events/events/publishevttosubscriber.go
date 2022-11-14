@@ -114,9 +114,7 @@ func (e *ExternalInterfaces) PublishEventsToDestination(data interface{}) bool {
 		l.Log.Error("failed to unmarshal the incoming event: ", requestData, " with the error: ", err.Error())
 		return false
 	}
-
 	e.addFabric(rawMessage, host)
-
 	deviceSubscription := cacheDeviceSubscription[host]
 
 	if len(deviceSubscription) < 1 {
@@ -125,7 +123,6 @@ func (e *ExternalInterfaces) PublishEventsToDestination(data interface{}) bool {
 	}
 
 	message, deviceUUID = formatEvent(rawMessage, deviceSubscription[0], host)
-	// searchKey = evcommon.GetSearchKey(host, evmodel.SubscriptionIndex)
 	subscriptions := cacheSubscriptions[host]
 
 	// Getting Aggregate List
@@ -168,7 +165,7 @@ func (e *ExternalInterfaces) PublishEventsToDestination(data interface{}) bool {
 			if sub.Destination != "" {
 				// check if hostip present in the hosts slice to make sure that it doesn't filter with the destination ip
 				if isHostPresentInEventForward(sub.Hosts, host) {
-					if filterEventsToBeForwardedTemp(sub, inEvent, deviceSubscription) {
+					if filterEventsToBeForward(sub, inEvent, deviceSubscription) {
 						eventMap[sub.Destination] = append(eventMap[sub.Destination], inEvent)
 						flag = true
 					}
@@ -221,33 +218,7 @@ func (e *ExternalInterfaces) publishMetricReport(requestData string) bool {
 	return true
 }
 
-func filterEventsToBeForwarded(subscription evmodel.Subscription, event common.Event, originResources []string) bool {
-	eventTypes := subscription.EventTypes
-	messageIds := subscription.MessageIds
-	resourceTypes := subscription.ResourceTypes
-	originCondition := strings.TrimSuffix(event.OriginOfCondition.Oid, "/")
-	if (len(eventTypes) == 0 || isStringPresentInSlice(eventTypes, event.EventType, "event type")) &&
-		(len(messageIds) == 0 || isStringPresentInSlice(messageIds, event.MessageID, "message id")) &&
-		(len(resourceTypes) == 0 || isResourceTypeSubscribed(resourceTypes, event.OriginOfCondition.Oid, subscription.SubordinateResources)) {
-		// if SubordinateResources is true then check if originofresource is top level of originofcondition
-		// if SubordinateResources is flase then check originofresource is same as originofcondition
-		for _, origin := range originResources {
-			if subscription.SubordinateResources {
-				if strings.Contains(originCondition, origin) {
-					return true
-				}
-			} else {
-				if origin == originCondition {
-					return true
-				}
-			}
-		}
-	}
-	l.Log.Info("Event not forwarded : No subscription for the incoming event's originofcondition")
-	return false
-}
-func filterEventsToBeForwardedTemp(subscription evmodel.CacheSubscription, event common.Event, originResources []string) bool {
-
+func filterEventsToBeForward(subscription evmodel.CacheSubscription, event common.Event, originResources []string) bool {
 	eventTypes := subscription.EventTypes
 	messageIds := subscription.MessageIds
 	resourceTypes := subscription.ResourceTypes

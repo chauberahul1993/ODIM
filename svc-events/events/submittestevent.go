@@ -25,6 +25,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	uuid "github.com/satori/go.uuid"
@@ -33,6 +34,7 @@ import (
 	l "github.com/ODIM-Project/ODIM/lib-utilities/logs"
 	eventsproto "github.com/ODIM-Project/ODIM/lib-utilities/proto/events"
 	"github.com/ODIM-Project/ODIM/lib-utilities/response"
+	"github.com/ODIM-Project/ODIM/svc-events/evmodel"
 )
 
 var (
@@ -122,7 +124,31 @@ func (e *ExternalInterfaces) SubmitTestEvent(req *eventsproto.EventSubRequest) r
 	return resp
 
 }
-
+func filterEventsToBeForwarded(subscription evmodel.Subscription, event common.Event, originResources []string) bool {
+	eventTypes := subscription.EventTypes
+	messageIds := subscription.MessageIds
+	resourceTypes := subscription.ResourceTypes
+	originCondition := strings.TrimSuffix(event.OriginOfCondition.Oid, "/")
+	if (len(eventTypes) == 0 || isStringPresentInSlice(eventTypes, event.EventType, "event type")) &&
+		(len(messageIds) == 0 || isStringPresentInSlice(messageIds, event.MessageID, "message id")) &&
+		(len(resourceTypes) == 0 || isResourceTypeSubscribed(resourceTypes, event.OriginOfCondition.Oid, subscription.SubordinateResources)) {
+		// if SubordinateResources is true then check if originofresource is top level of originofcondition
+		// if SubordinateResources is flase then check originofresource is same as originofcondition
+		for _, origin := range originResources {
+			if subscription.SubordinateResources {
+				if strings.Contains(originCondition, origin) {
+					return true
+				}
+			} else {
+				if origin == originCondition {
+					return true
+				}
+			}
+		}
+	}
+	l.Log.Info("Event not forwarded : No subscription for the incoming event's originofcondition")
+	return false
+}
 func validAndGenSubTestReq(reqBody []byte) (*common.Event, string, string, []interface{}) {
 	var testEvent common.Event
 	var req map[string]interface{}
