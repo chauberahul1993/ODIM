@@ -139,7 +139,7 @@ func TestPublishEventsToDestiantionWithMultipleEvents(t *testing.T) {
 		{
 			OdataType: "#Event",
 			Events: []common.Event{
-				common.Event{
+				{
 					MemberID:       "1",
 					EventType:      "Alert",
 					EventID:        "123",
@@ -151,7 +151,7 @@ func TestPublishEventsToDestiantionWithMultipleEvents(t *testing.T) {
 						Oid: "/redfish/v1/Systems/1",
 					},
 				},
-				common.Event{
+				{
 					MemberID:       "1",
 					EventType:      "ResourceAdded",
 					EventID:        "1234",
@@ -169,6 +169,7 @@ func TestPublishEventsToDestiantionWithMultipleEvents(t *testing.T) {
 
 	ip := []string{"100.100.100.100", "100.100.100.100", "10.10.1.3", "10.10.1.3"}
 	pc := getMockMethods()
+	// LoadSubscriptionData()
 	for i, v := range messages {
 		var event common.Events
 		event.IP = ip[i]

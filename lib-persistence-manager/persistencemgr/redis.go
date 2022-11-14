@@ -1578,7 +1578,7 @@ func (p *ConnPool) GetAllEvtSubscriptions(index string) ([]string, error) {
 // TODO : Handle cursor
 func (p *ConnPool) GetAllAggregateHosts(index string) ([]string, error) {
 	t := time.Now()
-	defer fmt.Println("Time taken DB all subscription read ", time.Since(t))
+	defer l.Log.Debug("Time taken DB all subscription read ", time.Since(t))
 	var getList []string
 	readConn := p.ReadPool.Get()
 	defer readConn.Close()

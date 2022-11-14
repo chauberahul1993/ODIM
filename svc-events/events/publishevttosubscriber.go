@@ -29,6 +29,7 @@ import (
 	"net"
 	"net/http"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/ODIM-Project/ODIM/lib-utilities/common"
@@ -38,6 +39,7 @@ import (
 	fabricproto "github.com/ODIM-Project/ODIM/lib-utilities/proto/fabrics"
 	"github.com/ODIM-Project/ODIM/lib-utilities/services"
 	"github.com/ODIM-Project/ODIM/svc-events/evmodel"
+	"github.com/gomodule/redigo/redis"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -585,21 +587,29 @@ func (e *ExternalInterfaces) getCollectionSubscriptionInfoForOID(oid, host strin
 	} else {
 		return []evmodel.CacheSubscription{}
 	}
-
-	subscriptions, _ := cacheSubscriptions[key]
-	return subscriptions
+	return cacheSubscriptions[key]
 }
 
 var (
 	cacheSubscriptions      = make(map[string][]evmodel.CacheSubscription)
 	cacheAggregateList      = make(map[string][]string)
 	cacheDeviceSubscription = make(map[string][]string)
+	cacheLock               sync.Mutex
 )
 
-func LoadSubscriptionData() {
-	l.Log.Debug("Event data load initialized ")
+func InitCache() {
+	l.Log.Debug("Event cache data initialized ")
+	loadSubscription()
+	loadAggregateData()
+	loadDeviceSubscriptionData()
+	go initializeDbObserver()
+
+}
+func loadSubscription() {
 	t := time.Now()
-	defer l.Log.Debug("Time take to read Complete LoadSubscriptionData ", time.Since(t))
+	defer l.Log.Debug("Time take to read Complete loadSubscription ", time.Since(t))
+	cacheLock.Lock()
+	defer cacheLock.Unlock()
 	subscriptions, err := evmodel.GetAllEvtSubscriptions()
 	if err != nil {
 		l.Log.Error("Error while reading all subscription data ", err)
@@ -613,17 +623,13 @@ func LoadSubscriptionData() {
 		}
 		loadSubscriptionCacheData(sub)
 	}
-	// Remove after test
-	for i, v := range cacheSubscriptions {
-		fmt.Printf("Index of map is %s And it hold value is %d  and  %+v \n ", i, len(v), v)
-	}
-	loadAggregateData()
-	loadDeviceSubscriptionData()
 
 }
 func loadAggregateData() {
 	t := time.Now()
 	defer l.Log.Debug("Time take to read complete aggregateToHost ", time.Since(t))
+	cacheLock.Lock()
+	defer cacheLock.Unlock()
 	aggregateList, err := evmodel.GetAllAggregateList()
 	if err != nil {
 		l.Log.Error("Error while reading all aggregate data ", err)
@@ -639,7 +645,9 @@ func loadAggregateData() {
 }
 func loadDeviceSubscriptionData() {
 	t := time.Now()
-	defer l.Log.Debug("Time take to read complete aggregateToHost ", time.Since(t))
+	defer l.Log.Debug("Time take to read complete loadDeviceSubscriptionData ", time.Since(t))
+	cacheLock.Lock()
+	defer cacheLock.Unlock()
 	deviceSubscriptionList, err := evmodel.GetAllDeviceSubscriptions()
 	if err != nil {
 		l.Log.Error("Error while reading all aggregate data ", err)
@@ -687,5 +695,33 @@ func updateCatchDeviceSubscriptionData(key string, value []string) {
 		cacheDeviceSubscription[key] = data
 	} else {
 		cacheDeviceSubscription[key] = value
+	}
+}
+func initializeDbObserver() {
+	conn, _ := common.GetDBConnection(common.OnDisk)
+	writeConn := conn.WritePool.Get()
+	defer writeConn.Close()
+	writeConn.Do("CONFIG", "SET", "notify-keyspace-events", "Ez") //published
+	psc := redis.PubSubConn{Conn: writeConn}
+	psc.PSubscribe("__key*__:*")
+	for {
+		switch v := psc.Receive().(type) {
+		case redis.Message:
+			switch string(v.Data) {
+			case "DeviceSubscription":
+				loadDeviceSubscriptionData()
+			case "Subscription":
+				loadSubscription()
+			case "AggregateToHost":
+				loadAggregateData()
+			default:
+				l.Log.Debug("Unhandled event  ", v.Data)
+			}
+
+		case redis.Subscription:
+			l.Log.Debug("Subscription", v.Channel, " ", v.Kind, " ", v.Count)
+		case error:
+			fmt.Println(v)
+		}
 	}
 }

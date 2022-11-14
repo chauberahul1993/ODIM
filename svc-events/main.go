@@ -109,7 +109,7 @@ func main() {
 		DecryptPassword: common.DecryptWithPrivateKey,
 		EMBConsume:      consumer.Consume,
 	}
-	go ev.LoadSubscriptionData()
+	go ev.InitCache()
 	go startUPInterface.SubscribePluginEMB()
 	// Run server
 	if err := services.ODIMService.Run(); err != nil {
