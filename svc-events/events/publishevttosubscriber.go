@@ -116,7 +116,7 @@ func (e *ExternalInterfaces) PublishEventsToDestination(data interface{}) bool {
 		l.Log.Error("failed to unmarshal the incoming event: ", requestData, " with the error: ", err.Error())
 		return false
 	}
-	e.addFabric(rawMessage, host)
+	go e.addFabric(rawMessage, host)
 	deviceSubscription := cacheDeviceSubscription[host]
 
 	if len(deviceSubscription) < 1 {
@@ -172,7 +172,7 @@ func (e *ExternalInterfaces) PublishEventsToDestination(data interface{}) bool {
 						flag = true
 					}
 				} else {
-					l.Log.Info("event not forwarded : No subscription for the incoming event's originofcondition", sub.SubscriptionID)
+					l.Log.Info("event not forwarded : No subscription for the incoming event's originofcondition")
 					flag = false
 				}
 
@@ -610,6 +610,7 @@ func loadSubscription() {
 	defer l.Log.Debug("Time take to read Complete loadSubscription ", time.Since(t))
 	cacheLock.Lock()
 	defer cacheLock.Unlock()
+	cacheSubscriptions = map[string][]evmodel.CacheSubscription{}
 	subscriptions, err := evmodel.GetAllEvtSubscriptions()
 	if err != nil {
 		l.Log.Error("Error while reading all subscription data ", err)
@@ -630,6 +631,7 @@ func loadAggregateData() {
 	defer l.Log.Debug("Time take to read complete aggregateToHost ", time.Since(t))
 	cacheLock.Lock()
 	defer cacheLock.Unlock()
+	cacheAggregateList = map[string][]string{}
 	aggregateList, err := evmodel.GetAllAggregateList()
 	if err != nil {
 		l.Log.Error("Error while reading all aggregate data ", err)
@@ -647,6 +649,7 @@ func loadDeviceSubscriptionData() {
 	t := time.Now()
 	defer l.Log.Debug("Time take to read complete loadDeviceSubscriptionData ", time.Since(t))
 	cacheLock.Lock()
+	cacheDeviceSubscription = map[string][]string{}
 	defer cacheLock.Unlock()
 	deviceSubscriptionList, err := evmodel.GetAllDeviceSubscriptions()
 	if err != nil {
@@ -660,7 +663,7 @@ func loadDeviceSubscriptionData() {
 }
 
 func loadSubscriptionCacheData(sub evmodel.CacheSubscription) {
-	if len(sub.Hosts) == 0 && sub.SubscriptionID != "0" {
+	if len(sub.Hosts) == 0 && len(sub.Destination) != 0 {
 		addSubscription("SystemsCollection", sub)
 		addSubscription("ChassisCollection", sub)
 		addSubscription("ManagerCollection", sub)
