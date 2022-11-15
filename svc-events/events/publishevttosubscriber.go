@@ -731,10 +731,13 @@ func initializeDbObserver() {
 			l.Log.Debug("Subscription", v.Channel, " ", v.Kind, " ", v.Count)
 		case error:
 			l.Log.Error("Error occurred in observe ", v)
-			psc.PUnsubscribe("__key*__:*")
+			err := psc.PUnsubscribe("__key*__:*")
+			if err != nil {
+				l.Log.Debug("Failed to unsubscribe ", err)
+			}
 			time.Sleep(time.Second * 10)
 			go initializeDbObserver()
-			break
+			return
 		}
 	}
 }
