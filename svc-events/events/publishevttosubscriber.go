@@ -701,10 +701,16 @@ func updateCatchDeviceSubscriptionData(key string, value []string) {
 	}
 }
 func initializeDbObserver() {
+	l.Log.Debug("Initializing observer ")
 	conn, _ := common.GetDBConnection(common.OnDisk)
 	writeConn := conn.WritePool.Get()
 	defer writeConn.Close()
-	writeConn.Do("CONFIG", "SET", "notify-keyspace-events", "Ez") //published
+	_, err := writeConn.Do("CONFIG", "SET", "notify-keyspace-events", "Ez") //published
+	if err != nil {
+		l.Log.Error("error occurred configuring keyevent ", err)
+		time.Sleep(time.Second * 10)
+		initializeDbObserver()
+	}
 	psc := redis.PubSubConn{Conn: writeConn}
 	psc.PSubscribe("__key*__:*")
 	for {
