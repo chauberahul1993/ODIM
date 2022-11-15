@@ -724,7 +724,11 @@ func initializeDbObserver() {
 		case redis.Subscription:
 			l.Log.Debug("Subscription", v.Channel, " ", v.Kind, " ", v.Count)
 		case error:
-			fmt.Println(v)
+			l.Log.Error("Error occurred in observe ", v)
+			psc.PUnsubscribe("__key*__:*")
+			time.Sleep(time.Second * 10)
+			go initializeDbObserver()
+			break
 		}
 	}
 }
