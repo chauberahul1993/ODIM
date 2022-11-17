@@ -89,7 +89,8 @@ func (e *ExternalInterfaces) PublishEventsToDestination(data interface{}) bool {
 		go callPluginStartUp(event)
 		return true
 	}
-
+	ev, _ := json.Marshal(data)
+	fmt.Printf("1 Event is received %+v \n", string(ev))
 	// Extract the Hostname/IP of the event source and Event from input parameter
 	host, _, err := net.SplitHostPort(event.IP)
 	if err != nil {
@@ -624,7 +625,6 @@ func loadSubscription() {
 		}
 		loadSubscriptionCacheData(sub)
 	}
-
 }
 func loadAggregateData() {
 	t := time.Now()
@@ -710,6 +710,7 @@ func initializeDbObserver() {
 		l.Log.Error("error occurred configuring keyevent ", err)
 		time.Sleep(time.Second * 10)
 		initializeDbObserver()
+		return
 	}
 	psc := redis.PubSubConn{Conn: writeConn}
 	psc.PSubscribe("__key*__:*")
@@ -723,10 +724,7 @@ func initializeDbObserver() {
 				loadSubscription()
 			case "AggregateToHost":
 				loadAggregateData()
-			default:
-				l.Log.Debug("Unhandled event  ", v.Data)
 			}
-
 		case redis.Subscription:
 			l.Log.Debug("Subscription", v.Channel, " ", v.Kind, " ", v.Count)
 		case error:
@@ -736,8 +734,7 @@ func initializeDbObserver() {
 				l.Log.Debug("Failed to unsubscribe ", err)
 			}
 			time.Sleep(time.Second * 10)
-			go initializeDbObserver()
-			return
+			initializeDbObserver()
 		}
 	}
 }
