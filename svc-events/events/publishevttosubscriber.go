@@ -89,8 +89,8 @@ func (e *ExternalInterfaces) PublishEventsToDestination(data interface{}) bool {
 		go callPluginStartUp(event)
 		return true
 	}
-	ev, _ := json.Marshal(data)
-	fmt.Printf("1 Event is received %+v \n", string(ev))
+
+	fmt.Printf("1 Event is received Event type %+v IP %+v Request%+v \n", event.EventType, event.IP, string(event.Request))
 	// Extract the Hostname/IP of the event source and Event from input parameter
 	host, _, err := net.SplitHostPort(event.IP)
 	if err != nil {
