@@ -413,6 +413,8 @@ func (e *ExternalInterfaces) eventSubscription(postRequest evmodel.RequestBody, 
 	contactRequest.PostBody = target
 
 	l.Log.Debug("Subscription Request: " + reqData)
+	fmt.Printf("Contact Request 1 %+v \n", contactRequest)
+	fmt.Printf("Contact Request 2 %+v \n", target)
 	response, err := e.callPlugin(contactRequest)
 	if err != nil {
 		if evcommon.GetPluginStatus(plugin) {
@@ -504,6 +506,7 @@ func (e *ExternalInterfaces) eventSubscription(postRequest evmodel.RequestBody, 
 			return "", resp
 		}
 	}
+	l.Log.Info("Subscription Response: **************  " + string(body))
 	err = json.Unmarshal(body, &outBody)
 	if err != nil {
 		errorMessage := "error while unmarshal the body : " + err.Error()
