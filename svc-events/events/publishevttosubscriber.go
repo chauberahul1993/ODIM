@@ -164,15 +164,15 @@ func (e *ExternalInterfaces) PublishEventsToDestination(data interface{}) bool {
 			// in case of default event subscription destination will be empty
 			if sub.Destination != "" {
 				// check if hostip present in the hosts slice to make sure that it doesn't filter with the destination ip
-				if isHostPresentInEventForward(sub.Hosts, host) {
-					if filterEventsToBeForward(sub, inEvent, deviceSubscription) {
-						eventMap[sub.Destination] = append(eventMap[sub.Destination], inEvent)
-						flag = true
-					}
-				} else {
-					l.Log.Info("event not forwarded : No subscription for the incoming event's originofcondition", sub.SubscriptionID)
-					flag = false
+				// if isHostPresentInEventForward(sub.Hosts, host) {
+				if filterEventsToBeForward(sub, inEvent, deviceSubscription) {
+					eventMap[sub.Destination] = append(eventMap[sub.Destination], inEvent)
+					flag = true
 				}
+				// } else {
+				// 	l.Log.Info("event not forwarded : No subscription for the incoming event's originofcondition", sub.SubscriptionID)
+				// 	flag = false
+				// }
 
 			}
 		}
@@ -606,7 +606,7 @@ func LoadSubscriptionData() {
 		return
 	}
 	for _, subscription := range subscriptions {
-		var sub evmodel.CacheSubscription
+		var sub evmodel.Subscription
 		err = json.Unmarshal([]byte(subscription), &sub)
 		if err != nil {
 			continue
@@ -615,10 +615,10 @@ func LoadSubscriptionData() {
 	}
 	// Remove after test
 	for i, v := range cacheSubscriptions {
-		fmt.Printf("Index of map is %s And it hold value is %d  and  %+v \n ", i, len(v), v)
+		fmt.Printf("Cache Data  Index of map is %s And it hold value is %d  and  %+v \n ", i, len(v), v)
 	}
-	loadAggregateData()
-	loadDeviceSubscriptionData()
+	// loadAggregateData()
+	// loadDeviceSubscriptionData()
 
 }
 func loadAggregateData() {
@@ -651,15 +651,42 @@ func loadDeviceSubscriptionData() {
 	}
 }
 
-func loadSubscriptionCacheData(sub evmodel.CacheSubscription) {
-	if len(sub.Hosts) == 0 && sub.SubscriptionID != "0" {
-		addSubscription("SystemsCollection", sub)
-		addSubscription("ChassisCollection", sub)
-		addSubscription("ManagerCollection", sub)
-		addSubscription("FabricsCollection", sub)
+func loadSubscriptionCacheData(sub evmodel.Subscription) {
+	if len(sub.OriginResources) == 0 && sub.SubscriptionID != "0" {
+		subCache := evmodel.CacheSubscription{
+			Destination:          sub.Destination,
+			EventTypes:           sub.EventTypes,
+			MessageIds:           sub.MessageIds,
+			SubordinateResources: sub.SubordinateResources,
+			ResourceTypes:        sub.ResourceTypes,
+			SubscriptionType:     sub.SubscriptionType,
+		}
+		addSubscription("broadcast", subCache)
+	} else {
+		for _, originResource := range sub.OriginResources {
+			subCache := evmodel.CacheSubscription{
+				Destination:          sub.Destination,
+				EventTypes:           sub.EventTypes,
+				MessageIds:           sub.MessageIds,
+				SubordinateResources: sub.SubordinateResources,
+				ResourceTypes:        sub.ResourceTypes,
+				SubscriptionType:     sub.SubscriptionType,
+			}
+			if strings.Contains(originResource, "AggregationService/Aggregates/") {
+				aggregateResource(originResource, subCache)
+			} else {
+				addSubscription(originResource, subCache)
+			}
+		}
 	}
-	for _, host := range sub.Hosts {
-		addSubscription(host, sub)
+}
+func aggregateResource(url string, sub evmodel.CacheSubscription) {
+	aggregate, err := evmodel.GetAggregate(url)
+	if err != nil {
+		return
+	}
+	for _, ids := range aggregate.Elements {
+		addSubscription(ids.OdataID, sub)
 	}
 }
 func addSubscription(key string, sub evmodel.CacheSubscription) {

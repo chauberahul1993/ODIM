@@ -115,13 +115,12 @@ type Subscription struct {
 
 //CacheSubscription is a model to store the subscription details
 type CacheSubscription struct {
-	Hosts                []string `json:"Hosts"`
-	SubscriptionID       string   `json:"SubscriptionID"`
-	Destination          string   `json:"Destination"`
-	EventTypes           []string `json:"EventTypes"`
-	MessageIds           []string `json:"MessageIds"`
-	SubordinateResources bool     `json:"SubordinateResources"`
-	ResourceTypes        []string `json:"ResourceTypes"`
+	Destination          string
+	EventTypes           []string
+	MessageIds           []string
+	SubordinateResources bool
+	ResourceTypes        []string
+	SubscriptionType     string
 }
 
 //DeviceSubscription is a model to store the subscription details of a device
@@ -700,6 +699,24 @@ func GetAllAggregateList() ([]string, error) {
 		return []string{}, fmt.Errorf("error while trying to get aggregate host list of device %v", gerr.Error())
 	}
 	return aggregateList, nil
+}
+
+// GetAggregate fetches the aggregate info for the given aggregateURI
+func GetAggregate(aggregateURI string) (Aggregate, *errors.Error) {
+	var aggregate Aggregate
+	conn, err := common.GetDBConnection(common.OnDisk)
+	if err != nil {
+		return aggregate, err
+	}
+	const table string = "Aggregate"
+	data, err := conn.Read(table, aggregateURI)
+	if err != nil {
+		return aggregate, errors.PackError(err.ErrNo(), "error: while trying to fetch connection method data: ", err.Error())
+	}
+	if err := json.Unmarshal([]byte(data), &aggregate); err != nil {
+		return aggregate, errors.PackError(errors.JSONUnmarshalFailed, err)
+	}
+	return aggregate, nil
 }
 
 // GetAllDeviceSubscriptions is to get subscription details of device
