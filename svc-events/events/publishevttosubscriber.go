@@ -121,8 +121,8 @@ func (e *ExternalInterfaces) PublishEventsToDestination(data interface{}) bool {
 		l.Log.Info("no origin resources found in device subscriptions")
 		return false
 	}
-
-	message, deviceUUID = formatEvent(rawMessage, deviceSubscription[0], host)
+	fmt.Println("################## Device id is ", cacheDeviceSubscription[host])
+	message, deviceUUID = formatEvent(rawMessage, cacheDeviceSubscription[host], host)
 	subscriptions := cacheSubscriptions[host]
 
 	// Getting Aggregate List
@@ -248,8 +248,8 @@ func filterEventsToBeForward(subscription evmodel.CacheSubscription, event commo
 
 // formatEvent will format the event string according to the odimra
 // add uuid:systemid/chassisid inplace of systemid/chassisid
-func formatEvent(event common.MessageData, originResource, hostIP string) (common.MessageData, string) {
-	deviceUUID, _ := getUUID(originResource)
+func formatEvent(event common.MessageData, deviceUUID, hostIP string) (common.MessageData, string) {
+	// deviceUUID, _ := getUUID(originResource)
 	if !strings.Contains(hostIP, "Collection") {
 		for _, event := range event.Events {
 			if event.OriginOfCondition == nil || len(event.OriginOfCondition.Oid) < 1 {
