@@ -115,7 +115,7 @@ func (e *ExternalInterfaces) PublishEventsToDestination(data interface{}) bool {
 		return false
 	}
 	e.addFabric(rawMessage, host)
-	// deviceSubscription := []string{}
+	deviceSubscription := []string{}
 
 	// if len(deviceSubscription) < 1 {
 	// 	l.Log.Info("no origin resources found in device subscriptions")
