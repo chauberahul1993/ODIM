@@ -115,12 +115,12 @@ func (e *ExternalInterfaces) PublishEventsToDestination(data interface{}) bool {
 		return false
 	}
 	e.addFabric(rawMessage, host)
-	deviceSubscription := []string{}
+	// deviceSubscription := []string{}
 
-	if len(deviceSubscription) < 1 {
-		l.Log.Info("no origin resources found in device subscriptions")
-		return false
-	}
+	// if len(deviceSubscription) < 1 {
+	// 	l.Log.Info("no origin resources found in device subscriptions")
+	// 	return false
+	// }
 	fmt.Println("################## Device id is ", cacheDeviceSubscription[host])
 	message, deviceUUID = formatEvent(rawMessage, cacheDeviceSubscription[host], host)
 	subscriptions := cacheSubscriptions[host]
