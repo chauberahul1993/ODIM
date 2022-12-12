@@ -115,7 +115,7 @@ func (e *ExternalInterfaces) PublishEventsToDestination(data interface{}) bool {
 		return false
 	}
 	e.addFabric(rawMessage, host)
-	deviceSubscription := cacheDeviceSubscription[host]
+	deviceSubscription := []string{}
 
 	if len(deviceSubscription) < 1 {
 		l.Log.Info("no origin resources found in device subscriptions")
@@ -593,7 +593,7 @@ func (e *ExternalInterfaces) getCollectionSubscriptionInfoForOID(oid, host strin
 var (
 	cacheSubscriptions      = make(map[string][]evmodel.CacheSubscription)
 	cacheAggregateList      = make(map[string][]string)
-	cacheDeviceSubscription = make(map[string][]string)
+	cacheDeviceSubscription = make(map[string]string)
 )
 
 func LoadSubscriptionData() {
@@ -618,7 +618,7 @@ func LoadSubscriptionData() {
 		fmt.Printf("Cache Data  Index of map is %s And it hold value is %d  and  %+v \n ", i, len(v), v)
 	}
 	// loadAggregateData()
-	// loadDeviceSubscriptionData()
+	loadDeviceSubscriptionData()
 
 }
 func loadAggregateData() {
@@ -649,6 +649,7 @@ func loadDeviceSubscriptionData() {
 		devSub := strings.Split(device, "||")
 		updateCatchDeviceSubscriptionData(devSub[0], evmodel.GetSliceFromString(devSub[2]))
 	}
+	fmt.Printf(" Host Details %+v \n", cacheDeviceSubscription)
 }
 
 func loadSubscriptionCacheData(sub evmodel.Subscription) {
@@ -708,11 +709,9 @@ func updateAggregateCatchData(key string, value string) {
 	}
 }
 func updateCatchDeviceSubscriptionData(key string, value []string) {
-	data, isExists := cacheDeviceSubscription[key]
-	if isExists {
-		data = append(data, value...)
-		cacheDeviceSubscription[key] = data
-	} else {
-		cacheDeviceSubscription[key] = value
+	_, isExists := cacheDeviceSubscription[key]
+	if !isExists {
+		uuid, _ := getUUID(value[0])
+		cacheDeviceSubscription[key] = uuid
 	}
 }
