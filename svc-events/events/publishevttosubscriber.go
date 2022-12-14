@@ -159,6 +159,7 @@ func (e *ExternalInterfaces) PublishEventsToDestination(data interface{}) bool {
 		}
 		// collectionSubscriptions := e.getCollectionSubscriptionInfoForOID(inEvent.OriginOfCondition.Oid, host)
 		subscriptions := getSubscriptionList(inEvent.OriginOfCondition.Oid, host)
+		fmt.Println("Origin of Condition ", inEvent.OriginOfCondition.Oid)
 		fmt.Printf("All subscription list %+v \n ", subscriptions)
 		for _, sub := range subscriptions {
 
@@ -250,8 +251,8 @@ func filterEventsToBeForward(subscription evmodel.SubscriptionCache, event commo
 
 // formatEvent will format the event string according to the odimra
 // add uuid:systemid/chassisid inplace of systemid/chassisid
-func formatEvent(event common.MessageData, deviceUUID, hostIP string) (common.MessageData, string) {
-	// deviceUUID, _ := getUUID(originResource)
+func formatEvent(event common.MessageData, originResource, hostIP string) (common.MessageData, string) {
+	deviceUUID, _ := getUUID(originResource)
 	if !strings.Contains(hostIP, "Collection") {
 		for _, event := range event.Events {
 			if event.OriginOfCondition == nil || len(event.OriginOfCondition.Oid) < 1 {
@@ -700,6 +701,7 @@ func getSystemID(host string) (id string) {
 }
 
 func getSubscriptionList(originOfCondition string, host string) (subs []evmodel.SubscriptionCache) {
+	fmt.Println("Key name ", originOfCondition, " And host name ", host)
 	// get broadcast subscriptions
 	subs = append(subs, subscriptionsCache["broadcast"]...)
 	// get exact key subscriptions
@@ -722,6 +724,7 @@ func getCollectionSubscription(oid string) []evmodel.SubscriptionCache {
 	parts := strings.Split(oid, "/")
 	if len(parts) > 3 {
 		collectionUrl := strings.Join(parts[:4], "/")
+		fmt.Println("Collection name ", collectionUrl)
 		return subscriptionsCache[collectionUrl]
 	}
 	return []evmodel.SubscriptionCache{}
