@@ -113,8 +113,8 @@ type Subscription struct {
 	DeliveryRetryPolicy     string   `json:"DeliveryRetryPolicy"`
 }
 
-//CacheSubscription is a model to store the subscription details
-type CacheSubscription struct {
+//SubscriptionCache is a model to store the subscription details
+type SubscriptionCache struct {
 	Destination          string
 	EventTypes           []string
 	MessageIds           []string
