@@ -701,6 +701,7 @@ func getSystemID(host string) (id string) {
 }
 
 func getSubscriptionList(originOfCondition string, host string) (subs []evmodel.SubscriptionCache) {
+	originOfCondition = strings.TrimSuffix(originOfCondition, "/")
 	fmt.Println("Key name ", originOfCondition, " And host name ", host)
 	// get broadcast subscriptions
 	subs = append(subs, subscriptionsCache["broadcast"]...)
