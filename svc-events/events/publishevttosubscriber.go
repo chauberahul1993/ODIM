@@ -115,8 +115,6 @@ func (e *ExternalInterfaces) PublishEventsToDestination(data interface{}) bool {
 		return false
 	}
 	e.addFabric(rawMessage, host)
-	deviceSubscription := []string{}
-
 	// if len(deviceSubscription) < 1 {
 	// 	l.Log.Info("no origin resources found in device subscriptions")
 	// 	return false
@@ -158,8 +156,9 @@ func (e *ExternalInterfaces) PublishEventsToDestination(data interface{}) bool {
 			continue
 		}
 		// collectionSubscriptions := e.getCollectionSubscriptionInfoForOID(inEvent.OriginOfCondition.Oid, host)
-		subscriptions := getSubscriptionList(inEvent.OriginOfCondition.Oid, host)
+		subscriptions, resources := getSubscriptionList(inEvent.OriginOfCondition.Oid, host)
 		fmt.Printf("All subscription list %+v \n ", subscriptions)
+		fmt.Printf("All resources %+v \n ", resources)
 		for _, sub := range subscriptions {
 
 			// filter and send events to destination if destination is not empty
@@ -167,7 +166,7 @@ func (e *ExternalInterfaces) PublishEventsToDestination(data interface{}) bool {
 			if sub.Destination != "" {
 				// check if hostip present in the hosts slice to make sure that it doesn't filter with the destination ip
 				// if isHostPresentInEventForward(sub.Hosts, host) {
-				if filterEventsToBeForward(sub, inEvent, deviceSubscription) {
+				if filterEventsToBeForward(sub, inEvent, resources) {
 					eventMap[sub.Destination] = append(eventMap[sub.Destination], inEvent)
 					flag = true
 				}
@@ -228,7 +227,7 @@ func filterEventsToBeForward(subscription evmodel.SubscriptionCache, event commo
 	if (len(eventTypes) == 0 || isStringPresentInSlice(eventTypes, event.EventType, "event type")) &&
 		(len(messageIds) == 0 || isStringPresentInSlice(messageIds, event.MessageID, "message id")) &&
 		(len(resourceTypes) == 0 || isResourceTypeSubscribed(resourceTypes, event.OriginOfCondition.Oid, subscription.SubordinateResources)) {
-
+		fmt.Println("I am Reached Here *******  ")
 		// if SubordinateResources is true then check if originofresource is top level of originofcondition
 		// if SubordinateResources is false then check originofresource is same as originofcondition
 		for _, origin := range originResources {
@@ -699,7 +698,7 @@ func getSystemID(host string) (id string) {
 	return
 }
 
-func getSubscriptionList(originOfCondition string, host string) (subs []evmodel.SubscriptionCache) {
+func getSubscriptionList(originOfCondition string, host string) (subs []evmodel.SubscriptionCache, resources []string) {
 	originOfCondition = strings.TrimSuffix(originOfCondition, "/")
 	fmt.Println("Key name ", originOfCondition, " And host name ", host)
 	// get broadcast subscriptions
@@ -710,6 +709,7 @@ func getSubscriptionList(originOfCondition string, host string) (subs []evmodel.
 	//get all matching subscription in subscription
 	for key, value := range subscriptionsCache {
 		if strings.Contains(key, originOfCondition) {
+			resources = append(resources, key)
 			subs = append(subs, value...)
 		}
 	}
