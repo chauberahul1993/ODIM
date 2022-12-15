@@ -159,7 +159,6 @@ func (e *ExternalInterfaces) PublishEventsToDestination(data interface{}) bool {
 		}
 		// collectionSubscriptions := e.getCollectionSubscriptionInfoForOID(inEvent.OriginOfCondition.Oid, host)
 		subscriptions := getSubscriptionList(inEvent.OriginOfCondition.Oid, host)
-		fmt.Println("Origin of Condition ", inEvent.OriginOfCondition.Oid)
 		fmt.Printf("All subscription list %+v \n ", subscriptions)
 		for _, sub := range subscriptions {
 
@@ -705,12 +704,10 @@ func getSubscriptionList(originOfCondition string, host string) (subs []evmodel.
 	fmt.Println("Key name ", originOfCondition, " And host name ", host)
 	// get broadcast subscriptions
 	subs = append(subs, subscriptionsCache["broadcast"]...)
-	// get exact key subscriptions
-	subs = append(subs, subscriptionsCache[originOfCondition]...)
 	// get collection subscriptions
 	subs = append(subs, getCollectionSubscription(originOfCondition)...)
 
-	//check for all marching key subscription
+	//get all matching subscription in subscription
 	for key, value := range subscriptionsCache {
 		if strings.Contains(key, originOfCondition) {
 			subs = append(subs, value...)
