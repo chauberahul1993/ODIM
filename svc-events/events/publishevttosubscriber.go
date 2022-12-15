@@ -223,25 +223,26 @@ func filterEventsToBeForward(subscription evmodel.SubscriptionCache, event commo
 	eventTypes := subscription.EventTypes
 	messageIds := subscription.MessageIds
 	resourceTypes := subscription.ResourceTypes
-	originCondition := strings.TrimSuffix(event.OriginOfCondition.Oid, "/")
+	// originCondition := strings.TrimSuffix(event.OriginOfCondition.Oid, "/")
 	if (len(eventTypes) == 0 || isStringPresentInSlice(eventTypes, event.EventType, "event type")) &&
 		(len(messageIds) == 0 || isStringPresentInSlice(messageIds, event.MessageID, "message id")) &&
 		(len(resourceTypes) == 0 || isResourceTypeSubscribed(resourceTypes, event.OriginOfCondition.Oid, subscription.SubordinateResources)) {
 		fmt.Println("I am Reached Here *******  ")
+		return true
 		// if SubordinateResources is true then check if originofresource is top level of originofcondition
 		// if SubordinateResources is false then check originofresource is same as originofcondition
-		for _, origin := range originResources {
+		// for _, origin := range originResources {
 
-			if subscription.SubordinateResources {
-				if strings.Contains(originCondition, origin) {
-					return true
-				}
-			} else {
-				if origin == originCondition {
-					return true
-				}
-			}
-		}
+		// 	if subscription.SubordinateResources {
+		// 		if strings.Contains(originCondition, origin) {
+		// 			return true
+		// 		}
+		// 	} else {
+		// 		if origin == originCondition {
+		// 			return true
+		// 		}
+		// 	}
+		// }
 	}
 	l.Log.Info("Event not forwarded  : No subscription for the incoming event's originofcondition filterEventsToBeForwarded")
 	return false
@@ -708,10 +709,20 @@ func getSubscriptionList(originOfCondition string, host string) (subs []evmodel.
 
 	//get all matching subscription in subscription
 	for key, value := range subscriptionsCache {
-		if strings.Contains(key, originOfCondition) {
-			resources = append(resources, key)
-			subs = append(subs, value...)
+		for _, sub := range value {
+			if sub.SubordinateResources {
+				if strings.Contains(key, originOfCondition) {
+					resources = append(resources, key)
+					subs = append(subs, sub)
+				}
+			} else {
+				if key == originOfCondition {
+					resources = append(resources, key)
+					subs = append(subs, sub)
+				}
+			}
 		}
+
 	}
 
 	return
