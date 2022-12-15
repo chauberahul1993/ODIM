@@ -156,9 +156,8 @@ func (e *ExternalInterfaces) PublishEventsToDestination(data interface{}) bool {
 			continue
 		}
 		// collectionSubscriptions := e.getCollectionSubscriptionInfoForOID(inEvent.OriginOfCondition.Oid, host)
-		subscriptions, resources := getSubscriptionList(inEvent.OriginOfCondition.Oid, host)
+		subscriptions := getSubscriptionList(inEvent.OriginOfCondition.Oid, host)
 		fmt.Printf("All subscription list %+v \n ", subscriptions)
-		fmt.Printf("All resources %+v \n ", resources)
 		for _, sub := range subscriptions {
 
 			// filter and send events to destination if destination is not empty
@@ -166,7 +165,7 @@ func (e *ExternalInterfaces) PublishEventsToDestination(data interface{}) bool {
 			if sub.Destination != "" {
 				// check if hostip present in the hosts slice to make sure that it doesn't filter with the destination ip
 				// if isHostPresentInEventForward(sub.Hosts, host) {
-				if filterEventsToBeForward(sub, inEvent, resources) {
+				if filterEventsToBeForward(sub, inEvent) {
 					eventMap[sub.Destination] = append(eventMap[sub.Destination], inEvent)
 					flag = true
 				}
@@ -219,30 +218,28 @@ func (e *ExternalInterfaces) publishMetricReport(requestData string) bool {
 	return true
 }
 
-func filterEventsToBeForward(subscription evmodel.SubscriptionCache, event common.Event, originResources []string) bool {
+func filterEventsToBeForward(subscription evmodel.SubscriptionCache, event common.Event) bool {
 	eventTypes := subscription.EventTypes
 	messageIds := subscription.MessageIds
 	resourceTypes := subscription.ResourceTypes
-	// originCondition := strings.TrimSuffix(event.OriginOfCondition.Oid, "/")
+	originCondition := strings.TrimSuffix(event.OriginOfCondition.Oid, "/")
 	if (len(eventTypes) == 0 || isStringPresentInSlice(eventTypes, event.EventType, "event type")) &&
 		(len(messageIds) == 0 || isStringPresentInSlice(messageIds, event.MessageID, "message id")) &&
 		(len(resourceTypes) == 0 || isResourceTypeSubscribed(resourceTypes, event.OriginOfCondition.Oid, subscription.SubordinateResources)) {
-		fmt.Println("I am Reached Here *******  ")
-		return true
 		// if SubordinateResources is true then check if originofresource is top level of originofcondition
 		// if SubordinateResources is false then check originofresource is same as originofcondition
-		// for _, origin := range originResources {
+		for _, origin := range subscription.OriginResources {
 
-		// 	if subscription.SubordinateResources {
-		// 		if strings.Contains(originCondition, origin) {
-		// 			return true
-		// 		}
-		// 	} else {
-		// 		if origin == originCondition {
-		// 			return true
-		// 		}
-		// 	}
-		// }
+			if subscription.SubordinateResources {
+				if strings.Contains(originCondition, origin) {
+					return true
+				}
+			} else {
+				if origin == originCondition {
+					return true
+				}
+			}
+		}
 	}
 	l.Log.Info("Event not forwarded  : No subscription for the incoming event's originofcondition filterEventsToBeForwarded")
 	return false
@@ -646,6 +643,7 @@ func loadSubscriptionCacheData(sub evmodel.Subscription) {
 			SubordinateResources: sub.SubordinateResources,
 			ResourceTypes:        sub.ResourceTypes,
 			SubscriptionType:     sub.SubscriptionType,
+			OriginResources:      sub.OriginResources,
 		}
 		addSubscription("broadcast", subCache)
 	} else {
@@ -657,6 +655,7 @@ func loadSubscriptionCacheData(sub evmodel.Subscription) {
 				SubordinateResources: sub.SubordinateResources,
 				ResourceTypes:        sub.ResourceTypes,
 				SubscriptionType:     sub.SubscriptionType,
+				OriginResources:      sub.OriginResources,
 			}
 			if strings.Contains(originResource, "AggregationService/Aggregates/") {
 				aggregateResource(originResource, subCache)
@@ -699,7 +698,7 @@ func getSystemID(host string) (id string) {
 	return
 }
 
-func getSubscriptionList(originOfCondition string, host string) (subs []evmodel.SubscriptionCache, resources []string) {
+func getSubscriptionList(originOfCondition string, host string) (subs []evmodel.SubscriptionCache) {
 	originOfCondition = strings.TrimSuffix(originOfCondition, "/")
 	fmt.Println("Key name ", originOfCondition, " And host name ", host)
 	// get broadcast subscriptions
@@ -709,19 +708,23 @@ func getSubscriptionList(originOfCondition string, host string) (subs []evmodel.
 
 	//get all matching subscription in subscription
 	for key, value := range subscriptionsCache {
-		for _, sub := range value {
-			if sub.SubordinateResources {
-				if strings.Contains(key, originOfCondition) {
-					resources = append(resources, key)
-					subs = append(subs, sub)
-				}
-			} else {
-				if key == originOfCondition {
-					resources = append(resources, key)
-					subs = append(subs, sub)
-				}
-			}
+		if strings.Contains(key, originOfCondition) {
+			// resources = append(resources, key)
+			subs = append(subs, value...)
 		}
+		// for _, sub := range value {
+		// 	if sub.SubordinateResources {
+		// 		if strings.Contains(key, originOfCondition) {
+		// 			resources = append(resources, key)
+		// 			subs = append(subs, sub)
+		// 		}
+		// 	} else {
+		// 		if key == originOfCondition {
+		// 			resources = append(resources, key)
+		// 			subs = append(subs, sub)
+		// 		}
+		// 	}
+		// }
 
 	}
 

@@ -121,6 +121,7 @@ type SubscriptionCache struct {
 	SubordinateResources bool
 	ResourceTypes        []string
 	SubscriptionType     string
+	OriginResources      []string
 }
 
 //DeviceSubscription is a model to store the subscription details of a device
