@@ -643,7 +643,6 @@ func loadSubscriptionCacheData(sub evmodel.Subscription) {
 			SubordinateResources: sub.SubordinateResources,
 			ResourceTypes:        sub.ResourceTypes,
 			SubscriptionType:     sub.SubscriptionType,
-			OriginResources:      sub.OriginResources,
 		}
 		addSubscription("broadcast", subCache)
 	} else {
@@ -655,7 +654,6 @@ func loadSubscriptionCacheData(sub evmodel.Subscription) {
 				SubordinateResources: sub.SubordinateResources,
 				ResourceTypes:        sub.ResourceTypes,
 				SubscriptionType:     sub.SubscriptionType,
-				OriginResources:      sub.OriginResources,
 			}
 			if strings.Contains(originResource, "AggregationService/Aggregates/") {
 				aggregateResource(originResource, subCache)
