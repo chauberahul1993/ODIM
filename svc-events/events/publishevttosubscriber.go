@@ -607,14 +607,6 @@ func LoadSubscriptionData() {
 	getAllSubscriptions()
 	getAllAggregates()
 	getAllDeviceSubscriptions()
-	fmt.Println("***************** 1  *****************  ")
-	fmt.Printf(" Subscription%d  %+v \n", len(subscriptionsCache), subscriptionsCache)
-	fmt.Printf(" System Subscription%d  %+v \n", len(systemToSubscriptionsMap), systemToSubscriptionsMap)
-	fmt.Printf(" Aggregate Subscription Subscription %d %+v \n", len(aggregateIdToSubscriptionsMap), aggregateIdToSubscriptionsMap)
-	fmt.Printf(" systemIdToAggregate  %d  %+v \n", len(systemIdToAggregateIdsMap), systemIdToAggregateIdsMap)
-	fmt.Printf(" eventSourceToManagerIDMap  %d  %+v \n", len(eventSourceToManagerIDMap), eventSourceToManagerIDMap)
-
-	fmt.Println("***************** 2  *****************  ")
 }
 func getAllSubscriptions() {
 	subscriptions, err := evmodel.GetAllEvtSubscriptions()
