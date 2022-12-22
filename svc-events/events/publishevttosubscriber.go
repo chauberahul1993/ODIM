@@ -611,7 +611,9 @@ func LoadSubscriptionData() {
 	fmt.Printf(" Subscription%d  %+v \n", len(subscriptionsCache), subscriptionsCache)
 	fmt.Printf(" System Subscription%d  %+v \n", len(systemToSubscriptionsMap), systemToSubscriptionsMap)
 	fmt.Printf(" Aggregate Subscription Subscription %d %+v \n", len(aggregateIdToSubscriptionsMap), aggregateIdToSubscriptionsMap)
-	fmt.Printf(" systemIdtoAggregate  %d  %+v \n", len(aggregateIdToSubscriptionsMap), systemIdToAggregateIdsMap)
+	fmt.Printf(" systemIdToAggregate  %d  %+v \n", len(systemIdToAggregateIdsMap), systemIdToAggregateIdsMap)
+	fmt.Printf(" eventSourceToManagerIDMap  %d  %+v \n", len(eventSourceToManagerIDMap), eventSourceToManagerIDMap)
+
 	fmt.Println("***************** 2  *****************  ")
 }
 func getAllSubscriptions() {
@@ -713,7 +715,11 @@ func getAllAggregates() {
 		l.Log.Debug("Exception getting aggregates url list ", err)
 		return
 	}
+	if len(aggregateUrls) == 0 {
+		fmt.Println("No Aggregates found ", aggregateUrls)
+	}
 	for _, aggregateUrl := range aggregateUrls {
+		fmt.Println("Aggregate URL ", aggregateUrl)
 		aggregate, err := evmodel.GetAggregate(aggregateUrl)
 		if err != nil {
 			return
