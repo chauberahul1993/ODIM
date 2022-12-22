@@ -657,6 +657,7 @@ func updateCatchDeviceSubscriptionData(key string, originResources []string) {
 func loadSubscriptionCacheData(sub evmodel.Subscription) {
 	if len(sub.OriginResources) == 0 && sub.SubscriptionID != "0" {
 		subCache := evmodel.SubscriptionCache{
+			Id:                   sub.SubscriptionID,
 			Destination:          sub.Destination,
 			EventTypes:           sub.EventTypes,
 			MessageIds:           sub.MessageIds,
@@ -668,6 +669,7 @@ func loadSubscriptionCacheData(sub evmodel.Subscription) {
 	} else {
 		for _, originResource := range sub.OriginResources {
 			subCache := evmodel.SubscriptionCache{
+				Id:                   sub.SubscriptionID,
 				Destination:          sub.Destination,
 				EventTypes:           sub.EventTypes,
 				MessageIds:           sub.MessageIds,
