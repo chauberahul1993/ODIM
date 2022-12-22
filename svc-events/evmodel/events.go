@@ -115,6 +115,7 @@ type Subscription struct {
 
 //SubscriptionCache is a model to store the subscription details
 type SubscriptionCache struct {
+	Id                   string
 	Destination          string
 	EventTypes           []string
 	MessageIds           []string
@@ -718,6 +719,19 @@ func GetAggregate(aggregateURI string) (Aggregate, *errors.Error) {
 		return aggregate, errors.PackError(errors.JSONUnmarshalFailed, err)
 	}
 	return aggregate, nil
+}
+
+//GetAllAggregates return all aggregate url added in DB
+func GetAllAggregates() ([]string, error) {
+	conn, err := common.GetDBConnection(common.OnDisk)
+	if err != nil {
+		return nil, err
+	}
+	keysArray, err := conn.GetAllDetails("Aggregate")
+	if err != nil {
+		return nil, fmt.Errorf("error while trying to get all keys from table - %v: %v", "Aggregate", err.Error())
+	}
+	return keysArray, nil
 }
 
 // GetAllDeviceSubscriptions is to get subscription details of device

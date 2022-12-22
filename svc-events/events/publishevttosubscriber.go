@@ -119,8 +119,8 @@ func (e *ExternalInterfaces) PublishEventsToDestination(data interface{}) bool {
 	// 	l.Log.Info("no origin resources found in device subscriptions")
 	// 	return false
 	// }
-	fmt.Println("################## Device id is ", cacheDeviceSubscription[host])
-	message, deviceUUID = formatEvent(rawMessage, cacheDeviceSubscription[host], host)
+	fmt.Println("################## Device id is ", eventSourceToManagerIDMap[host])
+	message, deviceUUID = formatEvent(rawMessage, eventSourceToManagerIDMap[host], host)
 	fmt.Printf("Body after format %+v \n ", message)
 	// subscriptions := subscriptionsCache[host]
 
@@ -572,33 +572,43 @@ func (e *ExternalInterfaces) checkUndeliveredEvents(destination string) {
 }
 
 func (e *ExternalInterfaces) getCollectionSubscriptionInfoForOID(oid, host string) []evmodel.SubscriptionCache {
-	var key string
-	if strings.Contains(oid, "Systems") && host != "SystemsCollection" {
-		key = "SystemsCollection"
-	} else if strings.Contains(oid, "Chassis") && host != "ChassisCollection" {
-		key = "ChassisCollection"
-	} else if strings.Contains(oid, "Managers") && host != "ManagerCollection" {
-		key = "ManagerCollection"
-	} else if strings.Contains(oid, "Fabrics") && host != "FabricsCollection" {
-		key = "FabricsCollection"
-	} else {
-		return []evmodel.SubscriptionCache{}
-	}
+	// var key string
+	// if strings.Contains(oid, "Systems") && host != "SystemsCollection" {
+	// 	key = "SystemsCollection"
+	// } else if strings.Contains(oid, "Chassis") && host != "ChassisCollection" {
+	// 	key = "ChassisCollection"
+	// } else if strings.Contains(oid, "Managers") && host != "ManagerCollection" {
+	// 	key = "ManagerCollection"
+	// } else if strings.Contains(oid, "Fabrics") && host != "FabricsCollection" {
+	// 	key = "FabricsCollection"
+	// } else {
+	// 	return []evmodel.SubscriptionCache{}
+	// }
 
-	subscriptions, _ := subscriptionsCache[key]
-	return subscriptions
+	// subscriptions, _ := systemToSubscriptionsMap[key]
+	// return subscriptions
+	return []evmodel.SubscriptionCache{}
 }
 
 var (
-	subscriptionsCache      = make(map[string][]evmodel.SubscriptionCache)
-	cacheAggregateList      = make(map[string][]string)
-	cacheDeviceSubscription = make(map[string]string)
+	subscriptionsCache            = make(map[string]evmodel.SubscriptionCache)
+	systemToSubscriptionsMap      = make(map[string][]string)
+	aggregateIdToSubscriptionsMap = make(map[string][]string)
+	systemIdToAggregateIdsMap     = make(map[string][]string)
+	eventSourceToManagerIDMap     = make(map[string]string)
+	managerIDToSystemIDsMap       = make(map[string][]string)
+	managerIDToChassisIDsMap      = make(map[string][]string)
 )
 
 func LoadSubscriptionData() {
 	l.Log.Debug("Event data load initialized ")
 	t := time.Now()
 	defer l.Log.Debug("Time take to read Complete LoadSubscriptionData ", time.Since(t))
+	getAllSubscriptions()
+	getAllAggregates()
+	getAllDeviceSubscriptions()
+}
+func getAllSubscriptions() {
 	subscriptions, err := evmodel.GetAllEvtSubscriptions()
 	if err != nil {
 		l.Log.Error("Error while reading all subscription data ", err)
@@ -612,14 +622,10 @@ func LoadSubscriptionData() {
 		}
 		loadSubscriptionCacheData(sub)
 	}
-	// Remove after test
-	for i, v := range subscriptionsCache {
-		fmt.Printf("Cache Data  Index of map is %s And it hold value is %d  and  %+v \n ", i, len(v), v)
-	}
-	loadDeviceSubscriptionData()
+
 }
 
-func loadDeviceSubscriptionData() {
+func getAllDeviceSubscriptions() {
 	t := time.Now()
 	defer l.Log.Debug("Time take to read complete aggregateToHost ", time.Since(t))
 	deviceSubscriptionList, err := evmodel.GetAllDeviceSubscriptions()
@@ -631,7 +637,15 @@ func loadDeviceSubscriptionData() {
 		devSub := strings.Split(device, "||")
 		updateCatchDeviceSubscriptionData(devSub[0], evmodel.GetSliceFromString(devSub[2]))
 	}
-	fmt.Printf("Host Details %+v \n", cacheDeviceSubscription)
+
+}
+func updateCatchDeviceSubscriptionData(key string, originResources []string) {
+	for _, originResource := range originResources {
+		_, isExists := eventSourceToManagerIDMap[key]
+		if !isExists && strings.Contains(originResource, "/redfish/v1/Managers/") {
+			eventSourceToManagerIDMap[key] = originResource
+		}
+	}
 }
 
 func loadSubscriptionCacheData(sub evmodel.Subscription) {
@@ -644,7 +658,7 @@ func loadSubscriptionCacheData(sub evmodel.Subscription) {
 			ResourceTypes:        sub.ResourceTypes,
 			SubscriptionType:     sub.SubscriptionType,
 		}
-		addSubscription("broadcast", subCache)
+		addSubscriptionCache("", subCache)
 	} else {
 		for _, originResource := range sub.OriginResources {
 			subCache := evmodel.SubscriptionCache{
@@ -655,87 +669,116 @@ func loadSubscriptionCacheData(sub evmodel.Subscription) {
 				ResourceTypes:        sub.ResourceTypes,
 				SubscriptionType:     sub.SubscriptionType,
 			}
-			if strings.Contains(originResource, "AggregationService/Aggregates/") {
-				aggregateResource(originResource, subCache)
+			if strings.Contains(originResource, "/AggregationService/Aggregates/") {
+				addAggregateSubscriptionCache(originResource, subCache)
 			} else {
-				addSubscription(originResource, subCache)
+				addSubscriptionCache(originResource, subCache)
 			}
 		}
 	}
 }
-func aggregateResource(url string, sub evmodel.SubscriptionCache) {
-	aggregate, err := evmodel.GetAggregate(url)
+func addSubscriptionCache(key string, sub evmodel.SubscriptionCache) {
+	data, isExists := systemToSubscriptionsMap[key]
+	if isExists {
+		data = append(data, sub.Id)
+		systemToSubscriptionsMap[key] = data
+	} else {
+		systemToSubscriptionsMap[key] = []string{sub.Id}
+	}
+	subscriptionsCache[sub.Id] = sub
+
+}
+func addAggregateSubscriptionCache(key string, sub evmodel.SubscriptionCache) {
+	data, isExists := aggregateIdToSubscriptionsMap[key]
+	if isExists {
+		data = append(data, sub.Id)
+		aggregateIdToSubscriptionsMap[key] = data
+	} else {
+		aggregateIdToSubscriptionsMap[key] = []string{sub.Id}
+	}
+	subscriptionsCache[sub.Id] = sub
+}
+
+func getAllAggregates() {
+	aggregateUrls, err := evmodel.GetAllAggregates()
 	if err != nil {
+		l.Log.Debug("Exception getting aggregates url list ", err)
 		return
 	}
-	for _, ids := range aggregate.Elements {
-		addSubscription(ids.OdataID, sub)
+	for _, aggregateUrl := range aggregateUrls {
+		aggregate, err := evmodel.GetAggregate(aggregateUrl)
+		if err != nil {
+			return
+		}
+		addSystemIdToAggregateCache(aggregateUrl, aggregate)
 	}
 }
-func addSubscription(key string, sub evmodel.SubscriptionCache) {
-	data, isExists := subscriptionsCache[key]
-	if isExists {
-		data = append(data, sub)
-		subscriptionsCache[key] = data
-	} else {
-		subscriptionsCache[key] = []evmodel.SubscriptionCache{sub}
+func addSystemIdToAggregateCache(aggregateUrl string, aggregate evmodel.Aggregate) {
+	for _, ids := range aggregate.Elements {
+		aggregateIds, isExists := systemIdToAggregateIdsMap[ids.OdataID]
+		if isExists {
+			aggregateIds = append(aggregateIds, aggregateUrl)
+			systemIdToAggregateIdsMap[ids.OdataID] = aggregateIds
+		} else {
+			systemIdToAggregateIdsMap[ids.OdataID] = []string{aggregateUrl}
+		}
 	}
 }
 
-func updateCatchDeviceSubscriptionData(key string, value []string) {
-	_, isExists := cacheDeviceSubscription[key]
-	if !isExists {
-		cacheDeviceSubscription[key] = value[0]
-	}
-}
-func getSystemID(host string) (id string) {
-	id, isExists := cacheDeviceSubscription[host]
-	if !isExists {
-		return ""
-	}
-	return
-}
+// func updateCatchDeviceSubscriptionData(key string, value []string) {
+// 	_, isExists := cacheDeviceSubscription[key]
+// 	if !isExists {
+// 		cacheDeviceSubscription[key] = value[0]
+// 	}
+// }
+// func getSystemID(host string) (id string) {
+// 	id, isExists := cacheDeviceSubscription[host]
+// 	if !isExists {
+// 		return ""
+// 	}
+// 	return
+// }
 
 func getSubscriptionList(originOfCondition string, host string) (subs []evmodel.SubscriptionCache) {
 	originOfCondition = strings.TrimSuffix(originOfCondition, "/")
-	fmt.Println("Key name ", originOfCondition, " And host name ", host)
-	// get broadcast subscriptions
-	subs = append(subs, subscriptionsCache["broadcast"]...)
-	// get collection subscriptions
-	subs = append(subs, getCollectionSubscription(originOfCondition)...)
+	// fmt.Println("Key name ", originOfCondition, " And host name ", host)
+	// // get broadcast subscriptions
+	// subs = append(subs, subscriptionsCache["broadcast"]...)
+	// // get collection subscriptions
+	// subs = append(subs, getCollectionSubscription(originOfCondition)...)
 
-	//get all matching subscription in subscription
-	for key, value := range subscriptionsCache {
-		if strings.Contains(key, originOfCondition) {
-			// resources = append(resources, key)
-			subs = append(subs, value...)
-		}
-		// for _, sub := range value {
-		// 	if sub.SubordinateResources {
-		// 		if strings.Contains(key, originOfCondition) {
-		// 			resources = append(resources, key)
-		// 			subs = append(subs, sub)
-		// 		}
-		// 	} else {
-		// 		if key == originOfCondition {
-		// 			resources = append(resources, key)
-		// 			subs = append(subs, sub)
-		// 		}
-		// 	}
-		// }
+	// //get all matching subscription in subscription
+	// for key, value := range subscriptionsCache {
+	// 	if strings.Contains(key, originOfCondition) {
+	// 		// resources = append(resources, key)
+	// 		subs = append(subs, value...)
+	// 	}
+	// 	// for _, sub := range value {
+	// 	// 	if sub.SubordinateResources {
+	// 	// 		if strings.Contains(key, originOfCondition) {
+	// 	// 			resources = append(resources, key)
+	// 	// 			subs = append(subs, sub)
+	// 	// 		}
+	// 	// 	} else {
+	// 	// 		if key == originOfCondition {
+	// 	// 			resources = append(resources, key)
+	// 	// 			subs = append(subs, sub)
+	// 	// 		}
+	// 	// 	}
+	// 	// }
 
-	}
+	// }
 
 	return
 
 }
 
-func getCollectionSubscription(oid string) []evmodel.SubscriptionCache {
-	parts := strings.Split(oid, "/")
-	if len(parts) > 3 {
-		collectionUrl := strings.Join(parts[:4], "/")
-		fmt.Println("Collection name ", collectionUrl)
-		return subscriptionsCache[collectionUrl]
-	}
-	return []evmodel.SubscriptionCache{}
-}
+// func getCollectionSubscription(oid string) []evmodel.SubscriptionCache {
+// 	parts := strings.Split(oid, "/")
+// 	if len(parts) > 3 {
+// 		collectionUrl := strings.Join(parts[:4], "/")
+// 		fmt.Println("Collection name ", collectionUrl)
+// 		return subscriptionsCache[collectionUrl]
+// 	}
+// 	return []evmodel.SubscriptionCache{}
+// }
