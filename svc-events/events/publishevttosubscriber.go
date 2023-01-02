@@ -613,3 +613,178 @@ func (e *ExternalInterfaces) getCollectionSubscriptionInfoForOID(oid, host strin
 	subscriptions = append(subscriptions, globalSubscriber...)
 	return subscriptions
 }
+
+var (
+	subscriptionsCache                    = make(map[string]evmodel.SubscriptionCache)
+	systemToSubscriptionsMap              = make(map[string]map[string]bool)
+	aggregateIdToSubscriptionsMap         = make(map[string]map[string]bool)
+	collectionToSubscriptionsMap          = make(map[string]map[string]bool)
+	emptyOriginResourceToSubscriptionsMap = make(map[string]map[string]bool)
+	systemIdToAggregateIdsMap             = make(map[string]map[string]bool)
+	eventSourceToManagerIDMap             = make(map[string]string)
+	managerIDToSystemIDsMap               = make(map[string][]string)
+	managerIDToChassisIDsMap              = make(map[string][]string)
+)
+
+func LoadSubscriptionData() {
+	l.Log.Debug("Event data load initialized ")
+	t := time.Now()
+	defer l.Log.Debug("Time take to read Complete LoadSubscriptionData ", time.Since(t))
+	getAllSubscriptions()
+	getAllAggregates()
+	getAllDeviceSubscriptions()
+}
+func getAllSubscriptions() {
+	subscriptions, err := evmodel.GetAllEvtSubscriptions()
+	if err != nil {
+		l.Log.Error("Error while reading all subscription data ", err)
+		return
+	}
+	for _, subscription := range subscriptions {
+		var sub evmodel.Subscription
+		err = json.Unmarshal([]byte(subscription), &sub)
+		if err != nil {
+			continue
+		}
+		loadSubscriptionCacheData(sub)
+	}
+
+}
+
+func getAllDeviceSubscriptions() {
+	t := time.Now()
+	defer l.Log.Debug("Time take to read complete aggregateToHost ", time.Since(t))
+	deviceSubscriptionList, err := evmodel.GetAllDeviceSubscriptions()
+	if err != nil {
+		l.Log.Error("Error while reading all aggregate data ", err)
+		return
+	}
+	for _, device := range deviceSubscriptionList {
+		devSub := strings.Split(device, "||")
+		if strings.Contains(devSub[0], "Collection") {
+			continue
+		} else {
+			updateCatchDeviceSubscriptionData(devSub[0], evmodel.GetSliceFromString(devSub[2]))
+		}
+	}
+}
+func updateCatchDeviceSubscriptionData(key string, originResources []string) {
+	systemId := originResources[0][strings.LastIndexByte(originResources[0], '/')+1:]
+	eventSourceToManagerIDMap[key] = systemId
+}
+
+func loadSubscriptionCacheData(sub evmodel.Subscription) {
+	if len(sub.OriginResources) == 0 && sub.SubscriptionID != "0" {
+		subCache := evmodel.SubscriptionCache{
+			Id:                   sub.SubscriptionID,
+			Destination:          sub.Destination,
+			EventTypes:           sub.EventTypes,
+			MessageIds:           sub.MessageIds,
+			SubordinateResources: sub.SubordinateResources,
+			ResourceTypes:        sub.ResourceTypes,
+			SubscriptionType:     sub.SubscriptionType,
+		}
+		addEmptyOriginSubscriptionCache(subCache.Id)
+		subscriptionsCache[subCache.Id] = subCache
+	} else {
+		for _, host := range sub.Hosts {
+			subCache := evmodel.SubscriptionCache{
+				Id:                   sub.SubscriptionID,
+				Destination:          sub.Destination,
+				EventTypes:           sub.EventTypes,
+				MessageIds:           sub.MessageIds,
+				SubordinateResources: sub.SubordinateResources,
+				ResourceTypes:        sub.ResourceTypes,
+				SubscriptionType:     sub.SubscriptionType,
+			}
+			// if strings.Contains(host, "/AggregationService/Aggregates/") {
+			// 	addAggregateSubscriptionCache(host, subCache)
+			// 	subscriptionsCache[subCache.Id] = subCache
+			// } else {
+			addSubscriptionCache(host, subCache)
+			subscriptionsCache[subCache.Id] = subCache
+			// }
+		}
+	}
+}
+func addSubscriptionCache(key string, sub evmodel.SubscriptionCache) {
+	if strings.Contains(key, "Collection") {
+		data, isExists := collectionToSubscriptionsMap[key]
+		if isExists {
+			data[sub.Id] = true
+			collectionToSubscriptionsMap[key] = data
+		} else {
+			data := make(map[string]bool)
+			data[sub.Id] = true
+			collectionToSubscriptionsMap[key] = data
+		}
+		return
+	} else {
+		_, err := uuid.FromString(key)
+		if err == nil {
+			addAggregateSubscriptionCache(key, sub)
+			return
+		} else {
+			data, isExists := systemToSubscriptionsMap[key]
+			if isExists {
+				data[sub.Id] = true
+				systemToSubscriptionsMap[key] = data
+			} else {
+				data := make(map[string]bool)
+				data[sub.Id] = true
+				systemToSubscriptionsMap[key] = data
+			}
+			return
+		}
+	}
+}
+
+func addEmptyOriginSubscriptionCache(subscriptionId string) {
+	data, isExists := emptyOriginResourceToSubscriptionsMap["0"]
+	if isExists {
+		data[subscriptionId] = true
+		emptyOriginResourceToSubscriptionsMap["0"] = data
+	} else {
+		emptyOriginResourceToSubscriptionsMap["0"] = map[string]bool{subscriptionId: true}
+	}
+}
+func addAggregateSubscriptionCache(key string, sub evmodel.SubscriptionCache) {
+	data, isExists := aggregateIdToSubscriptionsMap[key]
+	if isExists {
+		data[sub.Id] = true
+		aggregateIdToSubscriptionsMap[key] = data
+	} else {
+		aggregateIdToSubscriptionsMap[key] = map[string]bool{sub.Id: true}
+	}
+}
+
+func getAllAggregates() {
+	aggregateUrls, err := evmodel.GetAllAggregates()
+	if err != nil {
+		l.Log.Debug("Exception getting aggregates url list ", err)
+		return
+	}
+	if len(aggregateUrls) == 0 {
+		l.Log.Debug("No Aggregates found ", aggregateUrls)
+		return
+	}
+	for _, aggregateUrl := range aggregateUrls {
+		aggregate, err := evmodel.GetAggregate(aggregateUrl)
+		if err != nil {
+			return
+		}
+		aggregateId := aggregateUrl[strings.LastIndexByte(aggregateUrl, '/')+1:]
+		addSystemIdToAggregateCache(aggregateId, aggregate)
+	}
+}
+func addSystemIdToAggregateCache(aggregateUrl string, aggregate evmodel.Aggregate) {
+	for _, ids := range aggregate.Elements {
+		aggregateIds, isExists := systemIdToAggregateIdsMap[ids.OdataID]
+		if isExists {
+			aggregateIds[aggregateUrl] = true
+			systemIdToAggregateIdsMap[ids.OdataID] = aggregateIds
+		} else {
+			systemIdToAggregateIdsMap[ids.OdataID] = map[string]bool{aggregateUrl: true}
+		}
+	}
+}
