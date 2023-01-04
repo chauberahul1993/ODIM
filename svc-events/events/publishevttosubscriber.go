@@ -37,7 +37,6 @@ import (
 	aggregatorproto "github.com/ODIM-Project/ODIM/lib-utilities/proto/aggregator"
 	fabricproto "github.com/ODIM-Project/ODIM/lib-utilities/proto/fabrics"
 	"github.com/ODIM-Project/ODIM/lib-utilities/services"
-	"github.com/ODIM-Project/ODIM/svc-events/evcommon"
 	"github.com/ODIM-Project/ODIM/svc-events/evmodel"
 	uuid "github.com/satori/go.uuid"
 )
@@ -115,40 +114,9 @@ func (e *ExternalInterfaces) PublishEventsToDestination(data interface{}) bool {
 	}
 
 	e.addFabric(rawMessage, host)
-	// searchKey := evcommon.GetSearchKey(host, evmodel.DeviceSubscriptionIndex)
-
-	// deviceSubscription, err := e.GetDeviceSubscriptions(searchKey)
-	// if err != nil {
-	// 	l.Log.Error("Failed to get the event destinations: ", err.Error())
-	// 	return false
-	// }
-
-	// if len(deviceSubscription.OriginResources) < 1 {
-	// 	l.Log.Info("no origin resources found in device subscriptions")
-	// 	return false
-	// }
-
 	systemId := getSourceId(host)
 
 	message, deviceUUID = formatEvent(rawMessage, systemId, host)
-	// searchKey := evcommon.GetSearchKey(host, evmodel.SubscriptionIndex)
-	// subscriptions, err := e.GetEvtSubscriptions(searchKey)
-	// if err != nil {
-	// 	return false
-	// }
-	// Getting Aggregate List
-	searchKeyAgg := evcommon.GetSearchKey(host, evmodel.SubscriptionIndex)
-	aggregateList, err := e.GetAggregateList(searchKeyAgg)
-	if err != nil {
-		l.Log.Info("No Aggregate subscription Found ", err)
-	}
-	var aggregateSubscriptionList []evmodel.Subscription
-	for _, aggregateID := range aggregateList {
-		searchKeyAgg := evcommon.GetSearchKey(aggregateID, evmodel.SubscriptionIndex)
-
-		subscription, _ := e.GetEvtSubscriptions(searchKeyAgg)
-		aggregateSubscriptionList = append(aggregateSubscriptionList, subscription...)
-	}
 	eventUniqueID := uuid.NewV4().String()
 	eventMap := make(map[string][]common.Event)
 	for index, inEvent := range message.Events {
@@ -174,35 +142,12 @@ func (e *ExternalInterfaces) PublishEventsToDestination(data interface{}) bool {
 			l.Log.Info("event not forwarded as resource type of originofcondition not supported in incoming event: ", requestData)
 			continue
 		}
-		// collectionSubscriptions := e.getCollectionSubscriptionInfoForOID(inEvent.OriginOfCondition.Oid, host)
-		// subscriptions = append(subscriptions, collectionSubscriptions...)
-		// for _, sub := range aggregateSubscriptionList {
-		// 	if filterEventsToBeForwarded(sub, inEvent, []string{}) {
-		// 		eventMap[sub.Destination] = append(eventMap[sub.Destination], inEvent)
-		// 		flag = true
-		// 	}
-		// }
 		subscriptions := getSubscriptions(inEvent.OriginOfCondition.Oid, systemId, host)
 		for _, sub := range subscriptions {
-
-			// filter and send events to destination if destination is not empty
-			// in case of default event subscription destination will be empty
-			// if sub.Destination != "" {
-			// check if hostip present in the hosts slice to make sure that it doesn't filter with the destination ip
-			// if isHostPresentInEventForward(sub.Hosts, host) {
 			if filterEventsToBeForwarded1(sub, inEvent, sub.OriginResources) {
 				eventMap[sub.Destination] = append(eventMap[sub.Destination], inEvent)
 				flag = true
 			}
-
-			fmt.Println("Subscription ID ", sub.Id)
-			// }
-			//  else {
-			// 	l.Log.Info("event not forwarded : No subscription for the incoming event's originofcondition")
-			// 	flag = false
-			// }
-
-			// }
 		}
 		if strings.EqualFold("Alert", inEvent.EventType) {
 			if strings.Contains(inEvent.MessageID, "ServerPostDiscoveryComplete") || strings.Contains(inEvent.MessageID, "ServerPostComplete") {
