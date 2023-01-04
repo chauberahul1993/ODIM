@@ -78,7 +78,8 @@ func (e *ExternalInterfaces) PublishEventsToDestination(data interface{}) bool {
 		l.Log.Info("invalid input params")
 		return false
 	}
-
+	startTime := time.Now()
+	defer fmt.Println("Time taken ", time.Since(startTime))
 	event := data.(common.Events)
 	if event.EventType == "PluginStartUp" {
 		l.Log.Info("received plugin started event from ", event.IP)
@@ -636,28 +637,28 @@ func (e *ExternalInterfaces) checkUndeliveredEvents(destination string) {
 	}
 }
 
-func (e *ExternalInterfaces) getCollectionSubscriptionInfoForOID(oid, host string) []evmodel.Subscription {
-	var key string
-	if strings.Contains(oid, "Systems") && host != "SystemsCollection" {
-		key = "SystemsCollection"
-	} else if strings.Contains(oid, "Chassis") && host != "ChassisCollection" {
-		key = "ChassisCollection"
-	} else if strings.Contains(oid, "Managers") && host != "ManagerCollection" {
-		key = "ManagerCollection"
-	} else if strings.Contains(oid, "Fabrics") && host != "FabricsCollection" {
-		key = "FabricsCollection"
-	} else {
-		return []evmodel.Subscription{}
-	}
+// func (e *ExternalInterfaces) getCollectionSubscriptionInfoForOID(oid, host string) []evmodel.Subscription {
+// 	var key string
+// 	if strings.Contains(oid, "Systems") && host != "SystemsCollection" {
+// 		key = "SystemsCollection"
+// 	} else if strings.Contains(oid, "Chassis") && host != "ChassisCollection" {
+// 		key = "ChassisCollection"
+// 	} else if strings.Contains(oid, "Managers") && host != "ManagerCollection" {
+// 		key = "ManagerCollection"
+// 	} else if strings.Contains(oid, "Fabrics") && host != "FabricsCollection" {
+// 		key = "FabricsCollection"
+// 	} else {
+// 		return []evmodel.Subscription{}
+// 	}
 
-	searchKey := evcommon.GetSearchKey(key, evmodel.SubscriptionIndex)
+// 	searchKey := evcommon.GetSearchKey(key, evmodel.SubscriptionIndex)
 
-	subscriptions, _ := e.GetEvtSubscriptions(searchKey)
-	var empty = "\\\"Hosts\\\":\\[\\]"
-	globalSubscriber, _ := e.GetEvtSubscriptions(empty)
-	subscriptions = append(subscriptions, globalSubscriber...)
-	return subscriptions
-}
+// 	subscriptions, _ := e.GetEvtSubscriptions(searchKey)
+// 	var empty = "\\\"Hosts\\\":\\[\\]"
+// 	globalSubscriber, _ := e.GetEvtSubscriptions(empty)
+// 	subscriptions = append(subscriptions, globalSubscriber...)
+// 	return subscriptions
+// }
 
 var (
 	subscriptionsCache                    = make(map[string]evmodel.SubscriptionCache)
@@ -842,7 +843,6 @@ func getSourceId(host string) string {
 }
 
 func getSubscriptions(originOfCondition, systemId, hostIp string) (subs []evmodel.SubscriptionCache) {
-
 	//get host subscription
 	systemSubscription, isExists := systemToSubscriptionsMap[hostIp]
 	if isExists {
@@ -854,11 +854,7 @@ func getSubscriptions(originOfCondition, systemId, hostIp string) (subs []evmode
 
 		}
 	}
-	fmt.Println("Total Subscriptions ***********  ", len(systemSubscription), " Total is ", len(subs))
-
-	fmt.Printf("Aggregate %+v \n  %s \n %s\n ", systemIdToAggregateIdsMap, originOfCondition, systemId)
 	aggregateList, isExists := systemIdToAggregateIdsMap[systemId]
-	fmt.Println("Aggregate Count 111 ", len(aggregateList), aggregateList)
 	if isExists {
 		for aggregateID := range aggregateList {
 			subscriptions, isValidAggregateId := aggregateIdToSubscriptionsMap[aggregateID]
@@ -868,35 +864,25 @@ func getSubscriptions(originOfCondition, systemId, hostIp string) (subs []evmode
 					if isValidSubId {
 						subs = append(subs, sub)
 					}
-
 				}
 			}
-
 		}
-
 	}
-	fmt.Println("Total Subscriptions *** 22 ********  ", aggregateList, " Total is ", len(subs))
 
 	// look up for empty
 	emptyOriginResourceSubscription, isExists := emptyOriginResourceToSubscriptionsMap["0"]
-
-	fmt.Println("Empty Origin Subscriptions ", len(emptyOriginResourceSubscription))
 	if isExists {
 		for subId, _ := range emptyOriginResourceSubscription {
 			sub, isValidSubId := getSubscriptionDetails(subId)
 			if isValidSubId {
 				subs = append(subs, sub)
 			}
-
 		}
 	}
-	fmt.Println("Total Subscriptions *** 33 ********  ", len(emptyOriginResourceSubscription), " Total is ", len(subs))
 
 	// lookup for collections
 	collectionsKey := getCollectionKey(originOfCondition, hostIp)
 	collectionSubscription, isExists := collectionToSubscriptionsMap[collectionsKey]
-	fmt.Println("Collection Subscriptions ", len(collectionSubscription), collectionsKey, collectionToSubscriptionsMap)
-
 	if isExists {
 		for subId, _ := range collectionSubscription {
 			sub, isValidSubId := getSubscriptionDetails(subId)
@@ -905,10 +891,6 @@ func getSubscriptions(originOfCondition, systemId, hostIp string) (subs []evmode
 			}
 		}
 	}
-
-	fmt.Println("Total Subscriptions *** 44 ********  ", len(collectionSubscription), collectionSubscription, " Total is ", len(subs))
-
-	fmt.Printf("Selected  Subscription %+v \n ", subs)
 	return
 }
 func getSubscriptionDetails(subscriptionID string) (evmodel.SubscriptionCache, bool) {
@@ -918,7 +900,6 @@ func getSubscriptionDetails(subscriptionID string) (evmodel.SubscriptionCache, b
 	return evmodel.SubscriptionCache{}, false
 }
 func getCollectionKey(oid, host string) (key string) {
-
 	if strings.Contains(oid, "Systems") && host != "SystemsCollection" {
 		key = "SystemsCollection"
 	} else if strings.Contains(oid, "Chassis") && host != "ChassisCollection" {
@@ -929,5 +910,4 @@ func getCollectionKey(oid, host string) (key string) {
 		key = "FabricsCollection"
 	}
 	return
-
 }
