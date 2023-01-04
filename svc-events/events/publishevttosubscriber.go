@@ -120,12 +120,13 @@ func (e *ExternalInterfaces) PublishEventsToDestination(data interface{}) bool {
 	message, deviceUUID = formatEvent(rawMessage, systemId, host)
 	eventUniqueID := uuid.NewV4().String()
 	eventMap := make(map[string][]common.Event)
-	fmt.Println("Step ***  11 **** ", len(message.Events))
+
 	for index, inEvent := range message.Events {
 		if inEvent.OriginOfCondition == nil || len(inEvent.OriginOfCondition.Oid) < 1 {
 			l.Log.Info("event not forwarded as Originofcondition is empty in incoming event: ", requestData)
 			continue
 		}
+		fmt.Printf("Step ***  11 ****%d  %+v \n", len(message.Events), message)
 		var resTypePresent bool
 		originofCond := strings.Split(strings.TrimSuffix(inEvent.OriginOfCondition.Oid, "/"), "/")
 		if len(originofCond) > 2 {
@@ -144,7 +145,12 @@ func (e *ExternalInterfaces) PublishEventsToDestination(data interface{}) bool {
 			l.Log.Info("event not forwarded as resource type of originofcondition not supported in incoming event: ", requestData)
 			continue
 		}
+		fmt.Printf("Step ***  22 ****%d  %+v \n", len(message.Events), message)
+
 		subscriptions := getSubscriptions(inEvent.OriginOfCondition.Oid, systemId, host)
+
+		fmt.Printf("Step ***  33  ****%d  \n", len(subscriptions))
+
 		for _, sub := range subscriptions {
 			if filterEventsToBeForwarded1(sub, inEvent, sub.OriginResources) {
 				eventMap[sub.Destination] = append(eventMap[sub.Destination], inEvent)
