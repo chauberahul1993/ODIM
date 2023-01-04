@@ -120,6 +120,7 @@ func (e *ExternalInterfaces) PublishEventsToDestination(data interface{}) bool {
 	message, deviceUUID = formatEvent(rawMessage, systemId, host)
 	eventUniqueID := uuid.NewV4().String()
 	eventMap := make(map[string][]common.Event)
+	fmt.Println("Step ***  11 **** ", len(message.Events))
 	for index, inEvent := range message.Events {
 		if inEvent.OriginOfCondition == nil || len(inEvent.OriginOfCondition.Oid) < 1 {
 			l.Log.Info("event not forwarded as Originofcondition is empty in incoming event: ", requestData)
