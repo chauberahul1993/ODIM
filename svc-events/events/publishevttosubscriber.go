@@ -861,6 +861,7 @@ func getSubscriptions(originOfCondition, systemId, hostIp string) (subs []evmode
 			if isValidAggregateId {
 				for subId := range subscriptions {
 					sub, isValidSubId := getSubscriptionDetails(subId)
+					sub.OriginResources = append(sub.OriginResources, originOfCondition)
 					if isValidSubId {
 						subs = append(subs, sub)
 					}
