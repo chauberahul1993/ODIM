@@ -114,24 +114,27 @@ func (e *ExternalInterfaces) PublishEventsToDestination(data interface{}) bool {
 	}
 
 	e.addFabric(rawMessage, host)
-	searchKey := evcommon.GetSearchKey(host, evmodel.DeviceSubscriptionIndex)
+	// searchKey := evcommon.GetSearchKey(host, evmodel.DeviceSubscriptionIndex)
 
-	deviceSubscription, err := e.GetDeviceSubscriptions(searchKey)
-	if err != nil {
-		l.Log.Error("Failed to get the event destinations: ", err.Error())
-		return false
-	}
+	// deviceSubscription, err := e.GetDeviceSubscriptions(searchKey)
+	// if err != nil {
+	// 	l.Log.Error("Failed to get the event destinations: ", err.Error())
+	// 	return false
+	// }
 
-	if len(deviceSubscription.OriginResources) < 1 {
-		l.Log.Info("no origin resources found in device subscriptions")
-		return false
-	}
-	message, deviceUUID = formatEvent(rawMessage, deviceSubscription.OriginResources[0], host)
-	searchKey = evcommon.GetSearchKey(host, evmodel.SubscriptionIndex)
-	subscriptions, err := e.GetEvtSubscriptions(searchKey)
-	if err != nil {
-		return false
-	}
+	// if len(deviceSubscription.OriginResources) < 1 {
+	// 	l.Log.Info("no origin resources found in device subscriptions")
+	// 	return false
+	// }
+
+	systemId := getSourceId(host)
+
+	message, deviceUUID = formatEvent(rawMessage, systemId, host)
+	// searchKey := evcommon.GetSearchKey(host, evmodel.SubscriptionIndex)
+	// subscriptions, err := e.GetEvtSubscriptions(searchKey)
+	// if err != nil {
+	// 	return false
+	// }
 	// Getting Aggregate List
 	searchKeyAgg := evcommon.GetSearchKey(host, evmodel.SubscriptionIndex)
 	aggregateList, err := e.GetAggregateList(searchKeyAgg)
@@ -170,31 +173,35 @@ func (e *ExternalInterfaces) PublishEventsToDestination(data interface{}) bool {
 			l.Log.Info("event not forwarded as resource type of originofcondition not supported in incoming event: ", requestData)
 			continue
 		}
-		collectionSubscriptions := e.getCollectionSubscriptionInfoForOID(inEvent.OriginOfCondition.Oid, host)
-		subscriptions = append(subscriptions, collectionSubscriptions...)
-		for _, sub := range aggregateSubscriptionList {
-			if filterEventsToBeForwarded(sub, inEvent, deviceSubscription.OriginResources) {
-				eventMap[sub.Destination] = append(eventMap[sub.Destination], inEvent)
-				flag = true
-			}
-		}
+		// collectionSubscriptions := e.getCollectionSubscriptionInfoForOID(inEvent.OriginOfCondition.Oid, host)
+		// subscriptions = append(subscriptions, collectionSubscriptions...)
+		// for _, sub := range aggregateSubscriptionList {
+		// 	if filterEventsToBeForwarded(sub, inEvent, []string{}) {
+		// 		eventMap[sub.Destination] = append(eventMap[sub.Destination], inEvent)
+		// 		flag = true
+		// 	}
+		// }
+		subscriptions := getSubscriptions(inEvent.OriginOfCondition.Oid, systemId, host)
 		for _, sub := range subscriptions {
 
 			// filter and send events to destination if destination is not empty
 			// in case of default event subscription destination will be empty
-			if sub.Destination != "" {
-				// check if hostip present in the hosts slice to make sure that it doesn't filter with the destination ip
-				if isHostPresentInEventForward(sub.Hosts, host) {
-					if filterEventsToBeForwarded(sub, inEvent, deviceSubscription.OriginResources) {
-						eventMap[sub.Destination] = append(eventMap[sub.Destination], inEvent)
-						flag = true
-					}
-				} else {
-					l.Log.Info("event not forwarded : No subscription for the incoming event's originofcondition")
-					flag = false
-				}
-
+			// if sub.Destination != "" {
+			// check if hostip present in the hosts slice to make sure that it doesn't filter with the destination ip
+			// if isHostPresentInEventForward(sub.Hosts, host) {
+			if filterEventsToBeForwarded1(sub, inEvent, sub.OriginResources) {
+				eventMap[sub.Destination] = append(eventMap[sub.Destination], inEvent)
+				flag = true
 			}
+
+			fmt.Println("Subscription ID ", sub.Id)
+			// }
+			//  else {
+			// 	l.Log.Info("event not forwarded : No subscription for the incoming event's originofcondition")
+			// 	flag = false
+			// }
+
+			// }
 		}
 		if strings.EqualFold("Alert", inEvent.EventType) {
 			if strings.Contains(inEvent.MessageID, "ServerPostDiscoveryComplete") || strings.Contains(inEvent.MessageID, "ServerPostComplete") {
@@ -265,6 +272,41 @@ func filterEventsToBeForwarded(subscription evmodel.Subscription, event common.E
 	return false
 }
 
+func filterEventsToBeForwarded1(subscription evmodel.SubscriptionCache, event common.Event, originResources []string) bool {
+	eventTypes := subscription.EventTypes
+	messageIds := subscription.MessageIds
+	resourceTypes := subscription.ResourceTypes
+
+	originCondition := strings.TrimSuffix(event.OriginOfCondition.Oid, "/")
+	if (len(eventTypes) == 0 || isStringPresentInSlice(eventTypes, event.EventType, "event type")) &&
+		(len(messageIds) == 0 || isStringPresentInSlice(messageIds, event.MessageID, "message id")) &&
+		(len(resourceTypes) == 0 || isResourceTypeSubscribed(resourceTypes, event.OriginOfCondition.Oid, subscription.SubordinateResources)) {
+		// if SubordinateResources is true then check if originofresource is top level of originofcondition
+		// if SubordinateResources is flase then check originofresource is same as originofcondition
+
+		fmt.Println("Step 1 ", subscription.OriginResources)
+		if len(subscription.OriginResources) == 0 {
+			fmt.Println(" *** Empty Subscription ", subscription.Id)
+			return true
+		}
+		for _, origin := range subscription.OriginResources {
+			fmt.Println("Step 2 ", subscription.OriginResources, subscription.SubordinateResources)
+			if subscription.SubordinateResources {
+				fmt.Println("Step 3 ", originCondition, origin, strings.Contains(originCondition, origin))
+				if strings.Contains(originCondition, origin) {
+					return true
+				}
+			} else {
+				if origin == originCondition {
+					return true
+				}
+			}
+		}
+	}
+	l.Log.Info("Event not forwarded : No subscription for the incoming event's originofcondition")
+	return false
+}
+
 // formatEvent will format the event string according to the odimra
 // add uuid:systemid/chassisid inplace of systemid/chassisid
 func formatEvent(event common.MessageData, originResource, hostIP string) (common.MessageData, string) {
@@ -274,6 +316,7 @@ func formatEvent(event common.MessageData, originResource, hostIP string) (commo
 			if event.OriginOfCondition == nil || len(event.OriginOfCondition.Oid) < 1 {
 				continue
 			}
+			fmt.Println("Before *** ", event.OriginOfCondition.Oid)
 			str := "/redfish/v1/Systems/" + deviceUUID + "."
 			event.OriginOfCondition.Oid = strings.Replace(event.OriginOfCondition.Oid, "/redfish/v1/Systems/", str, -1)
 			str = "/redfish/v1/systems/" + deviceUUID + "."
@@ -282,6 +325,8 @@ func formatEvent(event common.MessageData, originResource, hostIP string) (commo
 			event.OriginOfCondition.Oid = strings.Replace(event.OriginOfCondition.Oid, "/redfish/v1/Chassis/", str, -1)
 			str = "/redfish/v1/Managers/" + deviceUUID + "."
 			event.OriginOfCondition.Oid = strings.Replace(event.OriginOfCondition.Oid, "/redfish/v1/Managers/", str, -1)
+
+			fmt.Println("After ***  ", event.OriginOfCondition.Oid)
 		}
 
 	}
@@ -293,6 +338,7 @@ func isResourceTypeSubscribed(resourceTypes []string, originOfCondition string, 
 	if originOfCondition == "" {
 		return true
 	}
+	fmt.Println("I am getting called ", resourceTypes, originOfCondition, subordinateResources)
 	originCond := strings.Split(strings.TrimSuffix(originOfCondition, "/"), "/")
 
 	for _, resourceType := range resourceTypes {
@@ -321,7 +367,6 @@ func isResourceTypeSubscribed(resourceTypes []string, originOfCondition string, 
 			}
 		}
 	}
-	l.Log.Info("Event not forwarded : No subscription for the incoming event's originofcondition")
 	return false
 }
 
@@ -683,6 +728,7 @@ func loadSubscriptionCacheData(sub evmodel.Subscription) {
 			SubordinateResources: sub.SubordinateResources,
 			ResourceTypes:        sub.ResourceTypes,
 			SubscriptionType:     sub.SubscriptionType,
+			OriginResources:      sub.OriginResources,
 		}
 		addEmptyOriginSubscriptionCache(subCache.Id)
 		subscriptionsCache[subCache.Id] = subCache
@@ -696,14 +742,10 @@ func loadSubscriptionCacheData(sub evmodel.Subscription) {
 				SubordinateResources: sub.SubordinateResources,
 				ResourceTypes:        sub.ResourceTypes,
 				SubscriptionType:     sub.SubscriptionType,
+				OriginResources:      sub.OriginResources,
 			}
-			// if strings.Contains(host, "/AggregationService/Aggregates/") {
-			// 	addAggregateSubscriptionCache(host, subCache)
-			// 	subscriptionsCache[subCache.Id] = subCache
-			// } else {
 			addSubscriptionCache(host, subCache)
 			subscriptionsCache[subCache.Id] = subCache
-			// }
 		}
 	}
 }
@@ -779,6 +821,7 @@ func getAllAggregates() {
 }
 func addSystemIdToAggregateCache(aggregateUrl string, aggregate evmodel.Aggregate) {
 	for _, ids := range aggregate.Elements {
+		ids.OdataID = ids.OdataID[strings.LastIndexByte(strings.TrimSuffix(ids.OdataID, "/"), '/')+1:]
 		aggregateIds, isExists := systemIdToAggregateIdsMap[ids.OdataID]
 		if isExists {
 			aggregateIds[aggregateUrl] = true
@@ -787,4 +830,104 @@ func addSystemIdToAggregateCache(aggregateUrl string, aggregate evmodel.Aggregat
 			systemIdToAggregateIdsMap[ids.OdataID] = map[string]bool{aggregateUrl: true}
 		}
 	}
+}
+
+//getSourceId function return system id corresponding host, if not found then return host
+func getSourceId(host string) string {
+	data, isExists := eventSourceToManagerIDMap[host]
+	if !isExists {
+		return host
+	}
+	return data
+}
+
+func getSubscriptions(originOfCondition, systemId, hostIp string) (subs []evmodel.SubscriptionCache) {
+
+	//get host subscription
+	systemSubscription, isExists := systemToSubscriptionsMap[hostIp]
+	if isExists {
+		for subId, _ := range systemSubscription {
+			sub, isValidSubId := getSubscriptionDetails(subId)
+			if isValidSubId {
+				subs = append(subs, sub)
+			}
+
+		}
+	}
+	fmt.Println("Total Subscriptions ***********  ", len(systemSubscription), " Total is ", len(subs))
+
+	fmt.Printf("Aggregate %+v \n  %s \n %s\n ", systemIdToAggregateIdsMap, originOfCondition, systemId)
+	aggregateList, isExists := systemIdToAggregateIdsMap[systemId]
+	fmt.Println("Aggregate Count 111 ", len(aggregateList), aggregateList)
+	if isExists {
+		for aggregateID := range aggregateList {
+			subscriptions, isValidAggregateId := aggregateIdToSubscriptionsMap[aggregateID]
+			if isValidAggregateId {
+				for subId := range subscriptions {
+					sub, isValidSubId := getSubscriptionDetails(subId)
+					if isValidSubId {
+						subs = append(subs, sub)
+					}
+
+				}
+			}
+
+		}
+
+	}
+	fmt.Println("Total Subscriptions *** 22 ********  ", aggregateList, " Total is ", len(subs))
+
+	// look up for empty
+	emptyOriginResourceSubscription, isExists := emptyOriginResourceToSubscriptionsMap["0"]
+
+	fmt.Println("Empty Origin Subscriptions ", len(emptyOriginResourceSubscription))
+	if isExists {
+		for subId, _ := range emptyOriginResourceSubscription {
+			sub, isValidSubId := getSubscriptionDetails(subId)
+			if isValidSubId {
+				subs = append(subs, sub)
+			}
+
+		}
+	}
+	fmt.Println("Total Subscriptions *** 33 ********  ", len(emptyOriginResourceSubscription), " Total is ", len(subs))
+
+	// lookup for collections
+	collectionsKey := getCollectionKey(originOfCondition, hostIp)
+	collectionSubscription, isExists := collectionToSubscriptionsMap[collectionsKey]
+	fmt.Println("Collection Subscriptions ", len(collectionSubscription), collectionsKey, collectionToSubscriptionsMap)
+
+	if isExists {
+		for subId, _ := range collectionSubscription {
+			sub, isValidSubId := getSubscriptionDetails(subId)
+			if isValidSubId {
+				subs = append(subs, sub)
+			}
+		}
+	}
+
+	fmt.Println("Total Subscriptions *** 44 ********  ", len(collectionSubscription), collectionSubscription, " Total is ", len(subs))
+
+	fmt.Printf("Selected  Subscription %+v \n ", subs)
+	return
+}
+func getSubscriptionDetails(subscriptionID string) (evmodel.SubscriptionCache, bool) {
+	if sub, isExists := subscriptionsCache[subscriptionID]; isExists {
+		return sub, true
+	}
+	return evmodel.SubscriptionCache{}, false
+}
+func getCollectionKey(oid, host string) (key string) {
+
+	if strings.Contains(oid, "Systems") && host != "SystemsCollection" {
+		key = "SystemsCollection"
+	} else if strings.Contains(oid, "Chassis") && host != "ChassisCollection" {
+		key = "ChassisCollection"
+	} else if strings.Contains(oid, "Managers") && host != "ManagerCollection" {
+		key = "ManagerCollection"
+	} else if strings.Contains(oid, "Fabrics") && host != "FabricsCollection" {
+		key = "FabricsCollection"
+	}
+	return
+
 }

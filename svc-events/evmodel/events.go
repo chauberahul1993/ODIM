@@ -719,7 +719,6 @@ func GetAllAggregates() ([]string, error) {
 	if err != nil {
 		return nil, fmt.Errorf("error while trying to get all keys from table - %v: %v", "Aggregate", err.Error())
 	}
-	fmt.Println("All Aggregate Data ", keysArray)
 	return keysArray, nil
 }
 
