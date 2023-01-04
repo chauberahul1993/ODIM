@@ -77,8 +77,6 @@ func (e *ExternalInterfaces) PublishEventsToDestination(data interface{}) bool {
 		l.Log.Info("invalid input params")
 		return false
 	}
-	startTime := time.Now()
-	defer fmt.Println("Time taken ", time.Since(startTime))
 	event := data.(common.Events)
 	if event.EventType == "PluginStartUp" {
 		l.Log.Info("received plugin started event from ", event.IP)
@@ -114,8 +112,11 @@ func (e *ExternalInterfaces) PublishEventsToDestination(data interface{}) bool {
 	}
 
 	e.addFabric(rawMessage, host)
-	systemId := getSourceId(host)
-
+	systemId, err := getSourceId(host)
+	if err != nil {
+		l.Log.Info("no origin resources found in device subscriptions")
+		return false
+	}
 	message, deviceUUID = formatEvent(rawMessage, systemId, host)
 	eventUniqueID := uuid.NewV4().String()
 	eventMap := make(map[string][]common.Event)
@@ -779,12 +780,17 @@ func addSystemIdToAggregateCache(aggregateUrl string, aggregate evmodel.Aggregat
 }
 
 //getSourceId function return system id corresponding host, if not found then return host
-func getSourceId(host string) string {
+func getSourceId(host string) (string, error) {
 	data, isExists := eventSourceToManagerIDMap[host]
 	if !isExists {
-		return host
+		if strings.Contains(host, "Collection") {
+			return host, nil
+		} else {
+			return "", fmt.Errorf("Invalid source")
+		}
+
 	}
-	return data
+	return data, nil
 }
 
 func getSubscriptions(originOfCondition, systemId, hostIp string) (subs []evmodel.SubscriptionCache) {
