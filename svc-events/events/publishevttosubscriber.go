@@ -148,9 +148,6 @@ func (e *ExternalInterfaces) PublishEventsToDestination(data interface{}) bool {
 		fmt.Printf("Step ***  22 ****%d  %+v \n", len(message.Events), message)
 
 		subscriptions := getSubscriptions(inEvent.OriginOfCondition.Oid, systemId, host)
-
-		fmt.Printf("Step ***  33  ****%d  \n", len(subscriptions))
-
 		for _, sub := range subscriptions {
 			if filterEventsToBeForwarded1(sub, inEvent, sub.OriginResources) {
 				eventMap[sub.Destination] = append(eventMap[sub.Destination], inEvent)
@@ -793,9 +790,8 @@ func getSourceId(host string) (string, error) {
 		if strings.Contains(host, "Collection") {
 			return host, nil
 		} else {
-			return "", fmt.Errorf("Invalid source")
+			return "", fmt.Errorf("invalid source")
 		}
-
 	}
 	return data, nil
 }
@@ -804,7 +800,7 @@ func getSubscriptions(originOfCondition, systemId, hostIp string) (subs []evmode
 	//get host subscription
 	systemSubscription, isExists := systemToSubscriptionsMap[hostIp]
 	if isExists {
-		for subId, _ := range systemSubscription {
+		for subId := range systemSubscription {
 			sub, isValidSubId := getSubscriptionDetails(subId)
 			if isValidSubId {
 				subs = append(subs, sub)
@@ -831,7 +827,7 @@ func getSubscriptions(originOfCondition, systemId, hostIp string) (subs []evmode
 	// look up for empty
 	emptyOriginResourceSubscription, isExists := emptyOriginResourceToSubscriptionsMap["0"]
 	if isExists {
-		for subId, _ := range emptyOriginResourceSubscription {
+		for subId := range emptyOriginResourceSubscription {
 			sub, isValidSubId := getSubscriptionDetails(subId)
 			if isValidSubId {
 				subs = append(subs, sub)
@@ -843,7 +839,7 @@ func getSubscriptions(originOfCondition, systemId, hostIp string) (subs []evmode
 	collectionsKey := getCollectionKey(originOfCondition, hostIp)
 	collectionSubscription, isExists := collectionToSubscriptionsMap[collectionsKey]
 	if isExists {
-		for subId, _ := range collectionSubscription {
+		for subId := range collectionSubscription {
 			sub, isValidSubId := getSubscriptionDetails(subId)
 			if isValidSubId {
 				subs = append(subs, sub)
