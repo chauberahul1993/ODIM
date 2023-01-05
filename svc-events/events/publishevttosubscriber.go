@@ -695,36 +695,38 @@ func loadSubscriptionCacheData(sub evmodel.Subscription) {
 				SubscriptionType:     sub.SubscriptionType,
 				OriginResources:      sub.OriginResources,
 			}
-			addSubscriptionCache(host, subCache)
+			addSubscriptionCache(host, subCache.Id)
 			subscriptionsCache[subCache.Id] = subCache
 		}
 	}
 }
-func addSubscriptionCache(key string, sub evmodel.SubscriptionCache) {
+
+//addSubscriptionCache add subscription in corresponding cache based on key type
+func addSubscriptionCache(key string, subId string) {
 	if strings.Contains(key, "Collection") {
 		data, isExists := collectionToSubscriptionsMap[key]
 		if isExists {
-			data[sub.Id] = true
+			data[subId] = true
 			collectionToSubscriptionsMap[key] = data
 		} else {
 			data := make(map[string]bool)
-			data[sub.Id] = true
+			data[subId] = true
 			collectionToSubscriptionsMap[key] = data
 		}
 		return
 	} else {
 		_, err := uuid.FromString(key)
 		if err == nil {
-			addAggregateSubscriptionCache(key, sub)
+			addAggregateSubscriptionCache(key, subId)
 			return
 		} else {
 			data, isExists := systemToSubscriptionsMap[key]
 			if isExists {
-				data[sub.Id] = true
+				data[subId] = true
 				systemToSubscriptionsMap[key] = data
 			} else {
 				data := make(map[string]bool)
-				data[sub.Id] = true
+				data[subId] = true
 				systemToSubscriptionsMap[key] = data
 			}
 			return
@@ -741,13 +743,13 @@ func addEmptyOriginSubscriptionCache(subscriptionId string) {
 		emptyOriginResourceToSubscriptionsMap["0"] = map[string]bool{subscriptionId: true}
 	}
 }
-func addAggregateSubscriptionCache(key string, sub evmodel.SubscriptionCache) {
+func addAggregateSubscriptionCache(key, subId string) {
 	data, isExists := aggregateIdToSubscriptionsMap[key]
 	if isExists {
-		data[sub.Id] = true
+		data[subId] = true
 		aggregateIdToSubscriptionsMap[key] = data
 	} else {
-		aggregateIdToSubscriptionsMap[key] = map[string]bool{sub.Id: true}
+		aggregateIdToSubscriptionsMap[key] = map[string]bool{subId: true}
 	}
 }
 
@@ -800,7 +802,7 @@ func getSubscriptions(originOfCondition, systemId, hostIp string) (subs []evmode
 	//get host subscription
 	systemSubscription, isExists := systemToSubscriptionsMap[hostIp]
 	if isExists {
-		for subId := range systemSubscription {
+		for subId, _ := range systemSubscription {
 			sub, isValidSubId := getSubscriptionDetails(subId)
 			if isValidSubId {
 				subs = append(subs, sub)
@@ -827,7 +829,7 @@ func getSubscriptions(originOfCondition, systemId, hostIp string) (subs []evmode
 	// look up for empty
 	emptyOriginResourceSubscription, isExists := emptyOriginResourceToSubscriptionsMap["0"]
 	if isExists {
-		for subId := range emptyOriginResourceSubscription {
+		for subId, _ := range emptyOriginResourceSubscription {
 			sub, isValidSubId := getSubscriptionDetails(subId)
 			if isValidSubId {
 				subs = append(subs, sub)
@@ -839,7 +841,7 @@ func getSubscriptions(originOfCondition, systemId, hostIp string) (subs []evmode
 	collectionsKey := getCollectionKey(originOfCondition, hostIp)
 	collectionSubscription, isExists := collectionToSubscriptionsMap[collectionsKey]
 	if isExists {
-		for subId := range collectionSubscription {
+		for subId, _ := range collectionSubscription {
 			sub, isValidSubId := getSubscriptionDetails(subId)
 			if isValidSubId {
 				subs = append(subs, sub)
