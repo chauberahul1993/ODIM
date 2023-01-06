@@ -21,6 +21,7 @@ import (
 	"strings"
 	"time"
 
+	dmtf "github.com/ODIM-Project/ODIM/lib-dmtf/model"
 	"github.com/ODIM-Project/ODIM/lib-utilities/common"
 	"github.com/ODIM-Project/ODIM/lib-utilities/errors"
 	l "github.com/ODIM-Project/ODIM/lib-utilities/logs"
@@ -87,30 +88,12 @@ type RequestBody struct {
 
 //Subscription is a model to store the subscription details
 type Subscription struct {
-	UserName             string   `json:"UserName"`
-	SubscriptionID       string   `json:"SubscriptionID"`
-	Destination          string   `json:"Destination"`
-	Name                 string   `json:"Name"`
-	Context              string   `json:"Context"`
-	EventTypes           []string `json:"EventTypes"`
-	MessageIds           []string `json:"MessageIds"`
-	Protocol             string   `json:"Protocol"`
-	SubscriptionType     string   `json:"SubscriptionType"`
-	EventFormatType      string   `json:"EventFormatType"`
-	SubordinateResources bool     `json:"SubordinateResources"`
-	ResourceTypes        []string `json:"ResourceTypes"`
-	// To store origin resource
-	OriginResource string `json:"OriginResource,omitempty"`
-	// To store multiple origin resource
-	OriginResources []string `json:"OriginResources"`
-	// To store all Device address
-	Hosts []string `json:"Hosts"`
-	// Remove Location and EventHostIP
-	Location                string   `json:"location,omitempty"`
-	EventHostIP             string   `json:"EventHostIP,omitempty"`
-	ExcludeMessageIds       []string `json:"ExcludeMessageIds,omitempty"`
-	ExcludeRegistryPrefixes []string `json:"ExcludeRegistryPrefixes,omitempty"`
-	DeliveryRetryPolicy     string   `json:"DeliveryRetryPolicy"`
+	EventDestination *dmtf.EventDestination `json:"EventDestination"`
+	EventHostIP      string                 `json:"EventHostIP,omitempty"`
+	Hosts            []string               `json:"Hosts"`
+	SubscriptionID   string                 `json:"SubscriptionID"`
+	UserName         string                 `json:"UserName"`
+	Location         string                 `json:"Location"`
 }
 
 //SubscriptionCache is a model to store the subscription details

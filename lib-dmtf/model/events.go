@@ -82,3 +82,20 @@ type EventRecord struct {
 	SpecificEventExistsInGroup bool        `json:"SpecificEventExistsInGroup,omitempty"`
 	LogEntry                   *Link       `json:"LogEntry,omitempty"`
 }
+
+type EventDestination struct {
+	Context                 string   `json:"Context"`
+	EventTypes              []string `json:"EventTypes"`
+	EventFormatType         string   `json:"EventFormatType"`
+	ExcludeMessageIds       []string `json:"ExcludeMessageIds,omitempty"`
+	ExcludeRegistryPrefixes []string `json:"ExcludeRegistryPrefixes,omitempty"`
+	DeliveryRetryPolicy     string   `json:"DeliveryRetryPolicy"`
+	Destination             string   `json:"Destination"`
+	MessageIds              []string `json:"MessageIds"`
+	Name                    string   `json:"Name"`
+	OriginResources         []string `json:"OriginResources"`
+	Protocol                string   `json:"Protocol"`
+	ResourceTypes           []string `json:"ResourceTypes"`
+	SubscriptionType        string   `json:"SubscriptionType"`
+	SubordinateResources    bool     `json:"SubordinateResources"`
+}

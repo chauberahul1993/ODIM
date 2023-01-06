@@ -24,6 +24,7 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/ODIM-Project/ODIM/lib-dmtf/model"
 	"github.com/ODIM-Project/ODIM/lib-utilities/common"
 	"github.com/ODIM-Project/ODIM/lib-utilities/config"
 	"github.com/ODIM-Project/ODIM/lib-utilities/errors"
@@ -329,17 +330,20 @@ func TestExternalInterfaces_DeleteAggregateSubscriptions(t *testing.T) {
 
 		return []evmodel.Subscription{
 			{
-				SubscriptionID:       "71de0110-c35a-4859-984c-072d6c5a32d9",
-				Destination:          "https://localhost:9090/events",
-				Name:                 "Subscription",
-				Location:             "/ODIM/v1/Subscriptions/12345",
-				Context:              "context",
-				EventTypes:           []string{"Alert"},
-				MessageIds:           []string{},
-				ResourceTypes:        []string{},
-				OriginResources:      []string{"/redfish/v1/Fabrics/123456"},
-				Hosts:                []string{"localhost"},
-				SubordinateResources: true,
+				EventDestination: &model.EventDestination{
+					Destination: "https://localhost:9090/events",
+					Name:        "Subscription",
+
+					Context:              "context",
+					EventTypes:           []string{"Alert"},
+					MessageIds:           []string{},
+					ResourceTypes:        []string{},
+					OriginResources:      []string{"/redfish/v1/Fabrics/123456"},
+					SubordinateResources: true,
+				},
+				SubscriptionID: "71de0110-c35a-4859-984c-072d6c5a32d9",
+
+				Hosts: []string{"localhost"},
 			},
 		}, nil
 	}
@@ -349,17 +353,18 @@ func TestExternalInterfaces_DeleteAggregateSubscriptions(t *testing.T) {
 
 		return []evmodel.Subscription{
 			{
-				SubscriptionID:       "71de0110-c35a-4859-984c-072d6c5a32d9",
-				Destination:          "https://localhost:9090/events",
-				Name:                 "Subscription",
-				Location:             "/ODIM/v1/Subscriptions/12345",
-				Context:              "context",
-				EventTypes:           []string{"Alert"},
-				MessageIds:           []string{},
-				ResourceTypes:        []string{},
-				OriginResources:      []string{""},
-				Hosts:                []string{"localhost"},
-				SubordinateResources: true,
+				EventDestination: &model.EventDestination{
+					Destination:          "https://localhost:9090/events",
+					Name:                 "Subscription",
+					Context:              "context",
+					EventTypes:           []string{"Alert"},
+					MessageIds:           []string{},
+					ResourceTypes:        []string{},
+					OriginResources:      []string{""},
+					SubordinateResources: true,
+				},
+				SubscriptionID: "71de0110-c35a-4859-984c-072d6c5a32d9",
+				Hosts:          []string{"localhost"},
 			},
 		}, nil
 	}

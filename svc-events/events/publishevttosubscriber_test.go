@@ -27,6 +27,7 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/ODIM-Project/ODIM/lib-dmtf/model"
 	"github.com/ODIM-Project/ODIM/lib-utilities/common"
 	"github.com/ODIM-Project/ODIM/lib-utilities/config"
 	"github.com/ODIM-Project/ODIM/lib-utilities/errors"
@@ -221,7 +222,9 @@ func Test_callPluginStartUp(t *testing.T) {
 		return []evmodel.Subscription{{
 			UserName:       "admin",
 			SubscriptionID: "test",
-			Destination:    "dummy",
+			EventDestination: &model.EventDestination{
+				Destination: "dummy",
+			},
 		}}, nil
 	}
 	pc.publishMetricReport("")

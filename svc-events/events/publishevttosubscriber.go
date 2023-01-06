@@ -193,23 +193,23 @@ func (e *ExternalInterfaces) publishMetricReport(requestData string) bool {
 		return false
 	}
 	for _, sub := range subscriptions {
-		go e.postEvent(sub.Destination, eventUniqueID, []byte(requestData))
+		go e.postEvent(sub.EventDestination.Destination, eventUniqueID, []byte(requestData))
 	}
 	return true
 }
 
 func filterEventsToBeForwarded(subscription evmodel.Subscription, event common.Event, originResources []string) bool {
-	eventTypes := subscription.EventTypes
-	messageIds := subscription.MessageIds
-	resourceTypes := subscription.ResourceTypes
+	eventTypes := subscription.EventDestination.EventTypes
+	messageIds := subscription.EventDestination.MessageIds
+	resourceTypes := subscription.EventDestination.ResourceTypes
 	originCondition := strings.TrimSuffix(event.OriginOfCondition.Oid, "/")
 	if (len(eventTypes) == 0 || isStringPresentInSlice(eventTypes, event.EventType, "event type")) &&
 		(len(messageIds) == 0 || isStringPresentInSlice(messageIds, event.MessageID, "message id")) &&
-		(len(resourceTypes) == 0 || isResourceTypeSubscribed(resourceTypes, event.OriginOfCondition.Oid, subscription.SubordinateResources)) {
+		(len(resourceTypes) == 0 || isResourceTypeSubscribed(resourceTypes, event.OriginOfCondition.Oid, subscription.EventDestination.SubordinateResources)) {
 		// if SubordinateResources is true then check if originofresource is top level of originofcondition
 		// if SubordinateResources is flase then check originofresource is same as originofcondition
 		for _, origin := range originResources {
-			if subscription.SubordinateResources {
+			if subscription.EventDestination.SubordinateResources {
 				if strings.Contains(originCondition, origin) {
 					return true
 				}
@@ -678,16 +678,16 @@ func updateCatchDeviceSubscriptionData(key string, originResources []string) {
 }
 
 func loadSubscriptionCacheData(sub evmodel.Subscription) {
-	if len(sub.OriginResources) == 0 && sub.SubscriptionID != "0" {
+	if len(sub.EventDestination.OriginResources) == 0 && sub.SubscriptionID != "0" {
 		subCache := evmodel.SubscriptionCache{
 			Id:                   sub.SubscriptionID,
-			Destination:          sub.Destination,
-			EventTypes:           sub.EventTypes,
-			MessageIds:           sub.MessageIds,
-			SubordinateResources: sub.SubordinateResources,
-			ResourceTypes:        sub.ResourceTypes,
-			SubscriptionType:     sub.SubscriptionType,
-			OriginResources:      sub.OriginResources,
+			Destination:          sub.EventDestination.Destination,
+			EventTypes:           sub.EventDestination.EventTypes,
+			MessageIds:           sub.EventDestination.MessageIds,
+			SubordinateResources: sub.EventDestination.SubordinateResources,
+			ResourceTypes:        sub.EventDestination.ResourceTypes,
+			SubscriptionType:     sub.EventDestination.SubscriptionType,
+			OriginResources:      sub.EventDestination.OriginResources,
 		}
 		addEmptyOriginSubscriptionCache(subCache.Id)
 		subscriptionsCache[subCache.Id] = subCache
@@ -695,13 +695,13 @@ func loadSubscriptionCacheData(sub evmodel.Subscription) {
 		for _, host := range sub.Hosts {
 			subCache := evmodel.SubscriptionCache{
 				Id:                   sub.SubscriptionID,
-				Destination:          sub.Destination,
-				EventTypes:           sub.EventTypes,
-				MessageIds:           sub.MessageIds,
-				SubordinateResources: sub.SubordinateResources,
-				ResourceTypes:        sub.ResourceTypes,
-				SubscriptionType:     sub.SubscriptionType,
-				OriginResources:      sub.OriginResources,
+				Destination:          sub.EventDestination.Destination,
+				EventTypes:           sub.EventDestination.EventTypes,
+				MessageIds:           sub.EventDestination.MessageIds,
+				SubordinateResources: sub.EventDestination.SubordinateResources,
+				ResourceTypes:        sub.EventDestination.ResourceTypes,
+				SubscriptionType:     sub.EventDestination.SubscriptionType,
+				OriginResources:      sub.EventDestination.OriginResources,
 			}
 			addSubscriptionCache(host, subCache.Id)
 			subscriptionsCache[subCache.Id] = subCache

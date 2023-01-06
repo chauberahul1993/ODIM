@@ -366,10 +366,10 @@ func (st *StartUpInteraface) getSubscribedEventsDetails(serverAddress string) (s
 		return "", nil, err
 	}
 	for i := 0; i < len(subscriptionDetails); i++ {
-		if len(subscriptionDetails[i].EventTypes) == 0 {
+		if len(subscriptionDetails[i].EventDestination.EventTypes) == 0 {
 			emptyListFlag = true
 		} else {
-			eventTypes = append(eventTypes, subscriptionDetails[i].EventTypes...)
+			eventTypes = append(eventTypes, subscriptionDetails[i].EventDestination.EventTypes...)
 		}
 	}
 	if emptyListFlag {
