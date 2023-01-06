@@ -38,6 +38,7 @@ import (
 	fabricproto "github.com/ODIM-Project/ODIM/lib-utilities/proto/fabrics"
 	"github.com/ODIM-Project/ODIM/lib-utilities/services"
 	"github.com/ODIM-Project/ODIM/svc-events/evmodel"
+	"github.com/gomodule/redigo/redis"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -629,8 +630,14 @@ func LoadSubscriptionData() {
 	getAllSubscriptions()
 	getAllAggregates()
 	getAllDeviceSubscriptions()
+	initializeDbObserver()
 }
 func getAllSubscriptions() {
+	subscriptionsCache = make(map[string]evmodel.SubscriptionCache)
+	systemToSubscriptionsMap = make(map[string]map[string]bool)
+	aggregateIdToSubscriptionsMap = make(map[string]map[string]bool)
+	collectionToSubscriptionsMap = make(map[string]map[string]bool)
+	emptyOriginResourceToSubscriptionsMap = make(map[string]map[string]bool)
 	subscriptions, err := evmodel.GetAllEvtSubscriptions()
 	if err != nil {
 		l.Log.Error("Error while reading all subscription data ", err)
@@ -648,6 +655,7 @@ func getAllSubscriptions() {
 }
 
 func getAllDeviceSubscriptions() {
+	eventSourceToManagerIDMap = make(map[string]string)
 	t := time.Now()
 	defer l.Log.Debug("Time take to read complete aggregateToHost ", time.Since(t))
 	deviceSubscriptionList, err := evmodel.GetAllDeviceSubscriptions()
@@ -754,6 +762,8 @@ func addAggregateSubscriptionCache(key, subId string) {
 }
 
 func getAllAggregates() {
+	systemIdToAggregateIdsMap = make(map[string]map[string]bool)
+
 	aggregateUrls, err := evmodel.GetAllAggregates()
 	if err != nil {
 		l.Log.Debug("Exception getting aggregates url list ", err)
@@ -867,4 +877,47 @@ func getCollectionKey(oid, host string) (key string) {
 		key = "FabricsCollection"
 	}
 	return
+}
+
+func initializeDbObserver() {
+	l.Log.Debug("Initializing observer ")
+START:
+	conn, _ := common.GetDBConnection(common.OnDisk)
+	writeConn := conn.WritePool.Get()
+	defer writeConn.Close()
+	_, err := writeConn.Do("CONFIG", "SET", "notify-keyspace-events", "Ez") //published
+	if err != nil {
+		l.Log.Error("error occurred configuring keyevent ", err)
+		time.Sleep(time.Second * 10)
+		goto START
+	}
+	psc := redis.PubSubConn{Conn: writeConn}
+	psc.PSubscribe("__key*__:*")
+	for {
+		switch v := psc.Receive().(type) {
+		case redis.Message:
+			switch string(v.Data) {
+			case "DeviceSubscription":
+				getAllDeviceSubscriptions()
+				fmt.Println("********* Device Subscription is updated ")
+			case "Subscription":
+				getAllSubscriptions()
+				fmt.Println("***********  Subscription is updated ")
+			case "AggregateToHost":
+				fmt.Println("*********  Aggregate is updated ")
+				getAllAggregates()
+			}
+
+		case redis.Subscription:
+			l.Log.Debug("Subscription", v.Channel, " ", v.Kind, " ", v.Count)
+		case error:
+			l.Log.Error("Error occurred in observe ", v)
+			err := psc.PUnsubscribe("__key*__:*")
+			if err != nil {
+				l.Log.Debug("Failed to unsubscribe ", err)
+			}
+			time.Sleep(time.Second * 10)
+			goto START
+		}
+	}
 }
