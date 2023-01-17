@@ -1458,6 +1458,9 @@ def update_helm_charts(config_map_name):
 									   helm_config_file=CONTROLLER_CONF_FILE,\
 									   nodes=nodes_list,\
 								   ignore_err=IGNORE_ERRORS_SET)
+				logger.info("docker_copy_image_command")
+				logger.info(update_plugin_cmd)
+				logger.info(ANSIBLE_BECOME_PASS)
 				ret = exec(docker_copy_image_command, {'ANSIBLE_BECOME_PASS': ANSIBLE_BECOME_PASS})
 				if ret != 0:
 					logger.critical("ODIMRA %s failed to copy docker image %s", operationName, dockerImageName)
@@ -2042,14 +2045,17 @@ def update_plugin(plugin_name):
 		for plugin in plugin_list:
 			for master_node in K8S_INVENTORY_DATA['all']['children']['kube_control_plane']['hosts'].items():
 				logger.info("Updating deployment of %s on master node %s", plugin, master_node[0])
-				deploy_plugin_cmd = 'ansible-playbook -i {host_conf_file} --become --become-user=root \
+				update_plugin_cmd = 'ansible-playbook -i {host_conf_file} --become --become-user=root \
 						    --extra-vars "host={master_node} release_name={plugin_name} helm_chart_name={helm_chart_name} helm_config_file={helm_config_file}" pre_upgrade.yaml'.format( \
 								    host_conf_file=host_file, master_node=master_node[0], \
 								    plugin_name=plugin, helm_chart_name=plugin, \
 								    helm_config_file=CONTROLLER_CONF_FILE)
-				ret = exec(deploy_plugin_cmd, {'ANSIBLE_BECOME_PASS': ANSIBLE_BECOME_PASS})
+				logger.info("Updating plugin ")
+				logger.info(update_plugin_cmd)
+				logger.info(ANSIBLE_BECOME_PASS)
+				ret = exec(update_plugin_cmd, {'ANSIBLE_BECOME_PASS': ANSIBLE_BECOME_PASS})
 				if ret != 0:
-					logger.critical("deploying %s failed on master node %s", plugin, master_node)
+					logger.critical("updating %s failed on master node %s", plugin, master_node)
 				else:
 					plugin_count += 1
 					break
