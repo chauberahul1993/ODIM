@@ -1961,6 +1961,109 @@ def exit(code):
 	logger_f.info ("--------- %-7s %s ---------\n", "Ended", time.strftime("%d-%m-%Y %H:%M:%S"))
 	sys.exit(code)
 
+def update_plugin(plugin_name):
+	logger.info("Update %s plugin", plugin_name)
+
+	# Parse the conf file passed
+	read_conf()
+
+	# Validate conf parameters passed
+	perform_checks()
+
+	# load existing hosts.yaml created for the deployment_id
+	load_k8s_host_conf()
+
+	# Validation for mandatory parameters in config file
+	uid = "ServiceUUID"
+	pluginPackagePath = CONTROLLER_CONF_DATA['odimPluginPath'] + "/" + plugin_name
+	with open(pluginPackagePath + "/" + plugin_name + "-config.yaml", "r") as stream:
+			try:
+				pluginConf=yaml.safe_load(stream)
+				serviceUid = {key:val for key, val in pluginConf[plugin_name].items() if key.endswith(uid)}
+				if pluginConf[plugin_name]['logPath'] == None or \
+					pluginConf[plugin_name]['username'] == None or \
+					pluginConf[plugin_name]['password'] == None:
+					logger.critical("mandatory parameter missing in Config file")
+					exit(1)
+				if len(serviceUid) != 0:
+					if pluginConf[plugin_name][list(serviceUid.keys())[0]] == None:
+						logger.critical("ServiceUUID parameter missing in Config file")
+						exit(1)
+				else:
+					logger.critical("ServiceUUID parameter missing in Config file")
+					exit(1)
+				if 'logLevel' not in pluginConf[plugin_name] or pluginConf[plugin_name]['logLevel'] == None or pluginConf[plugin_name]['logLevel'] == "":
+					logger.info("Log level is not set for %s, Setting default value warn",plugin_name)
+					pluginConf[plugin_name]['logLevel']="warn"
+				else:
+					log_levels = ['panic', 'fatal', 'error', 'warn','info','debug','trace']
+					if pluginConf[plugin_name]['logLevel'] not in log_levels:
+						logger.critical("Log level value is invalid, allowed values are 'panic', 'fatal', 'error', 'warn','info','debug','trace'")
+						exit(1)
+				logger.info("Log level for %s is %s ",plugin_name,pluginConf[plugin_name]['logLevel'])
+				if 'logFormat' not in pluginConf[plugin_name] or pluginConf[plugin_name]['logFormat'] == None or pluginConf[plugin_name]['logFormat'] == "": 
+					logger.info("Log format is not set for %s, Setting default value syslog",plugin_name)
+					pluginConf[plugin_name]['logFormat']="syslog"
+				else :
+					log_formats = ['syslog', 'json']
+					if pluginConf[plugin_name]['logFormat'] not in log_formats:
+						logger.critical("Log format value is invalid, allowed values are 'syslog', 'json'")
+						exit(1)
+				logger.info("Log format for %s is %s ",plugin_name,pluginConf[plugin_name]['logFormat'])
+
+			except yaml.YAMLError as exc:
+				logger.error(exc)
+				exit(1)
+	plugin_list = []
+	if plugin_name != 'all':
+		pluginPackagePath = CONTROLLER_CONF_DATA['odimPluginPath'] + "/" + plugin_name
+		if not(path.isdir(pluginPackagePath)):
+			logger.error("%s plugin content not present in configured odimPluginPath, cannot deploy", plugin_name)
+			exit(1)
+		plugin_list.append(plugin_name)
+	else:
+		temp_list = []
+		for (_, subDirName, _) in os.walk(CONTROLLER_CONF_DATA['odimPluginPath']):
+			temp_list.append(subDirName)
+			break
+		if len(temp_list) <= 0 or len(temp_list[0]) <= 0:
+			return
+
+		for item in temp_list[0]:
+			plugin_list.append(item)
+
+	cur_dir = os.getcwd()
+	host_file = os.path.join(KUBESPRAY_SRC_PATH, DEPLOYMENT_SRC_DIR, 'hosts.yaml')
+	if not DRY_RUN_SET:
+		os.chdir(ODIMRA_SRC_PATH)
+		load_password_from_vault(cur_dir) 
+		plugin_count = 0
+
+		for plugin in plugin_list:
+			for master_node in K8S_INVENTORY_DATA['all']['children']['kube_control_plane']['hosts'].items():
+				logger.info("Updating deployment of %s on master node %s", plugin, master_node[0])
+				deploy_plugin_cmd = 'ansible-playbook -i {host_conf_file} --become --become-user=root \
+						    --extra-vars "host={master_node} release_name={plugin_name} helm_chart_name={helm_chart_name} helm_config_file={helm_config_file}" deploy_plugin.yaml'.format( \
+								    host_conf_file=host_file, master_node=master_node[0], \
+								    plugin_name=plugin, helm_chart_name=plugin, \
+								    helm_config_file=CONTROLLER_CONF_FILE)
+				ret = exec(deploy_plugin_cmd, {'ANSIBLE_BECOME_PASS': ANSIBLE_BECOME_PASS})
+				if ret != 0:
+					logger.critical("deploying %s failed on master node %s", plugin, master_node)
+				else:
+					plugin_count += 1
+					break
+
+		upgrade_failed_count = len(plugin_list) - plugin_count
+		if upgrade_failed_count == 0:
+			logger.info("Successfully deployed %s", plugin_list)
+		else:
+			logger.info("Deployment of %d plugin(s) in %s failed", upgrade_failed_count, plugin_list)
+			os.chdir(cur_dir)
+			exit(1)
+
+	os.chdir(cur_dir)
+
 def main():
 	init_log()
 
@@ -2000,12 +2103,10 @@ def main():
 		args = parser.parse_args()
 	except SystemExit as e:
 		exit(1)
-
+	
 	global CONTROLLER_CONF_FILE, DRY_RUN_SET, NO_PROMPT_SET, IGNORE_ERRORS_SET
 
-	logger.info("************ ")
-	logger.info(args.update)
-	if args.deploy == None and args.reset == None and args.addnode == None and \
+	if args.update == None and args.reset == None and args.addnode == None and \
 			args.rmnode == None and args.upgrade == None and args.scale == False and \
 			args.list == None and args.add == None and args.remove == None and args.rollback == False:
 		logger.critical("Atleast one mandatory option must be provided")
@@ -2078,6 +2179,18 @@ def main():
 			deploy_plugin(args.plugin)
 		else:
 			logger.critical("Unsupported value %s for add option", args.add)
+			exit(1)
+
+	if args.update != None:
+		if args.update == 'plugin':
+			logger.info("Update is called ****** ")
+			logger.info(args.plugin)
+			if args.plugin == None:
+				logger.error("option --add=plugin: expects --plugin argument")
+				exit(1)
+			update_plugin(args.plugin)
+		else:
+			logger.critical("Unsupported value %s for update option", args.add)
 			exit(1)
 
 	if args.remove != None:
