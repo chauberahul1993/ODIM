@@ -1799,6 +1799,8 @@ def deploy_plugin(plugin_name):
 								    host_conf_file=host_file, master_node=master_node[0], \
 								    plugin_name=plugin, helm_chart_name=plugin, \
 								    helm_config_file=CONTROLLER_CONF_FILE)
+				logger.info("Add plugin ******** ")
+				logger.info(deploy_plugin_cmd)				   
 				ret = exec(deploy_plugin_cmd, {'ANSIBLE_BECOME_PASS': ANSIBLE_BECOME_PASS})
 				if ret != 0:
 					logger.critical("deploying %s failed on master node %s", plugin, master_node)
@@ -1849,6 +1851,8 @@ def remove_plugin(plugin_name):
 							   host_conf_file=host_file, master_node=master_node[0], \
 							   plugin_name=plugin_name, helm_chart_name=plugin_name, \
 							   helm_config_file=CONTROLLER_CONF_FILE)
+			logger.info("Remove plugin ******** ")
+			logger.info(remove_plugin_cmd)				   
 			ret = exec(remove_plugin_cmd, {'ANSIBLE_BECOME_PASS': ANSIBLE_BECOME_PASS})
 			if ret != 0:
 				logger.critical("removal of %s plugin failed on master node %s", plugin_name, master_node[0])
@@ -2047,7 +2051,7 @@ def update_plugin(plugin_name):
 			for master_node in K8S_INVENTORY_DATA['all']['children']['kube_control_plane']['hosts'].items():
 				logger.info("Updating deployment of %s on master node %s", plugin, master_node[0])
 				update_plugin_cmd = 'ansible-playbook -i {host_conf_file} --become --become-user=root \
-						    --extra-vars "host={master_node} release_name={plugin_name} helm_chart_name={helm_chart_name} helm_config_file={helm_config_file}" upgrade-config.yaml'.format( \
+						    --extra-vars "host={master_node} release_name={plugin_name} helm_chart_name={helm_chart_name} helm_config_file={helm_config_file}" pre_upgrade.yaml'.format( \
 								    host_conf_file=host_file, master_node=master_node[0], \
 								    plugin_name=plugin, helm_chart_name=plugin, \
 								    helm_config_file=CONTROLLER_CONF_FILE)
