@@ -1993,6 +1993,9 @@ def main():
 	parser.add_argument('--dep', help='deployment name, should be used with --list=history, --rollback')
 	parser.add_argument('--rollback', action='store_true', help='rollback deployment to particular revision')
 	parser.add_argument('--revision', help='revision number of the deployment, should be used with --rollback', type=int)
+	
+
+	logger.info("********************  Debug ")
 	try:
 		args = parser.parse_args()
 	except SystemExit as e:
