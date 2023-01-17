@@ -1987,6 +1987,7 @@ def main():
 	parser.add_argument("--plugin", help='release name of the plugin deployment to add,remove,upgrade or scale')
 	parser.add_argument('--add', help='supported values: plugin')
 	parser.add_argument('--remove', help='supported values: plugin')
+	parser.add_argument('--update', help='supported values: plugin')
 	parser.add_argument("--replicas", help='replica count of the odimra services or plugins', type=int)
 	parser.add_argument('--list', help='supported values:deployment, history')
 	parser.add_argument('--dep', help='deployment name, should be used with --list=history, --rollback')
@@ -1999,6 +2000,8 @@ def main():
 
 	global CONTROLLER_CONF_FILE, DRY_RUN_SET, NO_PROMPT_SET, IGNORE_ERRORS_SET
 
+	logger.Info("************ ")
+	logger.Info(args.update)
 	if args.deploy == None and args.reset == None and args.addnode == None and \
 			args.rmnode == None and args.upgrade == None and args.scale == False and \
 			args.list == None and args.add == None and args.remove == None and args.rollback == False:
