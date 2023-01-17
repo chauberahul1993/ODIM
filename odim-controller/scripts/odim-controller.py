@@ -2047,7 +2047,7 @@ def update_plugin(plugin_name):
 			for master_node in K8S_INVENTORY_DATA['all']['children']['kube_control_plane']['hosts'].items():
 				logger.info("Updating deployment of %s on master node %s", plugin, master_node[0])
 				update_plugin_cmd = 'ansible-playbook -i {host_conf_file} --become --become-user=root \
-						    --extra-vars "host={master_node} release_name={plugin_name} helm_chart_name={helm_chart_name} helm_config_file={helm_config_file}" pre_upgrade.yaml'.format( \
+						    --extra-vars "host={master_node} release_name={plugin_name} helm_chart_name={helm_chart_name} helm_config_file={helm_config_file}" upgrade-config.yaml'.format( \
 								    host_conf_file=host_file, master_node=master_node[0], \
 								    plugin_name=plugin, helm_chart_name=plugin, \
 								    helm_config_file=CONTROLLER_CONF_FILE)
