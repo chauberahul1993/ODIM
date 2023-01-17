@@ -1795,7 +1795,7 @@ def deploy_plugin(plugin_name):
 			for master_node in K8S_INVENTORY_DATA['all']['children']['kube_control_plane']['hosts'].items():
 				logger.info("Starting deployment of %s on master node %s", plugin, master_node[0])
 				deploy_plugin_cmd = 'ansible-playbook -i {host_conf_file} --become --become-user=root \
-						    --extra-vars "host={master_node} release_name={plugin_name} helm_chart_name={helm_chart_name} helm_config_file={helm_config_file}" deploy11_plugin.yaml'.format( \
+						    --extra-vars "host={master_node} release_name={plugin_name} helm_chart_name={helm_chart_name} helm_config_file={helm_config_file}" deploy_plugin.yaml'.format( \
 								    host_conf_file=host_file, master_node=master_node[0], \
 								    plugin_name=plugin, helm_chart_name=plugin, \
 								    helm_config_file=CONTROLLER_CONF_FILE)
@@ -1847,7 +1847,7 @@ def remove_plugin(plugin_name):
 		for master_node in K8S_INVENTORY_DATA['all']['children']['kube_control_plane']['hosts'].items():
 			logger.info("Starting removal of %s plugin on master node %s", plugin_name, master_node[0])
 			remove_plugin_cmd = 'ansible-playbook -i {host_conf_file} --become --become-user=root \
-					   --extra-vars "host={master_node} release_name={plugin_name} helm_chart_name={helm_chart_name} helm_config_file={helm_config_file}" remove_plugin.yaml'.format( \
+					   --extra-vars "host={master_node} release_name={plugin_name} helm_chart_name={helm_chart_name} helm_config_file={helm_config_file}" upgrade-config.yaml'.format( \
 							   host_conf_file=host_file, master_node=master_node[0], \
 							   plugin_name=plugin_name, helm_chart_name=plugin_name, \
 							   helm_config_file=CONTROLLER_CONF_FILE)
