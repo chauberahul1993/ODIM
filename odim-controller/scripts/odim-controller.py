@@ -1458,9 +1458,7 @@ def update_helm_charts(config_map_name):
 									   helm_config_file=CONTROLLER_CONF_FILE,\
 									   nodes=nodes_list,\
 								   ignore_err=IGNORE_ERRORS_SET)
-				logger.info("docker_copy_image_command")
-				logger.info(update_plugin_cmd)
-				logger.info(ANSIBLE_BECOME_PASS)
+
 				ret = exec(docker_copy_image_command, {'ANSIBLE_BECOME_PASS': ANSIBLE_BECOME_PASS})
 				if ret != 0:
 					logger.critical("ODIMRA %s failed to copy docker image %s", operationName, dockerImageName)
@@ -1479,6 +1477,9 @@ def update_helm_charts(config_map_name):
 							     helm_chart_name_version=fullHelmChartName, \
 							     helm_config_file=CONTROLLER_CONF_FILE, \
 							     operation_conf_file=operationName,ignore_err=IGNORE_ERRORS_SET)
+			logger.info("Update **************  ")
+			logger.info(odimra_upgrade_cmd)
+			logger.info(ANSIBLE_BECOME_PASS)
 			ret = exec(odimra_upgrade_cmd, {'ANSIBLE_BECOME_PASS': ANSIBLE_BECOME_PASS})
 			if ret != 0:
 				logger.critical("ODIMRA %s failed when tried on master node %s", operationName, master_node[0])
