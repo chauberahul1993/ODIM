@@ -104,7 +104,7 @@ func main() {
 		Lock:           sync.Mutex{},
 	}
 	taskproto.RegisterGetTaskServiceServer(services.ODIMService.Server(), task)
-
+	fmt.Println(" *************** Ticker  *  ", config.Data.TaskQueueConf.DBCommitInterval)
 	// tick := &tmodel.Tick{
 	// 	Ticker: time.NewTicker(time.Duration(config.Data.TaskQueueConf.DBCommitInterval) * time.Microsecond),
 	// }
