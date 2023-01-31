@@ -17,7 +17,6 @@ import (
 	"fmt"
 	"os"
 	"sync"
-	"time"
 
 	"github.com/sirupsen/logrus"
 
@@ -106,10 +105,10 @@ func main() {
 	}
 	taskproto.RegisterGetTaskServiceServer(services.ODIMService.Server(), task)
 
-	tick := &tmodel.Tick{
-		Ticker: time.NewTicker(time.Duration(config.Data.TaskQueueConf.DBCommitInterval) * time.Microsecond),
-	}
-	go tqueue.UpdateTasksWorker(tick)
+	// tick := &tmodel.Tick{
+	// 	Ticker: time.NewTicker(time.Duration(config.Data.TaskQueueConf.DBCommitInterval) * time.Microsecond),
+	// }
+	// go tqueue.UpdateTasksWorker(tick)
 
 	// Run server
 	if err := services.ODIMService.Run(); err != nil {
