@@ -458,7 +458,7 @@ func (e *ExternalInterface) ResetElementsOfAggregate(ctx context.Context, taskID
 	targetURI := req.URL
 	percentComplete = 0
 
-	taskInfo := &common.TaskUpdateInfo{TaskID: taskID, TargetURI: targetURI, UpdateTask: e.UpdateTask, TaskRequest: string(req.RequestBody)}
+	taskInfo := &common.TaskUpdateInfo{Context: ctx, TaskID: taskID, TargetURI: targetURI, UpdateTask: e.UpdateTask, TaskRequest: string(req.RequestBody)}
 
 	var resetRequest ResetRequest
 	if err := json.Unmarshal(req.RequestBody, &resetRequest); err != nil {
@@ -616,7 +616,7 @@ func (e *ExternalInterface) resetSystem(ctx context.Context, taskID, reqBody str
 	}
 	systemID := element[strings.LastIndexAny(element, "/")+1:]
 	var targetURI = element
-	taskInfo := &common.TaskUpdateInfo{TaskID: subTaskID, TargetURI: targetURI, UpdateTask: e.UpdateTask, TaskRequest: reqBody}
+	taskInfo := &common.TaskUpdateInfo{Context: ctx, TaskID: subTaskID, TargetURI: targetURI, UpdateTask: e.UpdateTask, TaskRequest: reqBody}
 	data := strings.SplitN(systemID, ".", 2)
 	if len(data) <= 1 {
 		subTaskChan <- http.StatusNotFound
@@ -761,7 +761,7 @@ func (e *ExternalInterface) SetDefaultBootOrderElementsOfAggregate(ctx context.C
 	var percentComplete int32 = 100
 	targetURI := req.URL
 
-	taskInfo := &common.TaskUpdateInfo{TaskID: taskID, TargetURI: targetURI, UpdateTask: e.UpdateTask}
+	taskInfo := &common.TaskUpdateInfo{Context: ctx, TaskID: taskID, TargetURI: targetURI, UpdateTask: e.UpdateTask}
 
 	reqBody, err := json.Marshal(req)
 	if err != nil {
