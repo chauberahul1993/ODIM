@@ -82,6 +82,7 @@ func (h *Create) Handle(ctx context.Context, req *chassisproto.CreateChassisRequ
 	if e != nil {
 		return common.GeneralError(http.StatusInternalServerError, response.InternalError, e.Error(), nil, nil)
 	}
+	fmt.Printf("111 %+v \n ", managingManager)
 	var managingMgrData map[string]interface{}
 	unmarshalErr := JSONUnmarshalFunc1([]byte(managingManager), &managingMgrData)
 	if unmarshalErr != nil {
@@ -92,6 +93,7 @@ func (h *Create) Handle(ctx context.Context, req *chassisproto.CreateChassisRequ
 	}
 	managerURI := managingMgrData["@odata.id"]
 	var managerData map[string]interface{}
+	fmt.Println("Step 1 ", managerURI)
 	data, jerr := GetResourceFunc(ctx, "Managers", managerURI.(string))
 	if jerr != nil {
 		errorMessage := "error while getting manager details: " + jerr.Error()
