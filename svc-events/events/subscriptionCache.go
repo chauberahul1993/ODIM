@@ -91,7 +91,7 @@ func getAllDeviceSubscriptions(ctx context.Context) {
 	eventSourceToManagerIDMap = make(map[string]string, len(deviceSubscriptionList))
 	for _, device := range deviceSubscriptionList {
 		devSub := strings.Split(device, "||")
-		updateCatchDeviceSubscriptionData(devSub[0], evmodel.GetSliceFromString(devSub[2]))
+		updateCatchDeviceSubscriptionData(strings.ToLower(devSub[0]), evmodel.GetSliceFromString(devSub[2]))
 	}
 	l.LogWithFields(ctx).Debug("DeviceSubscription cache updated ")
 }
