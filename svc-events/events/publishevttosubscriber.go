@@ -153,6 +153,7 @@ func (e *ExternalInterfaces) PublishEventsToDestination(ctx context.Context, dat
 			continue
 		}
 		subscriptions := getSubscriptions(inEvent.OriginOfCondition.Oid, systemId, host)
+		fmt.Printf(" Subscription list %+v \n ", subscriptions)
 		for _, sub := range subscriptions {
 			if filterEventsToBeForwarded(ctx, sub, inEvent, sub.OriginResources) {
 				eventMap[sub.Destination] = append(eventMap[sub.Destination], inEvent)

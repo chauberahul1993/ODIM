@@ -186,6 +186,7 @@ func updateCacheMaps(key, value string, cacheData map[string]map[string]bool) {
 
 // getSubscriptions return list of subscription from cache corresponding to originOfCondition
 func getSubscriptions(originOfCondition, systemId, hostIp string) (subs []dmtf.EventDestination) {
+	fmt.Println("Selection keys is ", hostIp, systemId)
 	subs = append(subs, getSystemSubscriptionList(hostIp)...)
 	subs = append(subs, getAggregateSubscriptionList(systemId)...)
 	subs = append(subs, getEmptyOriginResourceSubscriptionList()...)
@@ -233,7 +234,13 @@ func getAggregateSubscriptionList(systemId string) (subs []dmtf.EventDestination
 // originOfCondition type
 func getCollectionSubscriptionList(originOfCondition, hostIp string) (subs []dmtf.EventDestination) {
 	collectionsKey := getCollectionKey(originOfCondition, hostIp)
+	fmt.Println("Step 11 collection keys ", collectionsKey)
+	collectionsKey = strings.ToLower(collectionsKey)
+	fmt.Println("Step 22 collection keys ", collectionsKey, collectionToSubscriptionsMap)
+
 	collectionSubscription, isExists := collectionToSubscriptionsMap[collectionsKey]
+	fmt.Println("Step 333 collection keys ", collectionSubscription)
+
 	if isExists {
 		for subId := range collectionSubscription {
 			sub, isValidSubId := getSubscriptionDetails(subId)
