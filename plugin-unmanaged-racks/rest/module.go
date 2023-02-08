@@ -22,7 +22,6 @@ import (
 	"net/http"
 	"net/url"
 	"sync"
-	"time"
 
 	"github.com/ODIM-Project/ODIM/plugin-unmanaged-racks/config"
 	"github.com/ODIM-Project/ODIM/plugin-unmanaged-racks/db"
@@ -155,10 +154,10 @@ type subscriber struct {
 
 func (s *subscriber) Run() {
 	logging.Info("Starting EventSubscriber")
-	for {
-		s.subscribe()
-		time.Sleep(time.Second * 15)
-	}
+	// for {
+	s.subscribe()
+	// 	time.Sleep(time.Second * 15)
+	// }
 }
 
 func (s *subscriber) subscribe() {

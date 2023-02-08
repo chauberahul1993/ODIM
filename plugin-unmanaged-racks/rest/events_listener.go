@@ -43,39 +43,46 @@ type eventHandler struct {
 }
 
 func (eh *eventHandler) handleEvent(c iris.Context) {
+	fmt.Println("Delete is called *************** Event received  ")
 	raw := new(json.RawMessage)
 	err := c.ReadJSON(raw)
 	if err != nil {
+		fmt.Println("Step 111   ", raw)
 		logging.Errorf("Cannot read message body: %s", err)
 		c.StatusCode(http.StatusBadRequest)
 		return
 	}
-
+	fmt.Println("Step 2222   ", raw)
 	message := new(redfish.Event)
 	err = json.Unmarshal([]byte(redfish.Translator.RedfishToODIM(string(*raw))), message)
 	if err != nil {
+		fmt.Println("Step 22222222    ", raw)
 		logging.Errorf("Cannot load '%s' message into redfish.Event struct: %s", string(*raw), err)
 		c.StatusCode(http.StatusBadRequest)
 		return
 	}
-
+	fmt.Printf("Step 33333  %+v \n ", message)
 	for _, e := range message.Events {
 		ctx := stdCtx.TODO()
 		containedInKey := db.CreateContainedInKey("Chassis", e.OriginOfCondition.Oid)
 		rackKey, err := eh.dao.Get(ctx, containedInKey.String()).Result()
+		fmt.Printf("Step 5555  %+v \n ", containedInKey)
 		if err == redis.Nil {
+			fmt.Printf("Step 6666  %+v \n ", err)
 			continue
 		}
 		if err != nil {
+			fmt.Printf("Step 6666  %+v \n ", err)
 			continue
 		}
-
+		fmt.Printf("Step 7777  %+v \n ", err)
 		err = eh.dao.Watch(ctx, func(tx *redis.Tx) error {
 			_, err := tx.TxPipelined(ctx, func(pipeliner redis.Pipeliner) error {
 				if _, err := pipeliner.Del(
 					ctx,
 					containedInKey.String(),
 				).Result(); err != nil {
+					fmt.Printf("Step 8888  %+v \n ", err)
 					return fmt.Errorf("del: %s error: %w", containedInKey, err)
 				}
 
@@ -83,14 +90,18 @@ func (eh *eventHandler) handleEvent(c iris.Context) {
 					ctx,
 					db.CreateContainsKey("Chassis", rackKey).String(), e.OriginOfCondition.Oid,
 				).Result(); err != nil {
+					fmt.Printf("Step 9999  %+v \n ", err)
 					return fmt.Errorf("srem: %s error: %w", db.CreateContainsKey("Chassis", rackKey).String(), err)
 				}
 				return nil
 			})
 			return err
 		}, rackKey)
+		fmt.Printf("Step 1010  %+v \n ", err)
 
 		if err != nil {
+			fmt.Printf("Step 1011  %+v \n ", err)
+
 			logging.Errorf(
 				"cannot consume message(%v): %v",
 				message,
@@ -98,4 +109,5 @@ func (eh *eventHandler) handleEvent(c iris.Context) {
 			)
 		}
 	}
+	fmt.Printf("Step 1022  %+v \n ", err)
 }

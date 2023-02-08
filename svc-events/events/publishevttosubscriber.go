@@ -312,7 +312,7 @@ func (e *ExternalInterfaces) postEvent(ctx context.Context, destination, eventUn
 	resp, err := SendEventFunc(destination, event)
 	if err == nil {
 		resp.Body.Close()
-		l.LogWithFields(ctx).Info("Event is successfully forwarded")
+		l.LogWithFields(ctx).Info("Event is successfully forwarded", destination)
 		// check any undelivered events are present in db for the destination and publish those
 		go e.checkUndeliveredEvents(ctx, destination)
 		return
