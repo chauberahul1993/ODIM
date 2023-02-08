@@ -61,7 +61,7 @@ func (eh *eventHandler) handleEvent(c iris.Context) {
 		c.StatusCode(http.StatusBadRequest)
 		return
 	}
-	fmt.Printf("Step 33333  %+v \n ", message)
+	fmt.Printf("Step 33333  %+v \n and OoC %s", message, message.Events[0].OriginOfCondition)
 	for _, e := range message.Events {
 		fmt.Println("Origin of condition ", e.OriginOfCondition.Oid)
 		fmt.Printf("Event %+v \n", e)

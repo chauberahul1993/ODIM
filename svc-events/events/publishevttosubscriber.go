@@ -153,7 +153,7 @@ func (e *ExternalInterfaces) PublishEventsToDestination(ctx context.Context, dat
 			continue
 		}
 		subscriptions := getSubscriptions(inEvent.OriginOfCondition.Oid, systemId, host)
-		fmt.Printf(" Subscription list %+v \n ", subscriptions)
+		fmt.Printf(" Subscription list%s \n %+v \n ", inEvent.OriginOfCondition.Oid, subscriptions)
 		for _, sub := range subscriptions {
 			if filterEventsToBeForwarded(ctx, sub, inEvent, sub.OriginResources) {
 				eventMap[sub.Destination] = append(eventMap[sub.Destination], inEvent)
@@ -309,10 +309,11 @@ func isStringPresentInSlice(ctx context.Context, slice []string, str, message st
 
 // postEvent will post the event to destination
 func (e *ExternalInterfaces) postEvent(ctx context.Context, destination, eventUniqueID string, event []byte) {
+
 	resp, err := SendEventFunc(destination, event)
 	if err == nil {
 		resp.Body.Close()
-		l.LogWithFields(ctx).Info("Event is successfully forwarded", destination)
+		l.LogWithFields(ctx).Info("Event is successfully forwarded", destination, string(event))
 		// check any undelivered events are present in db for the destination and publish those
 		go e.checkUndeliveredEvents(ctx, destination)
 		return
