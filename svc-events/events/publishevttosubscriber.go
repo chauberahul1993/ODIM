@@ -116,7 +116,7 @@ func (e *ExternalInterfaces) PublishEventsToDestination(ctx context.Context, dat
 	}
 	fmt.Println("Event Type 11 ", event.EventType)
 	fmt.Println("Event Type 22 ", event.IP)
-	fmt.Printf("Event Type 33 %+v \n\n", rawMessage.Events)
+	fmt.Printf("Event Type 33 %+v \n\n", rawMessage.Events[0].OriginOfCondition)
 
 	systemId, err := getSourceId(host)
 	if err != nil {
@@ -125,6 +125,9 @@ func (e *ExternalInterfaces) PublishEventsToDestination(ctx context.Context, dat
 	}
 	host = strings.ToLower(host)
 	e.addFabric(ctx, rawMessage, host)
+	for _, data := range message.Events {
+		fmt.Println("Before Origin of condition is ", systemId, host, data.EventID, data.OriginOfCondition.Oid)
+	}
 	message, deviceUUID = formatEvent(rawMessage, systemId, host)
 	for _, data := range message.Events {
 		fmt.Println("Origin of condition is ", data.EventID, data.OriginOfCondition.Oid)
@@ -238,6 +241,7 @@ func filterEventsToBeForwarded(ctx context.Context, subscription dmtf.EventDesti
 // formatEvent will format the event string according to the odimra
 // add uuid:systemid/chassisid inplace of systemid/chassisid
 func formatEvent(event common.MessageData, originResource, hostIP string) (common.MessageData, string) {
+	fmt.Printf(" Before formatting %s %+v \n ", hostIP, event)
 	deviceUUID, _ := getUUID(originResource)
 	if !strings.Contains(hostIP, "Collection") {
 		for _, event := range event.Events {
@@ -255,6 +259,8 @@ func formatEvent(event common.MessageData, originResource, hostIP string) (commo
 		}
 
 	}
+	fmt.Printf(" After :wq formatting %+v \n ", event)
+
 	return event, deviceUUID
 }
 
