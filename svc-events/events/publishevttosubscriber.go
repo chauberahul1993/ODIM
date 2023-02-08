@@ -115,6 +115,9 @@ func (e *ExternalInterfaces) PublishEventsToDestination(ctx context.Context, dat
 		l.LogWithFields(ctx).Error("failed to unmarshal the incoming event: ", requestData, " with the error: ", err.Error())
 		return false
 	}
+	fmt.Println("Event Type 11 ", event.EventType)
+	fmt.Println("Event Type 22 ", event.IP)
+	fmt.Printf("Event Type 33 %+v ", rawMessage.Events)
 
 	e.addFabric(ctx, rawMessage, host)
 	systemId, err := getSourceId(host)
