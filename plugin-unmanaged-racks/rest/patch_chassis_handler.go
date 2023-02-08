@@ -29,7 +29,7 @@ import (
 	"github.com/ODIM-Project/ODIM/plugin-unmanaged-racks/redfish"
 	"github.com/ODIM-Project/ODIM/plugin-unmanaged-racks/utils"
 
-	"github.com/deckarep/golang-set"
+	mapset "github.com/deckarep/golang-set"
 	"github.com/go-redis/redis/v8"
 	"github.com/kataras/iris/v12/context"
 )
@@ -79,7 +79,7 @@ func (c *chassisUpdateHandler) handle(ctx context.Context) {
 		ctx.JSON(redfish.NewError(*violation))
 		return
 	}
-
+	fmt.Printf("Request **** %+v\n ", requestedChassis)
 	chassisContainsSetKey := db.CreateContainsKey("Chassis", requestedChassis.Oid)
 	existingMembers, err := c.dao.SMembers(stdCtx.TODO(), chassisContainsSetKey.String()).Result()
 	if err != nil {
@@ -120,7 +120,7 @@ func (c *chassisUpdateHandler) handle(ctx context.Context) {
 					}
 					return false
 				})
-
+				fmt.Println("Update Step 1111 ")
 				//add requested but unknown
 				requestedMembers.Each(func(rm interface{}) bool {
 					if !knownMembers.Contains(rm) {
@@ -128,8 +128,9 @@ func (c *chassisUpdateHandler) handle(ctx context.Context) {
 							err = fmt.Errorf("sadd: %s error: %w", chassisContainsSetKey.String(), err)
 							return true
 						}
-
+						fmt.Println("Update Step 22222  ", chassisContainsSetKey.String(), rm)
 						ckey := db.CreateContainedInKey("Chassis", rm.(string)).String()
+						fmt.Println("Update Step 3333   ", ckey, requestedChassis.Oid)
 						if _, err = pipe.Set(sctx, ckey, requestedChassis.Oid, 0).Result(); err != nil {
 							err = fmt.Errorf("set: %s error: %w", ckey, err)
 							return true
