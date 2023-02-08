@@ -123,9 +123,8 @@ func (e *ExternalInterfaces) PublishEventsToDestination(ctx context.Context, dat
 		l.LogWithFields(ctx).Info("no origin resources found in device subscriptions")
 		return false
 	}
-	host = strings.ToLower(host)
 	e.addFabric(ctx, rawMessage, host)
-	for _, data := range message.Events {
+	for _, data := range rawMessage.Events {
 		fmt.Println("Before Origin of condition is ", systemId, host, data.EventID, data.OriginOfCondition.Oid)
 	}
 	message, deviceUUID = formatEvent(rawMessage, systemId, host)
