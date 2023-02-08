@@ -109,7 +109,7 @@ func (e *ExternalInterfaces) PublishEventsToDestination(ctx context.Context, dat
 	var flag bool
 	var deviceUUID string
 	var message, rawMessage common.MessageData
-
+	fmt.Println("Event 1111 ", requestData)
 	if err = json.Unmarshal([]byte(requestData), &rawMessage); err != nil {
 		l.LogWithFields(ctx).Error("failed to unmarshal the incoming event: ", requestData, " with the error: ", err.Error())
 		return false
@@ -126,6 +126,9 @@ func (e *ExternalInterfaces) PublishEventsToDestination(ctx context.Context, dat
 	host = strings.ToLower(host)
 	e.addFabric(ctx, rawMessage, host)
 	message, deviceUUID = formatEvent(rawMessage, systemId, host)
+	for _, data := range message.Events {
+		fmt.Println("Origin of condition is ", data.EventID, data.OriginOfCondition.Oid)
+	}
 	eventUniqueID := uuid.NewV4().String()
 	eventMap := make(map[string][]common.Event)
 
