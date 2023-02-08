@@ -117,7 +117,7 @@ func (e *ExternalInterfaces) PublishEventsToDestination(ctx context.Context, dat
 	}
 	fmt.Println("Event Type 11 ", event.EventType)
 	fmt.Println("Event Type 22 ", event.IP)
-	fmt.Printf("Event Type 33 %+v ", rawMessage.Events)
+	fmt.Printf("Event Type 33 %+v \n\n", rawMessage.Events)
 
 	e.addFabric(ctx, rawMessage, host)
 	systemId, err := getSourceId(host)
@@ -301,7 +301,8 @@ func isStringPresentInSlice(ctx context.Context, slice []string, str, message st
 			return true
 		}
 	}
-	l.LogWithFields(ctx).Info("Event not forwarded : No subscription for the incoming event's ", message)
+
+	l.LogWithFields(ctx).Info("Event not forwarded : No subscription for the incoming event's ", message, slice, str)
 	return false
 }
 

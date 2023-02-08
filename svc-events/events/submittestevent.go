@@ -96,7 +96,7 @@ func (e *ExternalInterfaces) SubmitTestEvent(ctx context.Context, req *eventspro
 	// Find out all the subscription destinations of the requesting user
 	subscriptions, err := e.GetEvtSubscriptions(sessionUserName)
 	if err != nil {
-		// Internall error
+		// Internal error
 		errMsg := "error while trying to find the event destination"
 		l.LogWithFields(ctx).Error(errMsg)
 		return common.GeneralError(http.StatusInternalServerError, response.InternalError, errMsg, nil, nil)
