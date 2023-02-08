@@ -77,7 +77,7 @@ func (e *ExternalInterfaces) addFabric(ctx context.Context, message common.Messa
 func (e *ExternalInterfaces) PublishEventsToDestination(ctx context.Context, data interface{}) bool {
 	subscribeCacheLock.Lock()
 	defer subscribeCacheLock.Unlock()
-
+	fmt.Println("Event Received ************ ")
 	if data == nil {
 		l.LogWithFields(ctx).Info("invalid input params")
 		return false
