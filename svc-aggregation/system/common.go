@@ -1166,6 +1166,7 @@ func CreateDefaultEventSubscription(ctx context.Context, systemID []string) {
 		return
 	}
 	defer conn.Close()
+	fmt.Println("New changes accepted *******************  ")
 	events := eventsproto.NewEventsClient(conn)
 	reqCtx := common.CreateNewRequestContext(ctx)
 	reqCtx = common.CreateMetadata(reqCtx)

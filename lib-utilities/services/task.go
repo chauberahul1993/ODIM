@@ -50,7 +50,7 @@ func CreateTask(ctx context.Context, sessionUserName string) (string, error) {
 func CreateChildTask(ctx context.Context, sessionUserName string, parentTaskID string) (string, error) {
 	conn, errConn := ODIMService.Client(Tasks)
 	if errConn != nil {
-		return "", fmt.Errorf("Failed to create client connection: %s", errConn.Error())
+		return "", fmt.Errorf("failed to create client connection: %s", errConn.Error())
 	}
 	defer conn.Close()
 	taskService := taskproto.NewGetTaskServiceClient(conn)
