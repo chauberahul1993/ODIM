@@ -94,7 +94,6 @@ func (e *ExternalInterfaces) PublishEventsToDestination(ctx context.Context, dat
 	if err != nil {
 		host = event.IP
 	}
-	host = strings.ToLower(host)
 	l.LogWithFields(ctx).Info("After splitting host address, IP is: ", host)
 
 	var requestData = string(event.Request)
@@ -119,12 +118,13 @@ func (e *ExternalInterfaces) PublishEventsToDestination(ctx context.Context, dat
 	fmt.Println("Event Type 22 ", event.IP)
 	fmt.Printf("Event Type 33 %+v \n\n", rawMessage.Events)
 
-	e.addFabric(ctx, rawMessage, host)
 	systemId, err := getSourceId(host)
 	if err != nil {
 		l.LogWithFields(ctx).Info("no origin resources found in device subscriptions")
 		return false
 	}
+	host = strings.ToLower(host)
+	e.addFabric(ctx, rawMessage, host)
 	message, deviceUUID = formatEvent(rawMessage, systemId, host)
 	eventUniqueID := uuid.NewV4().String()
 	eventMap := make(map[string][]common.Event)

@@ -91,7 +91,7 @@ func getAllDeviceSubscriptions(ctx context.Context) {
 	eventSourceToManagerIDMap = make(map[string]string, len(deviceSubscriptionList))
 	for _, device := range deviceSubscriptionList {
 		devSub := strings.Split(device, "||")
-		updateCatchDeviceSubscriptionData(strings.ToLower(devSub[0]), evmodel.GetSliceFromString(devSub[2]))
+		updateCatchDeviceSubscriptionData(devSub[0], evmodel.GetSliceFromString(devSub[2]))
 	}
 	l.LogWithFields(ctx).Debug("DeviceSubscription cache updated ")
 }
@@ -235,7 +235,6 @@ func getAggregateSubscriptionList(systemId string) (subs []dmtf.EventDestination
 func getCollectionSubscriptionList(originOfCondition, hostIp string) (subs []dmtf.EventDestination) {
 	collectionsKey := getCollectionKey(originOfCondition, hostIp)
 	fmt.Println("Step 11 collection keys ", collectionsKey)
-	collectionsKey = strings.ToLower(collectionsKey)
 	fmt.Println("Step 22 collection keys ", collectionsKey, collectionToSubscriptionsMap)
 
 	collectionSubscription, isExists := collectionToSubscriptionsMap[collectionsKey]
