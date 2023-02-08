@@ -118,7 +118,7 @@ func (e *ExternalInterface) addCompute(ctx context.Context, taskID, targetURI, p
 	pluginContactRequest.OID = "/redfish/v1/Systems"
 	pluginContactRequest.DeviceUUID = saveSystem.DeviceUUID
 	pluginContactRequest.HTTPMethodType = http.MethodGet
-	pluginContactRequest.CreateSubcription = e.CreateSubcription
+	pluginContactRequest.CreateSubscription = e.CreateSubscription
 	pluginContactRequest.PublishEvent = e.PublishEvent
 	pluginContactRequest.BMCAddress = saveSystem.ManagerAddress
 
@@ -298,7 +298,7 @@ func (e *ExternalInterface) addCompute(ctx context.Context, taskID, targetURI, p
 	urlList := h.SystemURL
 	urlList = append(urlList, chassisList...)
 	urlList = append(urlList, managersList...)
-	pluginContactRequest.CreateSubcription(ctx, urlList)
+	pluginContactRequest.CreateSubscription(ctx, urlList)
 
 	pluginContactRequest.PublishEvent(ctx, h.SystemURL, "SystemsCollection")
 
@@ -322,7 +322,7 @@ func (e *ExternalInterface) addCompute(ctx context.Context, taskID, targetURI, p
 	pluginStartUpData := &agmodel.PluginStartUpData{
 		RequestType: "delta",
 		Devices: map[string]agmodel.DeviceData{
-			saveSystem.DeviceUUID: agmodel.DeviceData{
+			saveSystem.DeviceUUID: {
 				Address:   addResourceRequest.ManagerAddress,
 				UserName:  addResourceRequest.UserName,
 				Password:  []byte(addResourceRequest.Password),
