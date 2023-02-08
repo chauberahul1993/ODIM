@@ -63,16 +63,18 @@ func (eh *eventHandler) handleEvent(c iris.Context) {
 	}
 	fmt.Printf("Step 33333  %+v \n ", message)
 	for _, e := range message.Events {
+		fmt.Println("Origin of condition ", e.OriginOfCondition.Oid)
+		fmt.Printf("Event %+v \n", e)
 		ctx := stdCtx.TODO()
 		containedInKey := db.CreateContainedInKey("Chassis", e.OriginOfCondition.Oid)
 		rackKey, err := eh.dao.Get(ctx, containedInKey.String()).Result()
-		fmt.Printf("Step 5555  %+v \n ", containedInKey)
+		fmt.Printf("Step 5555  %s %s %s \n ", containedInKey, rackKey, err)
 		if err == redis.Nil {
 			fmt.Printf("Step 6666  %+v \n ", err)
 			continue
 		}
 		if err != nil {
-			fmt.Printf("Step 6666  %+v \n ", err)
+			fmt.Printf("Step 6666***  %+v \n ", err)
 			continue
 		}
 		fmt.Printf("Step 7777  %+v \n ", err)
