@@ -35,7 +35,7 @@ func Publish(ctx context.Context, systemID, eventType, collectionType string) {
 		l.LogWithFields(ctx).Error("Unable to connect to " + config.Data.MessageBusConf.MessageBusType + " " + err.Error())
 		return
 	}
-
+	fmt.Println("Message ", config.Data.MessageBusConf.MessageBusType)
 	var message string
 	switch eventType {
 	case "ResourceAdded":
