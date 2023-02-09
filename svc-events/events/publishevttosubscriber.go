@@ -91,7 +91,7 @@ func (e *ExternalInterfaces) PublishEventsToDestination(data interface{}) bool {
 	if err != nil {
 		host = event.IP
 	}
-	host = strings.ToLower(host)
+
 	l.Log.Info("After splitting host address, IP is: ", host)
 
 	var requestData = string(event.Request)
@@ -127,6 +127,7 @@ func (e *ExternalInterfaces) PublishEventsToDestination(data interface{}) bool {
 		return false
 	}
 	message, deviceUUID = formatEvent(rawMessage, deviceSubscription.OriginResources[0], host)
+	host = strings.ToLower(host)
 	searchKey = evcommon.GetSearchKey(host, evmodel.SubscriptionIndex)
 	subscriptions, err := e.GetEvtSubscriptions(searchKey)
 	if err != nil {
