@@ -123,6 +123,7 @@ func (e *ExternalInterfaces) PublishEventsToDestination(ctx context.Context, dat
 		l.LogWithFields(ctx).Info("no origin resources found in device subscriptions")
 		return false
 	}
+
 	e.addFabric(ctx, rawMessage, host)
 	for _, data := range rawMessage.Events {
 		fmt.Println("Before Origin of condition is ", systemId, host, data.EventID, data.OriginOfCondition.Oid)
@@ -131,6 +132,7 @@ func (e *ExternalInterfaces) PublishEventsToDestination(ctx context.Context, dat
 	for _, data := range message.Events {
 		fmt.Println("Origin of condition is ", data.EventID, data.OriginOfCondition.Oid)
 	}
+	host = strings.ToLower(host)
 	eventUniqueID := uuid.NewV4().String()
 	eventMap := make(map[string][]common.Event)
 
@@ -240,7 +242,7 @@ func filterEventsToBeForwarded(ctx context.Context, subscription dmtf.EventDesti
 // formatEvent will format the event string according to the odimra
 // add uuid:systemid/chassisid inplace of systemid/chassisid
 func formatEvent(event common.MessageData, originResource, hostIP string) (common.MessageData, string) {
-	fmt.Printf(" Before formatting %s %+v \n ", hostIP, event)
+	fmt.Printf("Before formatting %s %+v \n ", hostIP, event)
 	deviceUUID, _ := getUUID(originResource)
 	if !strings.Contains(hostIP, "Collection") {
 		for _, event := range event.Events {
@@ -256,10 +258,8 @@ func formatEvent(event common.MessageData, originResource, hostIP string) (commo
 			str = "/redfish/v1/Managers/" + deviceUUID + "."
 			event.OriginOfCondition.Oid = strings.Replace(event.OriginOfCondition.Oid, "/redfish/v1/Managers/", str, -1)
 		}
-
 	}
-	fmt.Printf(" After :wq formatting %+v \n ", event)
-
+	fmt.Printf(" After formatting %+v \n ", event)
 	return event, deviceUUID
 }
 

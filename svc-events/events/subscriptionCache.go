@@ -234,8 +234,8 @@ func getAggregateSubscriptionList(systemId string) (subs []dmtf.EventDestination
 // originOfCondition type
 func getCollectionSubscriptionList(originOfCondition, hostIp string) (subs []dmtf.EventDestination) {
 	collectionsKey := getCollectionKey(originOfCondition, hostIp)
-	fmt.Println("Step 11 collection keys ", collectionsKey)
-	fmt.Println("Step 22 collection keys ", collectionsKey, collectionToSubscriptionsMap)
+	fmt.Println("Step 11 collection keys ", collectionsKey, hostIp)
+	fmt.Println("Step 22 collection keys ", collectionToSubscriptionsMap)
 
 	collectionSubscription, isExists := collectionToSubscriptionsMap[collectionsKey]
 	fmt.Println("Step 333 collection keys ", collectionSubscription)
