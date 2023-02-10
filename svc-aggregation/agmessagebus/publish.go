@@ -30,7 +30,7 @@ import (
 //Publish will takes the system id,Event type and publishes the data to message bus
 func Publish(ctx context.Context, systemID, eventType, collectionType string) {
 	fmt.Println("Pulish messaged **************** ", systemID)
-	topicName := config.Data.MessageBusConf.OdimControlMessageQueue
+	topicName := "REDFISH-EVENTS-TOPIC"
 	k, err := dc.Communicator(config.Data.MessageBusConf.MessageBusType, config.Data.MessageBusConf.MessageBusConfigFilePath, topicName)
 	if err != nil {
 		l.LogWithFields(ctx).Error("Unable to connect to " + config.Data.MessageBusConf.MessageBusType + " " + err.Error())
