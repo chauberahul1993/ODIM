@@ -352,3 +352,140 @@ func SetUpMockConfig(t *testing.T) error {
 	SetPreferredCipherSuites(Data.TLSConf.PreferredCipherSuites)
 	return nil
 }
+func SetUpMockConfig1() error {
+	workingDir, _ := os.Getwd()
+
+	Data.RootServiceUUID = "3bd1f589-117a-4cf9-89f2-da44ee8e012b"
+	Data.FirmwareVersion = "1.0"
+	Data.SouthBoundRequestTimeoutInSecs = 10
+	Data.ServerRediscoveryBatchSize = 10
+	path := strings.SplitAfter(workingDir, "ODIM")
+	var basePath string
+	if len(path) > 2 {
+		for i := 0; i < len(path)-1; i++ {
+			basePath = basePath + path[i]
+		}
+	} else {
+		basePath = path[0]
+	}
+	Data.RegistryStorePath = basePath + "/lib-utilities/etc/"
+	Data.LocalhostFQDN = "odim.test.com"
+	Data.EnabledServices = []string{"SessionService", "AccountService", "EventService"}
+	Data.DBConf = &DBConf{
+		Protocol:              "tcp",
+		InMemoryHost:          localhost,
+		InMemoryPort:          "6379",
+		OnDiskHost:            localhost,
+		OnDiskPort:            "6380",
+		MaxIdleConns:          10,
+		MaxActiveConns:        120,
+		RedisInMemoryPassword: []byte("redis_password"),
+		RedisOnDiskPassword:   []byte("redis_password"),
+	}
+	Data.MessageBusConf = &MessageBusConf{
+		MessageBusType:          "Kafka",
+		OdimControlMessageQueue: "odim-control-messages",
+	}
+	Data.KeyCertConf = &KeyCertConf{
+		RootCACertificate: hostCA,
+		RPCPrivateKey:     hostPrivKey,
+		RPCCertificate:    hostCert,
+		RSAPublicKey:      hostPubKey,
+		RSAPrivateKey:     hostRSAPrivKey,
+	}
+	Data.AuthConf = &AuthConf{
+		SessionTimeOutInMins:            30,
+		ExpiredSessionCleanUpTimeInMins: 15,
+		PasswordRules: &PasswordRules{
+			MinPasswordLength:       12,
+			MaxPasswordLength:       16,
+			AllowedSpecialCharcters: "~!@#$%^&*-+_|(){}:;<>,.?/",
+		},
+	}
+	Data.APIGatewayConf = &APIGatewayConf{
+		Port:        "9090",
+		Host:        localhost,
+		PrivateKey:  hostPrivKey,
+		Certificate: hostCert,
+	}
+	Data.AddComputeSkipResources = &AddComputeSkipResources{
+		SkipResourceListUnderSystem: []string{
+			"Chassis",
+			"LogServices",
+			"Managers",
+		},
+		SkipResourceListUnderManager: []string{
+			"Systems",
+			"Chassis",
+			"LogServices",
+		},
+		SkipResourceListUnderChassis: []string{
+			"Managers",
+			"Systems",
+			"Devices",
+		},
+		SkipResourceListUnderOthers: []string{
+			"Power",
+			"Thermal",
+			"SmartStorage",
+			"LogServices",
+		},
+	}
+	Data.URLTranslation = &URLTranslation{
+		NorthBoundURL: map[string]string{
+			"ODIM": "redfish",
+		},
+		SouthBoundURL: map[string]string{
+			"redfish": "ODIM",
+		},
+	}
+	Data.PluginStatusPolling = &PluginStatusPolling{
+		MaxRetryAttempt:         1,
+		RetryIntervalInMins:     1,
+		ResponseTimeoutInSecs:   1,
+		StartUpResouceBatchSize: 1,
+		PollingFrequencyInMins:  1,
+	}
+	Data.ExecPriorityDelayConf = &ExecPriorityDelayConf{
+		MinResetPriority:    1,
+		MaxResetPriority:    10,
+		MaxResetDelayInSecs: 36000,
+	}
+	Data.TLSConf = &TLSConf{
+		VerifyPeer: true,
+		MinVersion: "TLS_1.2",
+		MaxVersion: "TLS_1.2",
+		PreferredCipherSuites: []string{
+			"TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
+			"TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
+			"TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
+			"TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384",
+			"TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256",
+		},
+	}
+	Data.SupportedPluginTypes = []string{"Compute", "Fabric"}
+	Data.ConnectionMethodConf = []ConnectionMethodConf{
+		{
+			ConnectionMethodType:    "Redfish",
+			ConnectionMethodVariant: "Compute:BasicAuth:GRF:1.0.0",
+		},
+		{
+			ConnectionMethodType:    "Redfish",
+			ConnectionMethodVariant: "Storage:BasicAuth:STG:1.0.0",
+		},
+	}
+	Data.EventConf = &EventConf{
+		DeliveryRetryAttempts:        1,
+		DeliveryRetryIntervalSeconds: 1,
+	}
+	Data.TaskQueueConf = &TaskQueueConf{
+		QueueSize:        1000,
+		DBCommitInterval: 1000,
+		RetryInterval:    1000,
+	}
+	SetVerifyPeer(Data.TLSConf.VerifyPeer)
+	SetTLSMinVersion(Data.TLSConf.MinVersion, &WarningList{})
+	SetTLSMaxVersion(Data.TLSConf.MaxVersion, &WarningList{})
+	SetPreferredCipherSuites(Data.TLSConf.PreferredCipherSuites)
+	return nil
+}

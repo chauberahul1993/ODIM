@@ -85,6 +85,42 @@ func TestPublishEventsToDestiantion(t *testing.T) {
 		assert.False(t, flag)
 	}
 }
+func BenchmarkPublishEventsToDestination(b *testing.B) {
+	config.SetUpMockConfig1()
+
+	m := common.MessageData{
+
+		OdataType: "#Event",
+		Events: []common.Event{
+			{
+				MemberID:       "1",
+				EventType:      "Alert",
+				EventID:        "123",
+				Severity:       "OK",
+				EventTimestamp: "",
+				Message:        "IndicatorChanged",
+				MessageID:      "IndicatorChanged",
+				OriginOfCondition: &common.Link{
+					Oid: "/redfish/v1/Systems/1",
+				},
+			},
+		},
+	}
+	mockCacheData()
+	pc := getMockMethods()
+	var event common.Events
+	event.IP = "100.100.100.100"
+	message, err := json.Marshal(m)
+	if err != nil {
+		b.Errorf("expected err is nil but got : %v", err)
+	}
+	event.Request = message
+
+	for i := 0; i < b.N; i++ {
+		pc.PublishEventsToDestination(evcommon.MockContext(), event)
+	}
+
+}
 
 func TestPublishEventsWithEmptyOriginOfCondition(t *testing.T) {
 	common.SetUpMockConfig()

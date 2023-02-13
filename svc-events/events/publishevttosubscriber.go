@@ -68,6 +68,9 @@ func (e *ExternalInterfaces) addFabric(ctx context.Context, message common.Messa
 		}
 	}
 }
+func endTime(t time.Time) {
+	fmt.Println("Time taken to complete event processing ", time.Since(t))
+}
 
 // PublishEventsToDestination This method sends the event/alert to subscriber's destination
 // Takes:
@@ -76,7 +79,7 @@ func (e *ExternalInterfaces) addFabric(ctx context.Context, message common.Messa
 //	bool: return false if any error occurred during execution, else returns true
 func (e *ExternalInterfaces) PublishEventsToDestination(ctx context.Context, data interface{}) bool {
 	time1 := time.Now()
-	defer fmt.Println("Time taken to complete event processing ", time.Since(time1))
+	defer endTime(time1)
 
 	subscribeCacheLock.Lock()
 	defer subscribeCacheLock.Unlock()
@@ -123,9 +126,13 @@ func (e *ExternalInterfaces) PublishEventsToDestination(ctx context.Context, dat
 	}
 	fmt.Println("Time taken for Get Device ID ", time.Since(time3))
 	time2 := time.Now()
-	e.addFabric(ctx, rawMessage, host)
+	go e.addFabric(ctx, rawMessage, host)
 	fmt.Println("Blocking time for add fabric ", time.Since(time2))
+
+	time6 := time.Now()
+
 	message, deviceUUID = formatEvent(rawMessage, systemId, host)
+	fmt.Println("Time taken in formatting ", time.Since(time6))
 	host = strings.ToLower(host)
 	eventUniqueID := uuid.NewV4().String()
 	eventMap := make(map[string][]common.Event)
@@ -154,8 +161,9 @@ func (e *ExternalInterfaces) PublishEventsToDestination(ctx context.Context, dat
 			continue
 		}
 		t5 := time.Now()
-		fmt.Println("Time taken to read Subscription ", time.Since(t5))
 		subscriptions := getSubscriptions(inEvent.OriginOfCondition.Oid, systemId, host)
+		fmt.Println("Time taken to read Subscription ", time.Since(t5))
+
 		for _, sub := range subscriptions {
 			if filterEventsToBeForwarded(ctx, sub, inEvent, sub.OriginResources) {
 				eventMap[sub.Destination] = append(eventMap[sub.Destination], inEvent)
