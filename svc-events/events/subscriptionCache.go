@@ -167,7 +167,6 @@ func addSystemIdToAggregateCache(aggregateId string, aggregate evmodel.Aggregate
 //getSourceId function return system id corresponding host, if not found then return host
 func getSourceId(host string) (string, error) {
 	data, isExists := eventSourceToManagerIDMap[host]
-	fmt.Printf("key is %s and %+v \n", host, eventSourceToManagerIDMap)
 	if !isExists {
 		if strings.Contains(host, "Collection") {
 			return host, nil
@@ -191,7 +190,6 @@ func updateCacheMaps(key, value string, cacheData map[string]map[string]bool) {
 
 // getSubscriptions return list of subscription from cache corresponding to originOfCondition
 func getSubscriptions(originOfCondition, systemId, hostIp string) (subs []dmtf.EventDestination) {
-	fmt.Println("Selection keys is ", hostIp, systemId)
 	subs = append(subs, getSystemSubscriptionList(hostIp)...)
 	subs = append(subs, getAggregateSubscriptionList(systemId)...)
 	subs = append(subs, getEmptyOriginResourceSubscriptionList()...)
@@ -239,11 +237,7 @@ func getAggregateSubscriptionList(systemId string) (subs []dmtf.EventDestination
 // originOfCondition type
 func getCollectionSubscriptionList(originOfCondition, hostIp string) (subs []dmtf.EventDestination) {
 	collectionsKey := getCollectionKey(originOfCondition, hostIp)
-	fmt.Println("Step 11 collection keys ", collectionsKey, hostIp)
-	fmt.Println("Step 22 collection keys ", collectionToSubscriptionsMap)
-
 	collectionSubscription, isExists := collectionToSubscriptionsMap[collectionsKey]
-	fmt.Println("Step 333 collection keys ", collectionSubscription)
 
 	if isExists {
 		for subId := range collectionSubscription {
