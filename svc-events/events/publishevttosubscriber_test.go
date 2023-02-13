@@ -25,6 +25,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 	"testing"
 
 	"github.com/ODIM-Project/ODIM/lib-dmtf/model"
@@ -341,6 +342,10 @@ func mockCacheData() {
 	eventSourceToManagerIDMap = make(map[string]string, 2)
 	eventSourceToManagerIDMap["100.100.100.100"] = "6d4a0a66-7efa-578e-83cf-44dc68d2874e.1"
 	eventSourceToManagerIDMap["10.10.1.3"] = "11081de0-4859-984c-c35a-6c50732d72da.1"
+
+	for i := 0; i <= 5000; i++ {
+		eventSourceToManagerIDMap[strconv.Itoa(i)] = "11081de0-4859-984c-c35a-6c50732d72da.1"
+	}
 
 	subscriptionsCache = make(map[string]model.EventDestination, 1)
 	subscriptionsCache["11081de0-4859-984c-c35a-6c50732d7"] = model.EventDestination{
