@@ -75,9 +75,11 @@ func (e *ExternalInterfaces) addFabric(ctx context.Context, message common.Messa
 //Returns:
 //	bool: return false if any error occurred during execution, else returns true
 func (e *ExternalInterfaces) PublishEventsToDestination(ctx context.Context, data interface{}) bool {
+	time1 := time.Now()
+	defer fmt.Println("Time taken to complete event processing ", time.Since(time1))
+
 	subscribeCacheLock.Lock()
 	defer subscribeCacheLock.Unlock()
-	fmt.Println("Event Received ************ ")
 	if data == nil {
 		l.LogWithFields(ctx).Info("invalid input params")
 		return false
@@ -109,29 +111,21 @@ func (e *ExternalInterfaces) PublishEventsToDestination(ctx context.Context, dat
 	var flag bool
 	var deviceUUID string
 	var message, rawMessage common.MessageData
-	fmt.Println("Event 1111 ", requestData)
 	if err = json.Unmarshal([]byte(requestData), &rawMessage); err != nil {
 		l.LogWithFields(ctx).Error("failed to unmarshal the incoming event: ", requestData, " with the error: ", err.Error())
 		return false
 	}
-	fmt.Println("Event Type 11 ", event.EventType)
-	fmt.Println("Event Type 22 ", event.IP)
-	fmt.Printf("Event Type 33 %+v \n\n", rawMessage.Events[0].OriginOfCondition)
-
+	time3 := time.Now()
 	systemId, err := getSourceId(host)
 	if err != nil {
 		l.LogWithFields(ctx).Info("no origin resources found in device subscriptions")
 		return false
 	}
-
+	fmt.Println("Time taken for Get Device ID ", time.Since(time3))
+	time2 := time.Now()
 	e.addFabric(ctx, rawMessage, host)
-	for _, data := range rawMessage.Events {
-		fmt.Println("Before Origin of condition is ", systemId, host, data.EventID, data.OriginOfCondition.Oid)
-	}
+	fmt.Println("Blocking time for add fabric ", time.Since(time2))
 	message, deviceUUID = formatEvent(rawMessage, systemId, host)
-	for _, data := range message.Events {
-		fmt.Println("Origin of condition is ", data.EventID, data.OriginOfCondition.Oid)
-	}
 	host = strings.ToLower(host)
 	eventUniqueID := uuid.NewV4().String()
 	eventMap := make(map[string][]common.Event)
@@ -159,8 +153,9 @@ func (e *ExternalInterfaces) PublishEventsToDestination(ctx context.Context, dat
 			l.LogWithFields(ctx).Info("event not forwarded as resource type of originofcondition not supported in incoming event: ", requestData)
 			continue
 		}
+		t5 := time.Now()
+		fmt.Println("Time taken to read Subscription ", time.Since(t5))
 		subscriptions := getSubscriptions(inEvent.OriginOfCondition.Oid, systemId, host)
-		fmt.Printf(" Subscription list%s \n %+v \n ", inEvent.OriginOfCondition.Oid, subscriptions)
 		for _, sub := range subscriptions {
 			if filterEventsToBeForwarded(ctx, sub, inEvent, sub.OriginResources) {
 				eventMap[sub.Destination] = append(eventMap[sub.Destination], inEvent)
@@ -242,7 +237,6 @@ func filterEventsToBeForwarded(ctx context.Context, subscription dmtf.EventDesti
 // formatEvent will format the event string according to the odimra
 // add uuid:systemid/chassisid inplace of systemid/chassisid
 func formatEvent(event common.MessageData, originResource, hostIP string) (common.MessageData, string) {
-	fmt.Printf("Before formatting %s %+v \n ", hostIP, event)
 	deviceUUID, _ := getUUID(originResource)
 	if !strings.Contains(hostIP, "Collection") {
 		for _, event := range event.Events {
@@ -259,7 +253,6 @@ func formatEvent(event common.MessageData, originResource, hostIP string) (commo
 			event.OriginOfCondition.Oid = strings.Replace(event.OriginOfCondition.Oid, "/redfish/v1/Managers/", str, -1)
 		}
 	}
-	fmt.Printf(" After formatting %+v \n ", event)
 	return event, deviceUUID
 }
 

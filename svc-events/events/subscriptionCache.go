@@ -48,6 +48,8 @@ func LoadSubscriptionData(ctx context.Context) {
 // getAllSubscriptions this method read data from Subscription table and
 // load in corresponding cache
 func getAllSubscriptions(ctx context.Context) {
+	t1 := time.Now()
+
 	subscribeCacheLock.Lock()
 	defer subscribeCacheLock.Unlock()
 	systemToSubscriptionsMap = make(map[string]map[string]bool)
@@ -76,11 +78,13 @@ func getAllSubscriptions(ctx context.Context) {
 			loadSubscriptionCacheData(sub.SubscriptionID, sub.Hosts)
 		}
 	}
-	l.LogWithFields(ctx).Debug("Subscriptions cache updated ")
+	l.LogWithFields(ctx).Debug("Subscriptions cache updated ", time.Since(t1))
 }
 
 // getAllDeviceSubscriptions method fetch data from DeviceSubscription table
 func getAllDeviceSubscriptions(ctx context.Context) {
+	t1 := time.Now()
+
 	subscribeCacheLock.Lock()
 	defer subscribeCacheLock.Unlock()
 	deviceSubscriptionList, err := evmodel.GetAllDeviceSubscriptions()
@@ -93,7 +97,7 @@ func getAllDeviceSubscriptions(ctx context.Context) {
 		devSub := strings.Split(device, "||")
 		updateCatchDeviceSubscriptionData(devSub[0], evmodel.GetSliceFromString(devSub[2]))
 	}
-	l.LogWithFields(ctx).Debug("DeviceSubscription cache updated ")
+	l.LogWithFields(ctx).Debug("DeviceSubscription cache updated ", time.Since(t1))
 }
 
 // updateCatchDeviceSubscriptionData update eventSourceToManagerMap for each key with their system IDs
@@ -131,6 +135,7 @@ func addSubscriptionCache(key string, subscriptionId string) {
 // getAllAggregates method will read all aggregate from db and
 // update systemIdToAggregateIdsMap to corresponding member in aggregate
 func getAllAggregates(ctx context.Context) {
+	t1 := time.Now()
 	subscribeCacheLock.Lock()
 	defer subscribeCacheLock.Unlock()
 
@@ -148,7 +153,7 @@ func getAllAggregates(ctx context.Context) {
 		aggregateId := aggregateUrl[strings.LastIndexByte(aggregateUrl, '/')+1:]
 		addSystemIdToAggregateCache(aggregateId, aggregate)
 	}
-	l.LogWithFields(ctx).Debug("AggregateToHost cache updated ")
+	l.LogWithFields(ctx).Debug("AggregateToHost cache updated ", time.Since(t1))
 }
 
 // addSystemIdToAggregateCache update cache for each aggregate member
