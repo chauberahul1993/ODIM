@@ -69,7 +69,7 @@ func (e *ExternalInterfaces) addFabric(ctx context.Context, message common.Messa
 	}
 }
 func endTime(ctx context.Context, t time.Time) {
-	l.LogWithFields(ctx).Debug("Time taken to complete event processing ", time.Since(t))
+	l.LogWithFields(ctx).Info("Time taken to complete event processing ", time.Since(t))
 }
 
 // PublishEventsToDestination This method sends the event/alert to subscriber's destination
@@ -364,7 +364,7 @@ func (e *ExternalInterfaces) reAttemptEvents(ctx context.Context, destination, u
 	var err error
 	count := config.Data.EventConf.DeliveryRetryAttempts
 	for i := 0; i < count; i++ {
-		l.LogWithFields(ctx).Info("Retry event forwarding on destination: ", destination)
+		// l.LogWithFields(ctx).Info("Retry event forwarding on destination: ", destination)
 		time.Sleep(time.Second * time.Duration(config.Data.EventConf.DeliveryRetryIntervalSeconds))
 		// if undelivered event already published then ignore retrying
 		eventString, err := e.GetUndeliveredEvents(undeliveredEventID)
