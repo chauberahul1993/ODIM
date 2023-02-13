@@ -75,6 +75,9 @@ func (e *ExternalInterfaces) addFabric(ctx context.Context, message common.Messa
 //Returns:
 //	bool: return false if any error occurred during execution, else returns true
 func (e *ExternalInterfaces) PublishEventsToDestination(ctx context.Context, data interface{}) bool {
+	time1 := time.Now()
+	defer fmt.Println("Time taken to complete event processing ", time.Since(time1))
+
 	subscribeCacheLock.Lock()
 	defer subscribeCacheLock.Unlock()
 
@@ -115,13 +118,16 @@ func (e *ExternalInterfaces) PublishEventsToDestination(ctx context.Context, dat
 		l.LogWithFields(ctx).Error("failed to unmarshal the incoming event: ", requestData, " with the error: ", err.Error())
 		return false
 	}
-
+	time2 := time.Now()
 	e.addFabric(ctx, rawMessage, host)
+	fmt.Println("Blocking time for add fabric ", time.Since(time2))
+	time3 := time.Now()
 	systemId, err := getSourceId(host)
 	if err != nil {
 		l.LogWithFields(ctx).Info("no origin resources found in device subscriptions")
 		return false
 	}
+	fmt.Println("Time taken for Get Device ID ", time.Since(time3))
 	message, deviceUUID = formatEvent(rawMessage, systemId, host)
 	eventUniqueID := uuid.NewV4().String()
 	eventMap := make(map[string][]common.Event)
@@ -149,7 +155,9 @@ func (e *ExternalInterfaces) PublishEventsToDestination(ctx context.Context, dat
 			l.LogWithFields(ctx).Info("event not forwarded as resource type of originofcondition not supported in incoming event: ", requestData)
 			continue
 		}
+		t5 := time.Now()
 		subscriptions := getSubscriptions(inEvent.OriginOfCondition.Oid, systemId, host)
+		fmt.Println("Time taken to read Subscription ", time.Since(t5))
 		for _, sub := range subscriptions {
 			if filterEventsToBeForwarded(ctx, sub, inEvent, sub.OriginResources) {
 				eventMap[sub.Destination] = append(eventMap[sub.Destination], inEvent)
