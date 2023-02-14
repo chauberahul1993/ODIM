@@ -386,7 +386,7 @@ func (e *ExternalInterfaces) reAttemptEvents(ctx context.Context, destination, u
 		resp, err = SendEventFunc(destination, event)
 		if err == nil {
 			resp.Body.Close()
-			fmt.Println("Event is successfully forwarded", destination, string(event))
+			fmt.Println("Event is successfully forwarded")
 			l.LogWithFields(ctx).Info("Event is successfully forwarded")
 			// if event is delivered then delete the same which is saved in 1st attempt
 			err = e.DeleteUndeliveredEvents(undeliveredEventID)
@@ -569,7 +569,6 @@ func (e *ExternalInterfaces) checkUndeliveredEvents(ctx context.Context, destina
 				l.LogWithFields(ctx).Error("error while make https call to send the event: ", err.Error())
 				continue
 			}
-			fmt.Println("Event is successfully forwarded", destination, string(event))
 			l.LogWithFields(ctx).Info("Event is successfully forwarded")
 			err = e.DeleteUndeliveredEvents(dest)
 			if err != nil {
