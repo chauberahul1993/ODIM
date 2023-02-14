@@ -142,7 +142,7 @@ func (e *ExternalInterfaces) PublishEventsToDestination(ctx context.Context, dat
 	host = strings.ToLower(host)
 	eventUniqueID := uuid.NewV4().String()
 	eventMap := make(map[string][]common.Event)
-	// t10 := time.Now()
+	t10 := time.Now()
 	for index, inEvent := range message.Events {
 		// if inEvent.OriginOfCondition == nil || len(inEvent.OriginOfCondition.Oid) < 1 {
 		// 	fmt.Println("event not forwarded as Originofcondition is empty in incoming event: ", requestData)
@@ -172,11 +172,11 @@ func (e *ExternalInterfaces) PublishEventsToDestination(ctx context.Context, dat
 		// fmt.Println("Time taken to valid resource type ", time.Since(t11))
 		// l.LogWithFields(ctx).Debug("Find Resource Type ", time.Since(t8), " Total time ", time.Since(time1))
 
-		// t5 := time.Now()
+		t5 := time.Now()
 
 		subscriptions := getSubscriptions(inEvent.OriginOfCondition.Oid, systemId, host)
 		// l.LogWithFields(ctx).Debug("Time taken to read Subscription ", time.Since(t5), " Total time ", time.Since(time1))
-		// fmt.Println("**** Time taken to read Subscription ", time.Since(t5), " Total time ", time.Since(time1))
+		fmt.Println("**** Time taken to read Subscription ", time.Since(t5), " Total time ", time.Since(time1))
 		for _, sub := range subscriptions {
 			if filterEventsToBeForwarded(ctx, sub, inEvent, sub.OriginResources) {
 				eventMap[sub.Destination] = append(eventMap[sub.Destination], inEvent)
@@ -201,7 +201,7 @@ func (e *ExternalInterfaces) PublishEventsToDestination(ctx context.Context, dat
 			}
 		}
 	}
-	// fmt.Println("Time to validate event ", time.Since(t10))
+	fmt.Println("Time to validate event ", time.Since(t10))
 	for key, value := range eventMap {
 		message.Events = value
 		data, err := json.Marshal(message)
