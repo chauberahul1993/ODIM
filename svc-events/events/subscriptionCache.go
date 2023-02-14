@@ -292,11 +292,15 @@ func getCollectionKey(oid, host string) (key string) {
 	return
 }
 
-// initializeDbObserver function subscribe redis keyspace notifier
+// initializeDbObserver function subscribe redis keySpace notifier
 func initializeDbObserver(ctx context.Context) {
 	l.LogWithFields(ctx).Debug("Initializing observer ")
 START:
-	conn, _ := common.GetDBConnection(common.OnDisk)
+	conn, errDbConn := common.GetDBConnection(common.OnDisk)
+	if errDbConn != nil {
+		l.LogWithFields(ctx).Error("error while getDbConnection  ", errDbConn)
+		goto START
+	}
 	writeConn := conn.WritePool.Get()
 	defer writeConn.Close()
 	_, err := writeConn.Do("CONFIG", "SET", evcommon.RedisNotifierType, evcommon.RedisNotifierFilterKey)

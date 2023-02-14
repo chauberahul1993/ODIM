@@ -79,8 +79,8 @@ func endTime(ctx context.Context, t time.Time) {
 //Returns:
 //	bool: return false if any error occurred during execution, else returns true
 func (e *ExternalInterfaces) PublishEventsToDestination(ctx context.Context, data interface{}) bool {
-	// subscribeCacheLock.Lock()
-	// defer subscribeCacheLock.Unlock()
+	subscribeCacheLock.Lock()
+	defer subscribeCacheLock.Unlock()
 	time1 := time.Now()
 	defer endTime(ctx, time1)
 
