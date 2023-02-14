@@ -145,6 +145,7 @@ func (e *ExternalInterfaces) PublishEventsToDestination(ctx context.Context, dat
 	t10 := time.Now()
 	for index, inEvent := range message.Events {
 		if inEvent.OriginOfCondition == nil || len(inEvent.OriginOfCondition.Oid) < 1 {
+			fmt.Println("event not forwarded as Originofcondition is empty in incoming event: ", requestData)
 			l.LogWithFields(ctx).Info("event not forwarded as Originofcondition is empty in incoming event: ", requestData)
 			continue
 		}
@@ -160,11 +161,12 @@ func (e *ExternalInterfaces) PublishEventsToDestination(ctx context.Context, dat
 				}
 			}
 		} else {
-			l.LogWithFields(ctx).Info("event not forwarded as originofcondition is empty incoming event: ", requestData)
+			l.LogWithFields(ctx).Info("event not forwarded as originofcondition is invalid: ", requestData)
 			continue
 		}
 
 		if !resTypePresent {
+			fmt.Println("event not forwarded as resource type of originofcondition not supported in incoming event: ", requestData)
 			l.LogWithFields(ctx).Info("event not forwarded as resource type of originofcondition not supported in incoming event: ", requestData)
 			continue
 		}
@@ -334,6 +336,8 @@ func (e *ExternalInterfaces) postEvent(ctx context.Context, destination, eventUn
 	resp, err := SendEventFunc(destination, event)
 	if err == nil {
 		resp.Body.Close()
+		fmt.Println("Event is successfully forwarded", destination, string(event))
+
 		l.LogWithFields(ctx).Info("Event is successfully forwarded", destination, string(event))
 		// check any undelivered events are present in db for the destination and publish those
 		go e.checkUndeliveredEvents(ctx, destination)
@@ -383,6 +387,7 @@ func (e *ExternalInterfaces) reAttemptEvents(ctx context.Context, destination, u
 		resp, err = SendEventFunc(destination, event)
 		if err == nil {
 			resp.Body.Close()
+			fmt.Println("Event is successfully forwarded", destination, string(event))
 			l.LogWithFields(ctx).Info("Event is successfully forwarded")
 			// if event is delivered then delete the same which is saved in 1st attempt
 			err = e.DeleteUndeliveredEvents(undeliveredEventID)
@@ -565,6 +570,7 @@ func (e *ExternalInterfaces) checkUndeliveredEvents(ctx context.Context, destina
 				l.LogWithFields(ctx).Error("error while make https call to send the event: ", err.Error())
 				continue
 			}
+			fmt.Println("Event is successfully forwarded", destination, string(event))
 			l.LogWithFields(ctx).Info("Event is successfully forwarded")
 			err = e.DeleteUndeliveredEvents(dest)
 			if err != nil {
