@@ -190,18 +190,18 @@ func updateCacheMaps(key, value string, cacheData map[string]map[string]bool) {
 
 // getSubscriptions return list of subscription from cache corresponding to originOfCondition
 func getSubscriptions(originOfCondition, systemId, hostIp string) (subs []dmtf.EventDestination) {
-	t1 := time.Now()
+	// t1 := time.Now()
 	subs = append(subs, getSystemSubscriptionList(hostIp)...)
-	fmt.Println("***** Time taken to get system subscription ", time.Since(t1), len(subs))
-	t1 = time.Now()
+	// fmt.Println("***** Time taken to get system subscription ", time.Since(t1), len(subs))
+	// t1 = time.Now()
 	subs = append(subs, getAggregateSubscriptionList(systemId)...)
-	fmt.Println("***** Time taken to get Aggregate ", time.Since(t1), len(subs))
-	t1 = time.Now()
+	// fmt.Println("***** Time taken to get Aggregate ", time.Since(t1), len(subs))
+	// t1 = time.Now()
 	subs = append(subs, getEmptyOriginResourceSubscriptionList()...)
-	fmt.Println("***** Time taken to get Empty ", time.Since(t1), len(subs))
-	t1 = time.Now()
+	// fmt.Println("***** Time taken to get Empty ", time.Since(t1), len(subs))
+	// t1 = time.Now()
 	subs = append(subs, getCollectionSubscriptionList(originOfCondition, hostIp)...)
-	fmt.Println("***** Time taken to get Collection ", time.Since(t1), len(subs))
+	// fmt.Println("***** Time taken to get Collection ", time.Since(t1), len(subs))
 	return
 }
 
