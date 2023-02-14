@@ -193,12 +193,15 @@ func getSubscriptions(originOfCondition, systemId, hostIp string) (subs []dmtf.E
 	t1 := time.Now()
 	subs = append(subs, getSystemSubscriptionList(hostIp)...)
 	fmt.Println("***** Time taken to get system subscription ", time.Since(t1), len(subs))
+	t1 = time.Now()
 	subs = append(subs, getAggregateSubscriptionList(systemId)...)
 	fmt.Println("***** Time taken to get Aggregate ", time.Since(t1), len(subs))
+	t1 = time.Now()
 	subs = append(subs, getEmptyOriginResourceSubscriptionList()...)
-	fmt.Println("***** Empty ", time.Since(t1), len(subs))
+	fmt.Println("***** Time taken to get Empty ", time.Since(t1), len(subs))
+	t1 = time.Now()
 	subs = append(subs, getCollectionSubscriptionList(originOfCondition, hostIp)...)
-	fmt.Println("***** Collection ", time.Since(t1), len(subs))
+	fmt.Println("***** Time taken to get Collection ", time.Since(t1), len(subs))
 	return
 }
 
