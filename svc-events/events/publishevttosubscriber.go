@@ -79,10 +79,11 @@ func endTime(ctx context.Context, t time.Time) {
 //Returns:
 //	bool: return false if any error occurred during execution, else returns true
 func (e *ExternalInterfaces) PublishEventsToDestination(ctx context.Context, data interface{}) bool {
-	time1 := time.Now()
-	defer endTime(ctx, time1)
 	subscribeCacheLock.Lock()
 	defer subscribeCacheLock.Unlock()
+
+	time1 := time.Now()
+	defer endTime(ctx, time1)
 
 	if data == nil {
 		l.LogWithFields(ctx).Info("invalid input params")
