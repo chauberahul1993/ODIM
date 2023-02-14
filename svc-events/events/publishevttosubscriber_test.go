@@ -78,17 +78,6 @@ func TestPublishEventsToDestiantion(t *testing.T) {
 		flag := pc.PublishEventsToDestination(evcommon.MockContext(), event)
 		assert.True(t, flag)
 	}
-	// for _, v := range messages {
-	// 	var event common.Events
-	// 	event.IP = "10.10.10.9"
-	// 	message, err := json.Marshal(v)
-	// 	if err != nil {
-	// 		t.Errorf("expected err is nil but got : %v", err)
-	// 	}
-	// 	event.Request = message
-	// 	flag := pc.PublishEventsToDestination(evcommon.MockContext(), event)
-	// 	assert.False(t, flag)
-	// }
 }
 
 func TestPublishEventsWithEmptyOriginOfCondition(t *testing.T) {
