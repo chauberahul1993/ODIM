@@ -70,6 +70,7 @@ func (e *ExternalInterfaces) addFabric(ctx context.Context, message common.Messa
 }
 func endTime(ctx context.Context, t time.Time) {
 	l.LogWithFields(ctx).Info("Time taken to complete event processing ", time.Since(t))
+	fmt.Println("Time taken ********* ", time.Since(t))
 }
 
 // PublishEventsToDestination This method sends the event/alert to subscriber's destination
@@ -80,9 +81,9 @@ func endTime(ctx context.Context, t time.Time) {
 func (e *ExternalInterfaces) PublishEventsToDestination(ctx context.Context, data interface{}) bool {
 	time1 := time.Now()
 	defer endTime(ctx, time1)
-
 	subscribeCacheLock.Lock()
 	defer subscribeCacheLock.Unlock()
+
 	if data == nil {
 		l.LogWithFields(ctx).Info("invalid input params")
 		return false
@@ -126,7 +127,7 @@ func (e *ExternalInterfaces) PublishEventsToDestination(ctx context.Context, dat
 	}
 	l.LogWithFields(ctx).Debug("Time taken for Get Device ID ", time.Since(time3), " Total time ", time.Since(time1))
 	time2 := time.Now()
-	e.addFabric(ctx, rawMessage, host)
+	go e.addFabric(ctx, rawMessage, host)
 	l.LogWithFields(ctx).Debug("Blocking time for add fabric ", time.Since(time2), " Total time ", time.Since(time1))
 
 	time6 := time.Now()

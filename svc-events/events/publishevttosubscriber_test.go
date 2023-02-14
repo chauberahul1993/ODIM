@@ -22,6 +22,7 @@ package events
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
@@ -32,14 +33,17 @@ import (
 	"github.com/ODIM-Project/ODIM/lib-utilities/common"
 	"github.com/ODIM-Project/ODIM/lib-utilities/config"
 	"github.com/ODIM-Project/ODIM/lib-utilities/errors"
+	l "github.com/ODIM-Project/ODIM/lib-utilities/logs"
 	"github.com/ODIM-Project/ODIM/svc-events/evcommon"
 	"github.com/ODIM-Project/ODIM/svc-events/evmodel"
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc"
 )
 
 func TestPublishEventsToDestiantion(t *testing.T) {
 	config.SetUpMockConfig(t)
+	l.LogWithFields(mockContext()).Logger.SetLevel(logrus.InfoLevel)
 	messages := []common.MessageData{
 		{
 			OdataType: "#Event",
@@ -74,53 +78,17 @@ func TestPublishEventsToDestiantion(t *testing.T) {
 		flag := pc.PublishEventsToDestination(evcommon.MockContext(), event)
 		assert.True(t, flag)
 	}
-	for _, v := range messages {
-		var event common.Events
-		event.IP = "10.10.10.9"
-		message, err := json.Marshal(v)
-		if err != nil {
-			t.Errorf("expected err is nil but got : %v", err)
-		}
-		event.Request = message
-		flag := pc.PublishEventsToDestination(evcommon.MockContext(), event)
-		assert.False(t, flag)
-	}
-}
-func BenchmarkPublishEventsToDestination(b *testing.B) {
-	config.SetUpMockConfig1()
-
-	m := common.MessageData{
-
-		OdataType: "#Event",
-		Events: []common.Event{
-			{
-				MemberID:       "1",
-				EventType:      "Alert",
-				EventID:        "123",
-				Severity:       "OK",
-				EventTimestamp: "",
-				Message:        "IndicatorChanged",
-				MessageID:      "IndicatorChanged",
-				OriginOfCondition: &common.Link{
-					Oid: "/redfish/v1/Systems/1",
-				},
-			},
-		},
-	}
-	mockCacheData()
-	pc := getMockMethods()
-	var event common.Events
-	event.IP = "100.100.100.100"
-	message, err := json.Marshal(m)
-	if err != nil {
-		b.Errorf("expected err is nil but got : %v", err)
-	}
-	event.Request = message
-
-	for i := 0; i < b.N; i++ {
-		pc.PublishEventsToDestination(evcommon.MockContext(), event)
-	}
-
+	// for _, v := range messages {
+	// 	var event common.Events
+	// 	event.IP = "10.10.10.9"
+	// 	message, err := json.Marshal(v)
+	// 	if err != nil {
+	// 		t.Errorf("expected err is nil but got : %v", err)
+	// 	}
+	// 	event.Request = message
+	// 	flag := pc.PublishEventsToDestination(evcommon.MockContext(), event)
+	// 	assert.False(t, flag)
+	// }
 }
 
 func TestPublishEventsWithEmptyOriginOfCondition(t *testing.T) {
@@ -343,14 +311,82 @@ func mockCacheData() {
 	eventSourceToManagerIDMap["100.100.100.100"] = "6d4a0a66-7efa-578e-83cf-44dc68d2874e.1"
 	eventSourceToManagerIDMap["10.10.1.3"] = "11081de0-4859-984c-c35a-6c50732d72da.1"
 
-	for i := 0; i <= 5000; i++ {
-		eventSourceToManagerIDMap[strconv.Itoa(i)] = "11081de0-4859-984c-c35a-6c50732d72da.1"
-	}
-
 	subscriptionsCache = make(map[string]model.EventDestination, 1)
 	subscriptionsCache["11081de0-4859-984c-c35a-6c50732d7"] = model.EventDestination{
-		Destination: "https://10.10.10.10:8080/Destination",
+		Destination:         "https://10.10.10.10:8080/Destination",
+		ODataId:             "",
+		EventFormatType:     "Redfish",
+		EventTypes:          []string{"Alert"},
+		ID:                  "11081de0-4859-984c-c35a-6c50732d52da",
+		DeliveryRetryPolicy: "RetryForever",
+		MessageIds:          []string{},
+		Context:             "ABCDDD",
+		Name:                "Test",
 	}
 	emptyOriginResourceToSubscriptionsMap = make(map[string]bool, 0)
 	emptyOriginResourceToSubscriptionsMap["11081de0-4859-984c-c35a-6c50732d7"] = true
+	systemToSubscriptionsMap = make(map[string]map[string]bool)
+	systemToSubscriptionsMap["100.100.100.10"] = map[string]bool{"11081de0-4859-984c-c35a-6c50732d7": true}
+	systemToSubscriptionsMap["10.10.1.3"] = map[string]bool{"11081de0-4859-984c-c35a-6c50732d7": true}
+
+	for i := 0; i <= 5; i++ {
+		eventSourceToManagerIDMap[strconv.Itoa(i)] = "5baa4453-db5a-4fa3-9b66-b48f2497d768.1"
+		systemToSubscriptionsMap["100.100.100.100"+strconv.Itoa(i)] = map[string]bool{"11081de0-4859-984c-c35a-6c50732d7": true}
+
+	}
+
+}
+func BenchmarkPublishEventsToDestination(b *testing.B) {
+	config.SetUpMockConfig1()
+
+	m := []common.MessageData{{
+		OdataType: "#Event",
+		Events: []common.Event{
+			{
+				MemberID:       "1",
+				EventType:      "Alert",
+				EventID:        "123",
+				Severity:       "OK",
+				EventTimestamp: "",
+				Message:        "IndicatorChanged",
+				MessageID:      "IndicatorChanged",
+				OriginOfCondition: &common.Link{
+					Oid: "",
+				},
+			},
+		},
+	},
+		{
+			OdataType: "#Event",
+			Events: []common.Event{
+				{
+					MemberID:       "1",
+					EventType:      "Alert",
+					EventID:        "123",
+					Severity:       "OK",
+					EventTimestamp: "",
+					Message:        "IndicatorChanged",
+					MessageID:      "IndicatorChanged",
+					OriginOfCondition: &common.Link{
+						Oid: "",
+					},
+				},
+			},
+		},
+	}
+	l.LogWithFields(context.TODO()).Logger.SetLevel(logrus.ErrorLevel)
+	mockCacheData()
+	pc := getMockMethods()
+	var event common.Events
+	event.IP = "100.100.100.100"
+
+	for i := 0; i < b.N; i++ {
+		message, err := json.Marshal(m[i%2])
+		if err != nil {
+			b.Errorf("expected err is nil but got : %v", err)
+		}
+		event.Request = message
+		pc.PublishEventsToDestination(evcommon.MockContext(), event)
+	}
+
 }

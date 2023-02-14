@@ -19,6 +19,8 @@ import (
 	"os"
 	"strings"
 	"testing"
+
+	"github.com/sirupsen/logrus"
 )
 
 var (
@@ -368,6 +370,7 @@ func SetUpMockConfig1() error {
 	} else {
 		basePath = path[0]
 	}
+	Data.LogLevel = logrus.TraceLevel
 	Data.RegistryStorePath = basePath + "/lib-utilities/etc/"
 	Data.LocalhostFQDN = "odim.test.com"
 	Data.EnabledServices = []string{"SessionService", "AccountService", "EventService"}
