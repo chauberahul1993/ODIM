@@ -144,31 +144,31 @@ func (e *ExternalInterfaces) PublishEventsToDestination(ctx context.Context, dat
 	eventMap := make(map[string][]common.Event)
 	// t10 := time.Now()
 	for index, inEvent := range message.Events {
-		if inEvent.OriginOfCondition == nil || len(inEvent.OriginOfCondition.Oid) < 1 {
-			fmt.Println("event not forwarded as Originofcondition is empty in incoming event: ", requestData)
-			// l.LogWithFields(ctx).Info("event not forwarded as Originofcondition is empty in incoming event: ", requestData)
-			continue
-		}
-		var resTypePresent bool
-		// t11 := time.Now()
-		originofCond := strings.Split(strings.TrimSuffix(inEvent.OriginOfCondition.Oid, "/"), "/")
-		if len(originofCond) > 2 {
-			resType := originofCond[len(originofCond)-2]
-			for _, value := range common.ResourceTypes {
-				if strings.Contains(resType, value) {
-					resTypePresent = true
-				}
-			}
-		} else {
-			l.LogWithFields(ctx).Info("event not forwarded as originofcondition is invalid: ", requestData)
-			continue
-		}
+		// if inEvent.OriginOfCondition == nil || len(inEvent.OriginOfCondition.Oid) < 1 {
+		// 	fmt.Println("event not forwarded as Originofcondition is empty in incoming event: ", requestData)
+		// 	// l.LogWithFields(ctx).Info("event not forwarded as Originofcondition is empty in incoming event: ", requestData)
+		// 	continue
+		// }
+		// var resTypePresent bool
+		// // t11 := time.Now()
+		// originofCond := strings.Split(strings.TrimSuffix(inEvent.OriginOfCondition.Oid, "/"), "/")
+		// if len(originofCond) > 2 {
+		// 	resType := originofCond[len(originofCond)-2]
+		// 	for _, value := range common.ResourceTypes {
+		// 		if strings.Contains(resType, value) {
+		// 			resTypePresent = true
+		// 		}
+		// 	}
+		// } else {
+		// 	l.LogWithFields(ctx).Info("event not forwarded as originofcondition is invalid: ", requestData)
+		// 	continue
+		// }
 
-		if !resTypePresent {
-			fmt.Println("event not forwarded as resource type of originofcondition not supported in incoming event: ", requestData)
-			// l.LogWithFields(ctx).Info("event not forwarded as resource type of originofcondition not supported in incoming event: ", requestData)
-			continue
-		}
+		// if !resTypePresent {
+		// 	fmt.Println("event not forwarded as resource type of originofcondition not supported in incoming event: ", requestData)
+		// 	// l.LogWithFields(ctx).Info("event not forwarded as resource type of originofcondition not supported in incoming event: ", requestData)
+		// 	continue
+		// }
 		// fmt.Println("Time taken to valid resource type ", time.Since(t11))
 		// l.LogWithFields(ctx).Debug("Find Resource Type ", time.Since(t8), " Total time ", time.Since(time1))
 
