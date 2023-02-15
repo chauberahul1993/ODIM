@@ -130,7 +130,7 @@ func (e *ExternalInterfaces) PublishEventsToDestination(ctx context.Context, dat
 	// fmt.Println("Time taken for Get Device ID ", time.Since(time3), " Total time ", time.Since(time1))
 	// l.LogWithFields(ctx).Debug("Time taken for Get Device ID ", time.Since(time3), " Total time ", time.Since(time1))
 	// time2 := time.Now()
-	go e.addFabric(ctx, rawMessage, host)
+	e.addFabric(ctx, rawMessage, host)
 	// l.LogWithFields(ctx).Debug("Blocking time for add fabric ", time.Since(time2), " Total time ", time.Since(time1))
 	// fmt.Println("Blocking time for add fabric ", time.Since(time2), " Total time ", time.Since(time1))
 
@@ -181,6 +181,8 @@ func (e *ExternalInterfaces) PublishEventsToDestination(ctx context.Context, dat
 			if filterEventsToBeForwarded(ctx, sub, inEvent, sub.OriginResources) {
 				eventMap[sub.Destination] = append(eventMap[sub.Destination], inEvent)
 				flag = true
+			} else {
+				fmt.Println("Event forwarding not matched ")
 			}
 		}
 		if strings.EqualFold("Alert", inEvent.EventType) {
@@ -335,9 +337,9 @@ func (e *ExternalInterfaces) postEvent(ctx context.Context, destination, eventUn
 	resp, err := SendEventFunc(destination, event)
 	if err == nil {
 		resp.Body.Close()
-		// fmt.Println("Event is successfully forwarded")
+		fmt.Println("Event is successfully forwarded")
 
-		l.LogWithFields(ctx).Info("Event is successfully forwarded")
+		// l.LogWithFields(ctx).Info("Event is successfully forwarded")
 		// check any undelivered events are present in db for the destination and publish those
 		go e.checkUndeliveredEvents(ctx, destination)
 		return
