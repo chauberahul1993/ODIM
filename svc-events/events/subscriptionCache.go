@@ -319,11 +319,20 @@ START:
 		case redis.Message:
 			switch string(v.Pattern) {
 			case evcommon.DeviceSubscriptionChannelKey:
-				getAllDeviceSubscriptions(ctx)
+				err := getAllDeviceSubscriptions(ctx)
+				if err != nil {
+					l.LogWithFields(ctx).Error(err)
+				}
 			case evcommon.SubscriptionChannelKey:
-				getAllSubscriptions(ctx)
+				err := getAllSubscriptions(ctx)
+				if err != nil {
+					l.LogWithFields(ctx).Error(err)
+				}
 			case evcommon.AggregateToHostChannelKey:
-				getAllAggregates(ctx)
+				err := getAllAggregates(ctx)
+				if err != nil {
+					l.LogWithFields(ctx).Error(err)
+				}
 			}
 		case error:
 			l.LogWithFields(ctx).Error("Error occurred in redis keyspace notifier publisher ", v)

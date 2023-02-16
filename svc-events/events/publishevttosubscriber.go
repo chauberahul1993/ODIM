@@ -172,7 +172,6 @@ func (e *ExternalInterfaces) PublishEventsToDestination(ctx context.Context, dat
 		// t5 := time.Now()
 
 		subscriptions := getSubscriptions(inEvent.OriginOfCondition.Oid, systemId, host)
-		fmt.Println("Number of subscription  ", subscriptions)
 		// l.LogWithFields(ctx).Debug("Time taken to read Subscription ", time.Since(t5), " Total time ", time.Since(time1))
 		// fmt.Println("**** Time taken to read Subscription ", time.Since(t5), " Total time ", time.Since(time1))
 		for _, sub := range subscriptions {
