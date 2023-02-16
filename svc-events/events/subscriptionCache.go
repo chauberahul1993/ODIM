@@ -86,6 +86,10 @@ func getAllSubscriptions(ctx context.Context) error {
 		}
 	}
 	emptyOriginResourceToSubscriptionsMap = emptyOriginResourceToSubscriptionsMapTemp
+	systemToSubscriptionsMap = systemToSubscriptionsMapTemp
+	aggregateIdToSubscriptionsMap = aggregateIdToSubscriptionsMapTemp
+	collectionToSubscriptionsMap = collectionToSubscriptionsMapTemp
+
 	l.LogWithFields(ctx).Debug("Subscriptions cache updated ")
 	return nil
 }
