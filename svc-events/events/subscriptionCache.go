@@ -110,7 +110,7 @@ func getAllDeviceSubscriptions(ctx context.Context) error {
 // updateCatchDeviceSubscriptionData update eventSourceToManagerMap for each key with their system IDs
 func updateCatchDeviceSubscriptionData(key string, originResources []string, cacheMap map[string]string) {
 	systemId := originResources[0][strings.LastIndexByte(originResources[0], '/')+1:]
-	eventSourceToManagerIDMap[key] = systemId
+	cacheMap[key] = systemId
 }
 
 // loadSubscriptionCacheData update collectionToSubscriptionsMap,
