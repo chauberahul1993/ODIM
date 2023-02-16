@@ -100,7 +100,7 @@ func getAllDeviceSubscriptions(ctx context.Context) error {
 	eventSourceToManagerIDMapTemp := make(map[string]string, len(deviceSubscriptionList))
 	for _, device := range deviceSubscriptionList {
 		devSub := strings.Split(device, "||")
-		updateCatchDeviceSubscriptionData(devSub[0], evmodel.GetSliceFromString(devSub[2]))
+		updateCatchDeviceSubscriptionData(devSub[0], evmodel.GetSliceFromString(devSub[2]), eventSourceToManagerIDMapTemp)
 	}
 	eventSourceToManagerIDMap = eventSourceToManagerIDMapTemp
 	l.LogWithFields(ctx).Debug("DeviceSubscription cache updated ")
@@ -108,7 +108,7 @@ func getAllDeviceSubscriptions(ctx context.Context) error {
 }
 
 // updateCatchDeviceSubscriptionData update eventSourceToManagerMap for each key with their system IDs
-func updateCatchDeviceSubscriptionData(key string, originResources []string) {
+func updateCatchDeviceSubscriptionData(key string, originResources []string, cacheMap map[string]string) {
 	systemId := originResources[0][strings.LastIndexByte(originResources[0], '/')+1:]
 	eventSourceToManagerIDMap[key] = systemId
 }
@@ -154,7 +154,7 @@ func getAllAggregates(ctx context.Context) error {
 			continue
 		}
 		aggregateId := aggregateUrl[strings.LastIndexByte(aggregateUrl, '/')+1:]
-		addSystemIdToAggregateCache(aggregateId, aggregate)
+		addSystemIdToAggregateCache(aggregateId, aggregate, systemIdToAggregateIdsMapTemp)
 	}
 	systemIdToAggregateIdsMap = systemIdToAggregateIdsMapTemp
 	l.LogWithFields(ctx).Debug("AggregateToHost cache updated ")
@@ -162,10 +162,10 @@ func getAllAggregates(ctx context.Context) error {
 }
 
 // addSystemIdToAggregateCache update cache for each aggregate member
-func addSystemIdToAggregateCache(aggregateId string, aggregate evmodel.Aggregate) {
+func addSystemIdToAggregateCache(aggregateId string, aggregate evmodel.Aggregate, cacheMap map[string]map[string]bool) {
 	for _, ids := range aggregate.Elements {
 		ids.Oid = ids.Oid[strings.LastIndexByte(strings.TrimSuffix(ids.Oid, "/"), '/')+1:]
-		updateCacheMaps(ids.Oid, aggregateId, systemIdToAggregateIdsMap)
+		updateCacheMaps(ids.Oid, aggregateId, cacheMap)
 	}
 }
 
