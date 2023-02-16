@@ -88,10 +88,14 @@ func main() {
 	ctx = context.WithValue(ctx, common.ThreadName, common.EventService)
 	ctx = context.WithValue(ctx, common.ThreadID, common.DefaultThreadID)
 	ctx = context.WithValue(ctx, common.TransactionID, uuid.New())
-
-	// Intializing the TopicsList
+	// Load event cache
+	err = ev.LoadSubscriptionData(ctx)
+	if err = ev.LoadSubscriptionData(ctx); err != nil {
+		log.Fatal("fatal: error while trying to load cache : " + err.Error())
+	}
+	// Initializing the TopicsList
 	evcommon.EMBTopics.TopicsList = make(map[string]bool)
-	// Intializing plugin token
+	// Initializing plugin token
 	evcommon.Token.Tokens = make(map[string]string)
 
 	// register handlers
@@ -137,7 +141,6 @@ func main() {
 	}
 	go startUPInterface.SubscribePluginEMB(ctx)
 	ctx = context.WithValue(ctx, common.TransactionID, uuid.New())
-	go ev.LoadSubscriptionData(ctx)
 	// Run server
 	if err := services.ODIMService.Run(); err != nil {
 		log.Fatal(err.Error())

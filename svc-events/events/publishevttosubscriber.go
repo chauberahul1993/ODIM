@@ -68,10 +68,6 @@ func (e *ExternalInterfaces) addFabric(ctx context.Context, message common.Messa
 		}
 	}
 }
-func endTime(ctx context.Context, t time.Time) {
-	// l.LogWithFields(ctx).Info("Time taken to complete event processing ", time.Since(t))
-	fmt.Println("Total Time taken ********* ", time.Since(t))
-}
 
 // PublishEventsToDestination This method sends the event/alert to subscriber's destination
 // Takes:
@@ -79,11 +75,6 @@ func endTime(ctx context.Context, t time.Time) {
 //Returns:
 //	bool: return false if any error occurred during execution, else returns true
 func (e *ExternalInterfaces) PublishEventsToDestination(ctx context.Context, data interface{}) bool {
-	subscribeCacheLock.Lock()
-	defer subscribeCacheLock.Unlock()
-	time1 := time.Now()
-	defer endTime(ctx, time1)
-
 	if data == nil {
 		l.LogWithFields(ctx).Info("invalid input params")
 		return false
@@ -130,7 +121,7 @@ func (e *ExternalInterfaces) PublishEventsToDestination(ctx context.Context, dat
 	// fmt.Println("Time taken for Get Device ID ", time.Since(time3), " Total time ", time.Since(time1))
 	// l.LogWithFields(ctx).Debug("Time taken for Get Device ID ", time.Since(time3), " Total time ", time.Since(time1))
 	// time2 := time.Now()
-	go e.addFabric(ctx, rawMessage, host)
+	e.addFabric(ctx, rawMessage, host)
 	// l.LogWithFields(ctx).Debug("Blocking time for add fabric ", time.Since(time2), " Total time ", time.Since(time1))
 	// fmt.Println("Blocking time for add fabric ", time.Since(time2), " Total time ", time.Since(time1))
 
@@ -208,7 +199,7 @@ func (e *ExternalInterfaces) PublishEventsToDestination(ctx context.Context, dat
 		message.Events = value
 		data, err := json.Marshal(message)
 		if err != nil {
-			l.LogWithFields(ctx).Error("unable to converts event into bytes: ", err.Error())
+			l.Log.Error("unable to converts event into bytes: ", err.Error())
 			continue
 		}
 		go e.postEvent(ctx, key, eventUniqueID, data)
@@ -347,7 +338,7 @@ func (e *ExternalInterfaces) postEvent(ctx context.Context, destination, eventUn
 	undeliveredEventID := destination + ":" + eventUniqueID
 	serr := e.SaveUndeliveredEvents(undeliveredEventID, event)
 	if serr != nil {
-		l.LogWithFields(ctx).Error("error while saving undelivered event: ", serr.Error())
+		l.Log.Error("error while saving undelivered event: ", serr.Error())
 	}
 	go e.reAttemptEvents(ctx, destination, undeliveredEventID, event)
 
@@ -382,18 +373,18 @@ func (e *ExternalInterfaces) reAttemptEvents(ctx context.Context, destination, u
 		// if undelivered event already published then ignore retrying
 		eventString, err := e.GetUndeliveredEvents(undeliveredEventID)
 		if err != nil || len(eventString) < 1 {
-			l.LogWithFields(ctx).Info("Event is forwarded to destination")
+			fmt.Println("Event is forwarded to destination")
 			return
 		}
 		resp, err = SendEventFunc(destination, event)
 		if err == nil {
 			resp.Body.Close()
 			fmt.Println("Event is successfully forwarded")
-			l.LogWithFields(ctx).Info("Event is successfully forwarded")
+			// l.Log.Info("Event is successfully forwarded")
 			// if event is delivered then delete the same which is saved in 1st attempt
 			err = e.DeleteUndeliveredEvents(undeliveredEventID)
 			if err != nil {
-				l.LogWithFields(ctx).Error("error while deleting undelivered events: ", err.Error())
+				l.Log.Error("error while deleting undelivered events: ", err.Error())
 			}
 			// check any undelivered events are present in db for the destination and publish those
 			go e.checkUndeliveredEvents(ctx, destination)
@@ -402,7 +393,7 @@ func (e *ExternalInterfaces) reAttemptEvents(ctx context.Context, destination, u
 
 	}
 	if err != nil {
-		l.LogWithFields(ctx).Error("error while make https call to send the event: ", err.Error())
+		l.Log.Error("error while make https call to send the event: ", err.Error())
 	}
 }
 
@@ -414,7 +405,7 @@ func rediscoverSystemInventory(ctx context.Context, systemID, systemURL string) 
 
 	conn, err := ServiceDiscoveryFunc(services.Aggregator)
 	if err != nil {
-		l.LogWithFields(ctx).Error("failed to get client connection object for aggregator service")
+		l.Log.Error("failed to get client connection object for aggregator service")
 		return
 	}
 	defer conn.Close()
@@ -425,11 +416,10 @@ func rediscoverSystemInventory(ctx context.Context, systemID, systemURL string) 
 		SystemURL: systemURL,
 	})
 	if err != nil {
-		l.LogWithFields(ctx).Info("Error while rediscoverSystemInventory")
+		l.Log.Info("Error while rediscoverSystemInventory")
 		return
 	}
-	l.LogWithFields(ctx).Info("rediscovery of system and chassis started.")
-
+	l.Log.Info("rediscovery of system and chassis started.")
 }
 
 func (e *ExternalInterfaces) addFabricRPCCall(ctx context.Context, origin, address string) {
@@ -443,7 +433,10 @@ func (e *ExternalInterfaces) addFabricRPCCall(ctx context.Context, origin, addre
 	}
 	defer conn.Close()
 	fab := fabricproto.NewFabricsClient(conn)
-	_, err = fab.AddFabric(context.TODO(), &fabricproto.AddFabricRequest{
+	reqCtx := common.CreateNewRequestContext(ctx)
+	reqCtx = common.CreateMetadata(reqCtx)
+
+	_, err = fab.AddFabric(reqCtx, &fabricproto.AddFabricRequest{
 		OriginResource: origin,
 		Address:        address,
 	})
@@ -551,13 +544,13 @@ func (e *ExternalInterfaces) checkUndeliveredEvents(ctx context.Context, destina
 		// if flag is false then set the flag true, so other instance shouldnt have to read the undelivered events and publish
 		err := e.SetUndeliveredEventsFlag(destination)
 		if err != nil {
-			l.LogWithFields(ctx).Error("error while setting undelivered events flag: ", err.Error())
+			fmt.Println("error while setting undelivered events flag: ", err.Error())
 		}
 		destData, _ := e.GetAllMatchingDetails(evmodel.UndeliveredEvents, destination, common.OnDisk)
 		for _, dest := range destData {
 			event, err := e.GetUndeliveredEvents(dest)
 			if err != nil {
-				l.LogWithFields(ctx).Error("error while getting undelivered events: ", err.Error())
+				fmt.Println("error while getting undelivered events: ", err.Error())
 				continue
 			}
 			event = strings.Replace(event, "\\", "", -1)
@@ -568,19 +561,19 @@ func (e *ExternalInterfaces) checkUndeliveredEvents(ctx context.Context, destina
 				defer resp.Body.Close()
 			}
 			if err != nil {
-				l.LogWithFields(ctx).Error("error while make https call to send the event: ", err.Error())
+				fmt.Println("error while make https call to send the event: ", err.Error())
 				continue
 			}
-			l.LogWithFields(ctx).Info("Event is successfully forwarded")
+			fmt.Println("Event is successfully forwarded")
 			err = e.DeleteUndeliveredEvents(dest)
 			if err != nil {
-				l.LogWithFields(ctx).Error("error while deleting undelivered events: ", err.Error())
+				fmt.Println("error while deleting undelivered events: ", err.Error())
 			}
 		}
 		// handle logic if inter connection fails
 		derr := e.DeleteUndeliveredEventsFlag(destination)
 		if derr != nil {
-			l.LogWithFields(ctx).Error("error while deleting undelivered events flag: ", derr.Error())
+			fmt.Println("error while deleting undelivered events flag: ", derr.Error())
 		}
 	}
 }
