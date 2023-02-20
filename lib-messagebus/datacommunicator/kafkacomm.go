@@ -234,7 +234,7 @@ func (kp *KafkaPacket) Accept(fn MsgProcess) error {
 			return e
 		}
 		fmt.Println("Server info ", kp.ServersInfo)
-		fmt.Printf("Server info %+v \n ", kp)
+		fmt.Printf("Server info %+v \n ", kp.DialerConn)
 		krw.Readers[kp.pipe] = kafka.NewReader(kafka.ReaderConfig{
 			Brokers:        kp.ServersInfo,
 			GroupID:        kp.pipe,
