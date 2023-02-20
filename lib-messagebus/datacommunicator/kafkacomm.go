@@ -213,7 +213,8 @@ func (kp *KafkaPacket) Distribute(d interface{}) error {
 // would be created. From this function Goroutine "Read" will be invoked to
 // handle the incoming messages.
 func (kp *KafkaPacket) Accept(fn MsgProcess) error {
-
+	var retryCount int = 1
+START:
 	// recover is called here to catch any panic in kafka.NewReader
 	// and to release the lock
 	unlocked := false
@@ -244,7 +245,16 @@ func (kp *KafkaPacket) Accept(fn MsgProcess) error {
 	krw.reader.Unlock()
 	unlocked = true
 
-	kp.Read(fn)
+	err := kp.Read(fn)
+	if err != nil {
+		fmt.Println("Error is occurred ", retryCount, err)
+		time.Sleep(10 * time.Second)
+		if retryCount < 10 {
+			retryCount++
+			goto START
+
+		}
+	}
 	return nil
 }
 
@@ -295,7 +305,7 @@ func (kp *KafkaPacket) Remove() error {
 	krw.reader.Lock()
 	defer krw.reader.Unlock()
 	es, ok := krw.Readers[kp.pipe]
-	if ok == false {
+	if !ok {
 		return fmt.Errorf("specified pipe is not subscribed yet. please check the pipe name passed")
 	}
 	es.Close()
@@ -310,7 +320,7 @@ func (kp *KafkaPacket) Close() error {
 	krw.writer.Lock()
 	defer krw.writer.Unlock()
 	wc, ok := krw.Writers[kp.pipe]
-	if ok == false {
+	if !ok {
 		return fmt.Errorf("specified pipe does not have open conenction. please check the pipe name passed")
 	}
 	wc.Close()
