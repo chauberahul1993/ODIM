@@ -285,7 +285,8 @@ func (kp *KafkaPacket) Read(fn MsgProcess) error {
 
 		// Decode the message before passing it to Callback
 		if e = Decode(m.Value, &d); e != nil {
-			return fmt.Errorf("error: decode message failed: %s", e.Error())
+			continue
+			// return fmt.Errorf("error: decode message failed: %s", e.Error())
 		}
 		// Callback Function call.
 		fn(d)
