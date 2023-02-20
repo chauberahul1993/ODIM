@@ -1,6 +1,8 @@
 package tqueue
 
 import (
+	"fmt"
+
 	"github.com/ODIM-Project/ODIM/svc-task/tmodel"
 )
 
@@ -39,7 +41,9 @@ func UpdateTasksWorker(tick *tmodel.Tick) {
 
 	conn := tmodel.GetWriteConnection()
 	for {
+		fmt.Println("Processing Queue 111 ")
 		if !tick.Executing {
+			fmt.Println("Processing Queue 2222 ")
 			tick.ProcessTaskQueue(&TaskQueue.queue, conn)
 		}
 	}

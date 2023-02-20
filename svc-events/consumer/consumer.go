@@ -19,6 +19,7 @@ package consumer
 
 import (
 	"encoding/json"
+	"fmt"
 	"time"
 
 	dc "github.com/ODIM-Project/ODIM/lib-messagebus/datacommunicator"
@@ -115,15 +116,17 @@ func SubscribeCtrlMsgQueue(topicName string) {
 	// connecting to messagbus
 	k, err := dc.Communicator(messagebusType, MessageBusConfigFilePath, topicName)
 	if err != nil {
+		fmt.Println("Error step 3333 ", err)
 		l.Log.Error("Unable to connect to kafka" + err.Error())
 		return
 	}
 	// subscribe from message bus
 	if err := k.Accept(consumeCtrlMsg); err != nil {
+		fmt.Println("Error step 3344 ", err)
 		l.Log.Error(err.Error())
 		return
 	}
-	return
+
 }
 
 // consumeCtrlMsg consume control messages
@@ -132,6 +135,7 @@ func consumeCtrlMsg(event interface{}) {
 	done := make(chan bool)
 	data, _ := json.Marshal(&event)
 	var redfishEvent common.Events
+	fmt.Println("Mesage Received ", event)
 	// verifying the incoming event to check whether it's of type common events or control message data
 	if err := json.Unmarshal(data, &redfishEvent); err == nil {
 		writeEventToJobQueue(redfishEvent)

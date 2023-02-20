@@ -15,6 +15,8 @@ package main
 
 import (
 	"fmt"
+	"net/http"
+	_ "net/http/pprof"
 	"os"
 	"sync"
 	"time"
@@ -110,9 +112,14 @@ func main() {
 		Ticker: time.NewTicker(time.Duration(config.Data.TaskQueueConf.DBCommitInterval) * time.Microsecond),
 	}
 	go tqueue.UpdateTasksWorker(tick)
-
+	// Only for profilling should be removed in PR
+	debug()
 	// Run server
 	if err := services.ODIMService.Run(); err != nil {
 		log.Fatal(err.Error())
 	}
+}
+
+func debug() {
+	go http.ListenAndServe(":6070", nil)
 }
