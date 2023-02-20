@@ -138,7 +138,6 @@ func kafkaConnect(kp *KafkaPacket) error {
 	// Creation of TLS Config and Dialer
 	tls, e := TLS(MQ.KafkaF.KAFKACertFile, MQ.KafkaF.KAFKAKeyFile, MQ.KafkaF.KAFKACAFile)
 	if e != nil {
-		fmt.Println("Step 444444444 ", e)
 		return fmt.Errorf("error: creation of tls config failed: %s", e.Error())
 	}
 	kp.DialerConn = &kafka.Dialer{
@@ -159,11 +158,11 @@ func (kp *KafkaPacket) Distribute(d interface{}) error {
 
 	// recover is called here to catch any panic in kafka.NewWriter
 	// and to release the lock
-	// unlocked := false
+	unlocked := false
 	defer func() {
-		// if err := recover(); err != nil && !unlocked {
-		// 	krw.writer.Unlock()
-		// }
+		if err := recover(); err != nil && !unlocked {
+			krw.writer.Unlock()
+		}
 	}()
 
 	krw.writer.Lock()
@@ -187,7 +186,7 @@ func (kp *KafkaPacket) Distribute(d interface{}) error {
 	}
 	writer := krw.Writers[kp.pipe]
 	krw.writer.Unlock()
-	// unlocked = true
+	unlocked = true
 
 	// Encode the message before appending into KAFKA Message struct
 	b, e := Encode(d)
@@ -217,25 +216,21 @@ func (kp *KafkaPacket) Accept(fn MsgProcess) error {
 
 	// recover is called here to catch any panic in kafka.NewReader
 	// and to release the lock
-	// unlocked := false
-	// defer func() {
-	// 	if err := recover(); err != nil && !unlocked {
-	// 		krw.reader.Unlock()
-	// 	}
-	// }()
+	unlocked := false
+	defer func() {
+		if err := recover(); err != nil && !unlocked {
+			krw.reader.Unlock()
+		}
+	}()
 
 	// If for the Reader Object for pipe and create one if required.
 	krw.reader.Lock()
 	if _, exist := krw.Readers[kp.pipe]; !exist {
 		if e := kafkaConnect(kp); e != nil {
 			krw.reader.Unlock()
-			fmt.Println("Error 5 ")
-			// unlocked = true
+			unlocked = true
 			return e
 		}
-		fmt.Println("Server info ", kp.ServersInfo)
-		fmt.Printf("Server info %+v \n ", kp.DialerConn)
-		fmt.Printf("Server info 111 %+v \n ", kp)
 		krw.Readers[kp.pipe] = kafka.NewReader(kafka.ReaderConfig{
 			Brokers:        kp.ServersInfo,
 			GroupID:        kp.pipe,
@@ -247,7 +242,7 @@ func (kp *KafkaPacket) Accept(fn MsgProcess) error {
 		})
 	}
 	krw.reader.Unlock()
-	// unlocked = true
+	unlocked = true
 
 	kp.Read(fn)
 	return nil
@@ -273,13 +268,13 @@ func (kp *KafkaPacket) Read(fn MsgProcess) error {
 		// explicitly committing the messages
 		m, e := reader.ReadMessage(c)
 		if e != nil {
-			fmt.Println("Error 1111 ", e)
-			return fmt.Errorf("error: read message failed: %s", e.Error())
+			fmt.Println("Error ", e)
+			continue
+			// return fmt.Errorf("error: read message failed: %s", e.Error())
 		}
 
 		// Decode the message before passing it to Callback
 		if e = Decode(m.Value, &d); e != nil {
-			fmt.Println("Error 222 ", e)
 			return fmt.Errorf("error: decode message failed: %s", e.Error())
 		}
 		// Callback Function call.
