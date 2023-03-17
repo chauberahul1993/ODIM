@@ -285,23 +285,23 @@ func (e *ExternalInterfaces) postEvent(eventMessage evmodel.EventPost) {
 
 // sendEvent function is forward data to destination
 func sendEvent(destination string, event []byte) (*http.Response, error) {
-	httpConf := &config.HTTPConfig{
-		CACertificate: &config.Data.KeyCertConf.RootCACertificate,
-	}
-	httpClient, err := httpConf.GetHTTPClientObj()
-	if err != nil {
-		l.Log.Error("failed to get http client object: ", err.Error())
-		return &http.Response{}, err
-	}
+	// httpConf := &config.HTTPConfig{
+	// 	CACertificate: &config.Data.KeyCertConf.RootCACertificate,
+	// }
+	// httpClient, err := httpConf.GetHTTPClientObj()
+	// if err != nil {
+	// 	l.Log.Error("failed to get http client object: ", err.Error())
+	// 	return &http.Response{}, err
+	// }
 	req, err := http.NewRequest("POST", destination, bytes.NewBuffer(event))
 	if err != nil {
-		l.Log.Error("error while getting new http request: ", err.Error())
+		logging.Error("error while getting new http request: ", err.Error())
 		return &http.Response{}, err
 	}
 	req.Close = true
 	req.Header.Set("Content-Type", "application/json")
-	config.TLSConfMutex.RLock()
-	defer config.TLSConfMutex.RUnlock()
+	// config.TLSConfMutex.RLock()
+	// defer config.TLSConfMutex.RUnlock()
 	return httpClient.Do(req)
 }
 func (e *ExternalInterfaces) reAttemptEvents(eventMessage evmodel.EventPost) {

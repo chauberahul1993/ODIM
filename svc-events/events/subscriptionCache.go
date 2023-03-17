@@ -25,6 +25,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"strconv"
 	"strings"
 	"sync"
@@ -102,6 +103,7 @@ func (e *ExternalInterfaces) LoadSubscriptionData(ctx context.Context) error {
 	ctx = context.WithValue(ctx, common.ThreadID, strconv.Itoa(threadID))
 	go initializeDbObserver(ctx)
 	go e.forwardUndeliveredEventToClient(ctx)
+	updateClient()
 	// create event forwarding worker pool
 	for i := 0; i < config.Data.EventForwardingWorkerPoolCount; i++ {
 		go e.runEventForwardingWorkers()
@@ -110,6 +112,7 @@ func (e *ExternalInterfaces) LoadSubscriptionData(ctx context.Context) error {
 	for i := 0; i < config.Data.EventSaveWorkerPoolCount; i++ {
 		go e.saveEventWorkers()
 	}
+
 	return nil
 }
 
@@ -446,5 +449,19 @@ func (e *ExternalInterfaces) saveEventWorkers() {
 				logging.Error("error occurred while save saveEventWorker ", err.Error())
 			}
 		}
+	}
+}
+
+var httpClient *http.Client
+
+func updateClient() {
+	httpConf := &config.HTTPConfig{
+		CACertificate: &config.Data.KeyCertConf.RootCACertificate,
+	}
+	var err error
+	httpClient, err = httpConf.GetHTTPClientObj()
+	if err != nil {
+		l.Log.Panic(err.Error())
+		return
 	}
 }
