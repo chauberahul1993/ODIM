@@ -98,7 +98,6 @@ func (e *ExternalInterfaces) DeleteEventSubscriptions(ctx context.Context, req *
 
 	// Delete Event Subscription from device also
 	err = e.deleteSubscription(ctx, target, originResource)
-
 	if err != nil {
 		l.LogWithFields(ctx).Error("error while deleting event subscription details : " + err.Error())
 		msgArgs := []interface{}{"Host", target.ManagerAddress}
@@ -267,7 +266,19 @@ func (e *ExternalInterfaces) deleteAndReSubscribeToEvents(ctx context.Context, e
 		if len(subscriptionDetails) < 1 {
 			return fmt.Errorf("subscription details not found for subscription id: %s", origin)
 		} else if len(subscriptionDetails) == 1 {
-			deleteFlag = true
+			deleteFlag = false
+			defaultSubscription := evmodel.SubscriptionResource{
+				EventDestination: &model.EventDestination{
+					Description:          "",
+					EventTypes:           []string{"Alert"},
+					Protocol:             "Redfish",
+					ResourceTypes:        []string{},
+					MessageIds:           []string{},
+					Context:              "Creating the Default Event Subscription",
+					SubordinateResources: true,
+				},
+			}
+			subscriptionDetails = append(subscriptionDetails, defaultSubscription)
 		}
 
 		var context, protocol, destination, name string
@@ -382,9 +393,9 @@ func (e *ExternalInterfaces) subscribe(ctx context.Context, subscriptionPost mod
 	}
 	// if deleteflag is true then only one document is there
 	// so don't re subscribe again
-	if deleteflag {
-		return nil
-	}
+	// if deleteflag {
+	// 	return nil
+	// }
 
 	var contactRequest evcommon.PluginContactRequest
 	contactRequest.Plugin = plugin

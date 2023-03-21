@@ -354,9 +354,11 @@ func (e *Events) DeleteEventSubscription(ctx context.Context, req *eventsproto.E
 	var data response.RPC
 	if req.UUID == "" {
 		// Delete Event Subscription when admin requested
+		fmt.Println("Step 111 ")
 		data = e.Connector.DeleteEventSubscriptionsDetails(ctx, req)
 	} else {
-		// Delete Event Subscription to Device when Server get Deleted
+		fmt.Println("Step 222 ")
+		// Delete Event Subscription to Device when Server get Deleted (invoked from svg-aggregate)
 		data = e.Connector.DeleteEventSubscriptions(ctx, req)
 	}
 	resp.Body, err = JSONMarshal(data.Body)

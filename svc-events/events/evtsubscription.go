@@ -385,10 +385,10 @@ func (e *ExternalInterfaces) SaveSubscriptionOnDevice(ctx context.Context, origi
 	contactRequest.PostBody = target
 
 	l.LogWithFields(ctx).Debug("Subscription Request: " + reqData)
-	response, err := e.callPlugin(context.TODO(), contactRequest)
+	response, err := e.callPlugin(ctx, contactRequest)
 	if err != nil {
 		if evcommon.GetPluginStatus(ctx, plugin) {
-			response, err = e.callPlugin(context.TODO(), contactRequest)
+			response, err = e.callPlugin(ctx, contactRequest)
 		}
 		if err != nil {
 			errorMessage := "error while contact plugin : " + err.Error()
@@ -1034,10 +1034,10 @@ func (e *ExternalInterfaces) createFabricSubscription(ctx context.Context, postR
 		return "", resp
 	}
 
-	response, err := e.callPlugin(context.TODO(), contactRequest)
+	response, err := e.callPlugin(ctx, contactRequest)
 	if err != nil {
 		if evcommon.GetPluginStatus(ctx, plugin) {
-			response, err = e.callPlugin(context.TODO(), contactRequest)
+			response, err = e.callPlugin(ctx, contactRequest)
 		}
 		if err != nil {
 			evcommon.GenEventErrorResponse(err.Error(), errResponse.InternalError, http.StatusInternalServerError,
