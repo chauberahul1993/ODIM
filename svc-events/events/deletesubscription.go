@@ -382,6 +382,7 @@ func (e *ExternalInterfaces) subscribe(ctx context.Context, subscriptionPost mod
 	if errs != nil {
 		return errs
 	}
+	fmt.Printf("Data is %+v \n", subscriptionPost)
 	postBody, err := json.Marshal(subscriptionPost)
 	if err != nil {
 		return fmt.Errorf("error while marshalling subscription details: %s", err)
@@ -393,9 +394,9 @@ func (e *ExternalInterfaces) subscribe(ctx context.Context, subscriptionPost mod
 	}
 	// if deleteflag is true then only one document is there
 	// so don't re subscribe again
-	// if deleteflag {
-	// 	return nil
-	// }
+	if deleteflag {
+		return nil
+	}
 
 	var contactRequest evcommon.PluginContactRequest
 	contactRequest.Plugin = plugin
@@ -438,6 +439,7 @@ func (e *ExternalInterfaces) subscribe(ctx context.Context, subscriptionPost mod
 		Location:        loc,
 		OriginResources: devSub.OriginResources,
 	}
+	fmt.Println("Location ========== ", loc)
 	return e.UpdateDeviceSubscriptionLocation(deviceSub)
 
 }
