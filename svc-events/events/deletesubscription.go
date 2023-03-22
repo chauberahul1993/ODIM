@@ -264,9 +264,11 @@ func (e *ExternalInterfaces) deleteAndReSubscribeToEvents(ctx context.Context, e
 		// if delete flag is true then only one document is there
 		// so don't re subscribe again
 
+		var deleteFlag bool
 		if len(subscriptionDetails) < 1 {
 			return fmt.Errorf("subscription details not found for subscription id: %s", origin)
 		} else if len(subscriptionDetails) == 1 {
+			deleteFlag = false
 			defaultSubscription := evmodel.SubscriptionResource{
 				EventDestination: &model.EventDestination{
 					Description:          "",
@@ -334,7 +336,7 @@ func (e *ExternalInterfaces) deleteAndReSubscribeToEvents(ctx context.Context, e
 		}
 		fmt.Printf("Final Data %+v \n ", subscriptionPost)
 
-		err = e.subscribe(ctx, subscriptionPost, origin.Oid, sessionToken)
+		err = e.subscribe(ctx, subscriptionPost, origin.Oid, deleteFlag, sessionToken)
 		if err != nil {
 			return err
 		}
