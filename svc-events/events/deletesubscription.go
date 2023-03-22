@@ -256,6 +256,8 @@ func (e *ExternalInterfaces) deleteAndReSubscribeToEvents(ctx context.Context, e
 		if err != nil {
 			return err
 		}
+		fmt.Println("Origin Resource ", origin.Oid)
+		fmt.Println("List subscription ", subscriptionDetails)
 		// if origin contains fabrics then get all the collection and individual subscription details
 		// for Systems need to add same later
 		subscriptionDetails = e.getAllSubscriptions(origin.Oid, subscriptionDetails)
@@ -281,10 +283,14 @@ func (e *ExternalInterfaces) deleteAndReSubscribeToEvents(ctx context.Context, e
 			subscriptionDetails = append(subscriptionDetails, defaultSubscription)
 		}
 
+		fmt.Println("Size of Subscription ", len(subscriptionDetails))
+		fmt.Printf("Size of Subscription %+v \n", subscriptionDetails)
+
 		var context, protocol, destination, name string
 		var eventTypes, messageIDs, resourceTypes []string
 
 		for index, evtSub := range subscriptionDetails {
+			fmt.Println("Insert level 1 ", evtSubscription.SubscriptionID != evtSub.SubscriptionID, evtSubscription.SubscriptionID, evtSub.SubscriptionID)
 			if evtSubscription.SubscriptionID != evtSub.SubscriptionID {
 				if len(evtSub.EventDestination.EventTypes) > 0 && (index == 0 || len(eventTypes) > 0) {
 					eventTypes = append(eventTypes, evtSub.EventDestination.EventTypes...)
@@ -310,9 +316,11 @@ func (e *ExternalInterfaces) deleteAndReSubscribeToEvents(ctx context.Context, e
 			}
 		}
 
+		fmt.Println("Event type  ", eventTypes)
 		removeDuplicatesFromSlice(&eventTypes)
 		removeDuplicatesFromSlice(&messageIDs)
 		removeDuplicatesFromSlice(&resourceTypes)
+		fmt.Println("Event type  ******** ", eventTypes)
 
 		subscriptionPost := model.EventDestination{
 			Name:          name,
@@ -323,6 +331,7 @@ func (e *ExternalInterfaces) deleteAndReSubscribeToEvents(ctx context.Context, e
 			Protocol:      protocol,
 			Destination:   destination,
 		}
+		fmt.Printf("Final Data %+v \n ", subscriptionPost)
 
 		err = e.subscribe(ctx, subscriptionPost, origin.Oid, deleteFlag, sessionToken)
 		if err != nil {
