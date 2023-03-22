@@ -284,14 +284,15 @@ func (e *ExternalInterfaces) deleteAndReSubscribeToEvents(ctx context.Context, e
 		}
 
 		fmt.Println("Size of Subscription ", len(subscriptionDetails))
-		fmt.Printf("Size of Subscription %+v \n", subscriptionDetails)
 
 		var context, protocol, destination, name string
 		var eventTypes, messageIDs, resourceTypes []string
 
 		for index, evtSub := range subscriptionDetails {
 			fmt.Println("Insert level 1 ", evtSubscription.SubscriptionID != evtSub.SubscriptionID, evtSubscription.SubscriptionID, evtSub.SubscriptionID)
+			fmt.Printf("Size of Subscription %+v \n", evtSub.EventDestination)
 			if evtSubscription.SubscriptionID != evtSub.SubscriptionID {
+				fmt.Printf("Size of Subscription %+v \n", evtSub.EventDestination.EventTypes)
 				if len(evtSub.EventDestination.EventTypes) > 0 && (index == 0 || len(eventTypes) > 0) {
 					eventTypes = append(eventTypes, evtSub.EventDestination.EventTypes...)
 				} else {
