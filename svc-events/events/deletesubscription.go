@@ -264,11 +264,9 @@ func (e *ExternalInterfaces) deleteAndReSubscribeToEvents(ctx context.Context, e
 		// if delete flag is true then only one document is there
 		// so don't re subscribe again
 
-		var deleteFlag bool
 		if len(subscriptionDetails) < 1 {
 			return fmt.Errorf("subscription details not found for subscription id: %s", origin)
 		} else if len(subscriptionDetails) == 1 {
-			deleteFlag = false
 			defaultSubscription := evmodel.SubscriptionResource{
 				EventDestination: &model.EventDestination{
 					Description:          "",
@@ -292,20 +290,22 @@ func (e *ExternalInterfaces) deleteAndReSubscribeToEvents(ctx context.Context, e
 			fmt.Println("Insert level 1 ", evtSubscription.SubscriptionID != evtSub.SubscriptionID, evtSubscription.SubscriptionID, evtSub.SubscriptionID)
 			fmt.Printf("Size of Subscription %+v \n", evtSub.EventDestination)
 			if evtSubscription.SubscriptionID != evtSub.SubscriptionID {
-				fmt.Printf("Size of Subscription %+v \n", evtSub.EventDestination.EventTypes)
-				if len(evtSub.EventDestination.EventTypes) > 0 && (index == 0 || len(eventTypes) > 0) {
+				fmt.Printf("Size of Subscription 111 %+v \n", evtSub.EventDestination.EventTypes)
+				fmt.Println("Match condition ", len(evtSub.EventDestination.EventTypes) > 0 && (index == 0 || len(eventTypes) > 0))
+				fmt.Println("Match 2222 ", index, (index == 0 || len(eventTypes) > 0))
+				if len(evtSub.EventDestination.EventTypes) > 0 {
 					eventTypes = append(eventTypes, evtSub.EventDestination.EventTypes...)
 				} else {
 					eventTypes = []string{}
 				}
 
-				if len(evtSub.EventDestination.MessageIds) > 0 && (index == 0 || len(messageIDs) > 0) {
+				if len(evtSub.EventDestination.MessageIds) > 0 {
 					messageIDs = append(messageIDs, evtSub.EventDestination.MessageIds...)
 				} else {
 					messageIDs = []string{}
 				}
 
-				if len(evtSub.EventDestination.ResourceTypes) > 0 && (index == 0 || len(resourceTypes) > 0) {
+				if len(evtSub.EventDestination.ResourceTypes) > 0 {
 					resourceTypes = append(resourceTypes, evtSub.EventDestination.ResourceTypes...)
 				} else {
 					resourceTypes = []string{}
@@ -334,7 +334,7 @@ func (e *ExternalInterfaces) deleteAndReSubscribeToEvents(ctx context.Context, e
 		}
 		fmt.Printf("Final Data %+v \n ", subscriptionPost)
 
-		err = e.subscribe(ctx, subscriptionPost, origin.Oid, deleteFlag, sessionToken)
+		err = e.subscribe(ctx, subscriptionPost, origin.Oid, sessionToken)
 		if err != nil {
 			return err
 		}
@@ -371,12 +371,12 @@ func isCollectionOriginResourceURI(origin string) bool {
 }
 
 // Subscribe to the Event Subscription
-func (e *ExternalInterfaces) subscribe(ctx context.Context, subscriptionPost model.EventDestination, origin string, deleteflag bool, sessionToken string) error {
+func (e *ExternalInterfaces) subscribe(ctx context.Context, subscriptionPost model.EventDestination, origin string, deleteFlag bool, sessionToken string) error {
 	if strings.Contains(origin, "Fabrics") {
-		return e.resubscribeFabricsSubscription(ctx, subscriptionPost, origin, deleteflag)
+		return e.resubscribeFabricsSubscription(ctx, subscriptionPost, origin, deleteFlag)
 	}
 	if strings.Contains(origin, "/redfish/v1/AggregationService/Aggregates") {
-		return e.resubscribeAggregateSubscription(ctx, subscriptionPost, origin, deleteflag, sessionToken)
+		return e.resubscribeAggregateSubscription(ctx, subscriptionPost, origin, deleteFlag, sessionToken)
 	}
 	originResource := origin
 	if isCollectionOriginResourceURI(originResource) {
@@ -402,9 +402,9 @@ func (e *ExternalInterfaces) subscribe(ctx context.Context, subscriptionPost mod
 	if err != nil {
 		return err
 	}
-	// if deleteflag is true then only one document is there
+	// if deleteFlag is true then only one document is there
 	// so don't re subscribe again
-	if deleteflag {
+	if deleteFlag {
 		return nil
 	}
 
