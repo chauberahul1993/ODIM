@@ -539,24 +539,24 @@ func (e *ExternalInterfaces) IsEventsSubscribed(ctx context.Context, token, orig
 	}
 
 	var subscriptionPresent bool
-	for index, evtSubscriptions := range subscriptionDetails {
+	for _, evtSubscriptions := range subscriptionDetails {
 
 		if isHostPresent(evtSubscriptions.Hosts, host) {
 			subscriptionPresent = true
 
-			if len(evtSubscriptions.EventDestination.EventTypes) > 0 && (index == 0 || len(eventTypes) > 0) {
+			if len(evtSubscriptions.EventDestination.EventTypes) > 0 {
 				eventTypes = append(eventTypes, evtSubscriptions.EventDestination.EventTypes...)
 			} else {
 				eventTypes = []string{}
 			}
 
-			if len(evtSubscriptions.EventDestination.MessageIds) > 0 && (index == 0 || len(messageIDs) > 0) {
+			if len(evtSubscriptions.EventDestination.MessageIds) > 0 {
 				messageIDs = append(messageIDs, evtSubscriptions.EventDestination.MessageIds...)
 			} else {
 				messageIDs = []string{}
 			}
 
-			if len(evtSubscriptions.EventDestination.ResourceTypes) > 0 && (index == 0 || len(resourceTypes) > 0) {
+			if len(evtSubscriptions.EventDestination.ResourceTypes) > 0 {
 				resourceTypes = append(resourceTypes, evtSubscriptions.EventDestination.ResourceTypes...)
 			} else {
 				resourceTypes = []string{}
@@ -856,21 +856,21 @@ func (e *ExternalInterfaces) checkCollectionSubscription(ctx context.Context, or
 	var destination string
 	var context string
 	var eventTypes, messageIDs, resourceTypes []string
-	for index, evtSubscription := range collectionSubscription {
+	for _, evtSubscription := range collectionSubscription {
 		destination = evtSubscription.EventDestination.Destination
-		if len(evtSubscription.EventDestination.EventTypes) > 0 && (index == 0 || len(eventTypes) > 0) {
+		if len(evtSubscription.EventDestination.EventTypes) > 0 {
 			eventTypes = append(eventTypes, evtSubscription.EventDestination.EventTypes...)
 		} else {
 			eventTypes = []string{}
 		}
 
-		if len(evtSubscription.EventDestination.MessageIds) > 0 && (index == 0 || len(messageIDs) > 0) {
+		if len(evtSubscription.EventDestination.MessageIds) > 0 {
 			messageIDs = append(messageIDs, evtSubscription.EventDestination.MessageIds...)
 		} else {
 			messageIDs = []string{}
 		}
 
-		if len(evtSubscription.EventDestination.ResourceTypes) > 0 && (index == 0 || len(resourceTypes) > 0) {
+		if len(evtSubscription.EventDestination.ResourceTypes) > 0 {
 			resourceTypes = append(resourceTypes, evtSubscription.EventDestination.ResourceTypes...)
 		} else {
 			resourceTypes = []string{}
