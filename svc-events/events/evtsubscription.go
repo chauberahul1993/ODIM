@@ -522,6 +522,7 @@ func (e *ExternalInterfaces) IsEventsSubscribed(ctx context.Context, token, orig
 
 	originResource = origin
 	subscriptionDetails, err := e.GetEvtSubscriptions(searchKey)
+	fmt.Println("Search data ", searchKey, subscriptionDetails)
 	if err != nil && !strings.Contains(err.Error(), "No data found for the key") {
 		errorMessage := "error while get subscription details: " + err.Error()
 		evcommon.GenErrorResponse(errorMessage, errResponse.InternalError, http.StatusInternalServerError,
