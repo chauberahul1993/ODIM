@@ -224,9 +224,12 @@ func (e *ExternalInterfaces) CreateEventSubscription(ctx context.Context, taskID
 	l.LogWithFields(ctx).Debug("Process Count,", originResourceProcessedCount,
 		" successOriginResourceCount ", len(successfulSubscriptionList))
 	percentComplete = 100
+	fmt.Println("Step 11 ", resp.StatusCode)
 	if originResourceProcessedCount == len(successfulSubscriptionList) {
+		fmt.Println("Step 22 ", resp.StatusCode)
 		e.UpdateTask(ctx, fillTaskData(taskID, targetURI, string(req.PostBody), resp, common.Completed, common.OK, percentComplete, http.MethodPost))
 	} else {
+		fmt.Println("Step 33 ", resp.StatusCode)
 		args := errResponse.Args{
 			Code:    errResponse.GeneralError,
 			Message: "event subscription for one or more origin resource(s) failed, check sub tasks for more info.",
@@ -238,6 +241,7 @@ func (e *ExternalInterfaces) CreateEventSubscription(ctx context.Context, taskID
 		}
 		e.UpdateTask(ctx, fillTaskData(taskID, targetURI, string(req.PostBody), resp, common.Exception, common.Critical, percentComplete, http.MethodPost))
 	}
+	fmt.Println("Step 44 ", resp.StatusCode)
 	return resp
 }
 

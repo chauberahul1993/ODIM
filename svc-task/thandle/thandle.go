@@ -1335,6 +1335,7 @@ func (ts *TasksRPC) ProcessTaskEvents(ctx context.Context, data interface{}) boo
 	body, _ := json.Marshal(resp.Body)
 
 	if strings.Contains(responseMessage, "location") && strings.Contains(responseMessage, "host") {
+		fmt.Println("Status code is ************  ", statusCode, taskID)
 		var data tmodel.SubscriptionCreate
 		err := json.Unmarshal([]byte(responseMessage), &data)
 		if err == nil {
