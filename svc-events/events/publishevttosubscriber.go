@@ -105,6 +105,7 @@ func (e *ExternalInterfaces) PublishEventsToDestination(ctx context.Context, dat
 	message, deviceUUID = formatEvent(rawMessage, systemID, host)
 	eventMap := make(map[string][]common.Event)
 	for index, inEvent := range message.Events {
+		fmt.Println("Subscription ", inEvent.OriginOfCondition.Oid, systemID, host)
 		subscriptions := getSubscriptions(inEvent.OriginOfCondition.Oid, systemID, host)
 		for _, sub := range subscriptions {
 			if filterEventsToBeForwarded(ctx, sub, inEvent, sub.OriginResources) {

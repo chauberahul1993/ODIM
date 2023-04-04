@@ -298,7 +298,10 @@ func getAggregateSubscriptionList(systemID string) (subs []dmtf.EventDestination
 // originOfCondition type
 func getCollectionSubscriptionList(originOfCondition, hostIP string) (subs []dmtf.EventDestination) {
 	collectionsKey := getCollectionKey(originOfCondition, hostIP)
+	fmt.Println("Key is ", collectionsKey)
+	fmt.Println("Data is ", collectionsKey)
 	collectionSubscription, isExists := collectionToSubscriptionsMap[collectionsKey]
+	fmt.Println("Is exists ", isExists, collectionSubscription)
 	if isExists {
 		for subID := range collectionSubscription {
 			sub, isValidSubID := getSubscriptionDetails(subID)
