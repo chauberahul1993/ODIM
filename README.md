@@ -1108,7 +1108,7 @@ Topics covered in this section include:
 
    Username: **admin**
 
-   Password: **ValidPassword**
+   Password: <**ValidPassword**>
 
    To change the password, perform HTTP PATCH on the following URI:
 
@@ -1799,7 +1799,7 @@ The plugin you want to add is successfully deployed.
    echo -n '{odim_username}:{odim_password}' | base64 -w0
     ```
    
-   Default username is `admin` and default password is `ValidPassword`.
+   Default username is `admin` and default password is `<ValidPassword>`.
    Replace `{base64_encoded_string_of_[odim_username:odim_password]}` with the generated base64 encoded string in the curl command. You will receive:
    
     - An HTTP `202 Accepted` status code.
