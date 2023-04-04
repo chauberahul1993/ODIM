@@ -94,7 +94,7 @@ func (e *ExternalInterfaces) CreateEventSubscription(ctx context.Context, taskID
 		return resp
 	}
 	// ValidateRequest input request for create subscription
-	fmt.Printf("Request is %+v \n ", req)
+	fmt.Printf("Request is %+v \n ", req.PostBody)
 	statusCode, statusMessage, messageArgs, validationErr := e.ValidateRequest(ctx, req, postRequest)
 	if validationErr != nil {
 		evcommon.GenErrorResponse(validationErr.Error(), statusMessage, statusCode,
@@ -104,6 +104,7 @@ func (e *ExternalInterfaces) CreateEventSubscription(ctx context.Context, taskID
 			resp, common.Exception, common.Critical, percentComplete, http.MethodPost))
 		return resp
 	}
+	fmt.Println("Add is calling *******************  ")
 	// Get the target device  details from the origin resources
 	// Loop through all origin list and form individual event subscription request,
 	// Which will then forward to plugin to make subscription with target device
@@ -175,7 +176,7 @@ func (e *ExternalInterfaces) CreateEventSubscription(ctx context.Context, taskID
 			go e.createEventSubscription(ctx, taskID, subTaskChan, sessionUserName, targetURI, postRequest, origin, result, &wg, false, "", "", false)
 		}
 	}
-
+	fmt.Println("Step 2222222222222222222222222  ")
 	wg.Wait()
 	// close channel once all sub-routines created have exited
 	close(subTaskChan)
@@ -191,7 +192,7 @@ func (e *ExternalInterfaces) CreateEventSubscription(ctx context.Context, taskID
 	successfulSubscriptionList, result.Response = getSuccessfulResponse(result.Response)
 
 	result.Lock.Unlock()
-
+	fmt.Println("Step 33333333333333333  ", successfulSubscriptionList)
 	// remove the underlying resource uri's from successfulSubscriptionList
 	for i := 0; i < len(collectionList); i++ {
 		for j := 0; j < len(successfulSubscriptionList); j++ {
@@ -202,6 +203,7 @@ func (e *ExternalInterfaces) CreateEventSubscription(ctx context.Context, taskID
 			}
 		}
 	}
+	fmt.Println("Success Response is ", successfulSubscriptionList)
 	if len(successfulSubscriptionList) > 0 {
 		subscriptionID := uuid.New().String()
 		var hosts []string
