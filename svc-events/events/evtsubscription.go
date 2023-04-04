@@ -94,6 +94,7 @@ func (e *ExternalInterfaces) CreateEventSubscription(ctx context.Context, taskID
 		return resp
 	}
 	// ValidateRequest input request for create subscription
+	fmt.Printf("Request is %+v \n ", req)
 	statusCode, statusMessage, messageArgs, validationErr := e.ValidateRequest(ctx, req, postRequest)
 	if validationErr != nil {
 		evcommon.GenErrorResponse(validationErr.Error(), statusMessage, statusCode,
@@ -209,6 +210,7 @@ func (e *ExternalInterfaces) CreateEventSubscription(ctx context.Context, taskID
 			successfulSubscriptionList = []model.Link{}
 			hosts = []string{}
 		}
+		fmt.Println("Hosts is ", hosts)
 		statusCode, statusMessage, messageArgs, err = e.SaveSubscription(ctx, sessionUserName, subscriptionID,
 			hosts, successfulSubscriptionList, postRequest)
 		if err != nil {
@@ -263,7 +265,7 @@ func (e *ExternalInterfaces) SaveSubscription(ctx context.Context, sessionUserNa
 		},
 		Hosts: hosts,
 	}
-
+	fmt.Println("Subscription ", evtSubscription)
 	if err := e.SaveEventSubscription(evtSubscription); err != nil {
 		return http.StatusInternalServerError, errResponse.InternalError, []interface{}{}, err
 	}
