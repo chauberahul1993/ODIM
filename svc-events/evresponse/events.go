@@ -17,6 +17,7 @@
 package evresponse
 
 import (
+	"fmt"
 	"strings"
 	"sync"
 
@@ -147,7 +148,8 @@ func (r *MutexLock) AddResponse(origin, host string, response EventResponse) {
 	r.Lock.Lock()
 	defer r.Lock.Unlock()
 	r.Response[origin] = response
-	if response.StatusCode == 202 {
+	fmt.Println("%%%%%%%%%%%%%%%%%%%%%%%%", response.StatusCode == 202)
+	if response.StatusCode == 202 || response.StatusCode == 201 {
 		r.Hosts[host] = origin
 	}
 }
