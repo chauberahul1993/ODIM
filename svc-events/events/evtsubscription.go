@@ -225,6 +225,8 @@ func (e *ExternalInterfaces) CreateEventSubscription(ctx context.Context, taskID
 		" successOriginResourceCount ", len(successfulSubscriptionList))
 	percentComplete = 100
 	if originResourceProcessedCount == len(successfulSubscriptionList) {
+		fmt.Println("Response code ", resp.StatusCode)
+		resp.StatusCode = 200
 		e.UpdateTask(ctx, fillTaskData(taskID, targetURI, string(req.PostBody), resp, common.Completed, common.OK, percentComplete, http.MethodPost))
 	} else {
 		args := errResponse.Args{
