@@ -224,6 +224,7 @@ func (e *ExternalInterfaces) CreateEventSubscription(ctx context.Context, taskID
 	l.LogWithFields(ctx).Debug("Process Count,", originResourceProcessedCount,
 		" successOriginResourceCount ", len(successfulSubscriptionList))
 	percentComplete = 100
+	fmt.Println("Final Response is ", resp.StatusCode)
 	if originResourceProcessedCount == len(successfulSubscriptionList) {
 		if resp.StatusCode == http.StatusAccepted {
 			resp.StatusCode = http.StatusOK
