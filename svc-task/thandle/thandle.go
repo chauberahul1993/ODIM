@@ -927,13 +927,21 @@ func (ts *TasksRPC) CreateChildTaskUtil(ctx context.Context, userName string, pa
 	childTask.ParentID = parentTaskID
 	childTask.URI = "/redfish/v1/TaskService/Tasks/" + parentTaskID + "/" + childTaskID
 	// Store the updated task in to In Memory DB
-	ts.UpdateTaskQueue(childTask)
+	// ts.UpdateTaskQueue(childTask)
+	err = tmodel.UpdateTaskStatus(childTask)
+	if err != nil {
+		fmt.Println("Error occurre while update child ", err)
+		return "", err
+	}
 	// Add the child/sub task id in to ChildTaskIDs(array) of the parent task
 	fmt.Println(" ************ Parent update ", time.Now())
 	parentTask.ChildTaskIDs = append(parentTask.ChildTaskIDs, childTaskID)
 	// Update the parent task in to In Memory DB
-	time.Sleep(2 * time.Second)
-	ts.UpdateTaskQueue(parentTask)
+	err = tmodel.UpdateTaskStatus(parentTask)
+	if err != nil {
+		fmt.Println("Error occurre while update parent ", err)
+		return "", err
+	}
 	return "/redfish/v1/TaskService/Tasks/" + childTaskID, err
 }
 

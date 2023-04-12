@@ -464,3 +464,15 @@ type SubscriptionCreate struct {
 	Host     string      `json:"host"`
 	Body     interface{} `json:"body"`
 }
+
+func UpdateTaskStatus(t *Task) error {
+	connPool, err := common.GetDBConnection(common.InMemory)
+	if err != nil {
+		return fmt.Errorf("error while trying to connecting to DB: %v", err.Error())
+	}
+	if _, err = connPool.Update("task", t.ID, t); err != nil {
+		return fmt.Errorf("error while trying to update parent task: %v", err.Error())
+	}
+
+	return nil
+}
