@@ -890,8 +890,12 @@ func (ts *TasksRPC) CreateTaskUtil(ctx context.Context, userName string) (string
 //	err of type error
 //	nil - On Success
 //	Non nil - On Failure
+var lock sync.Mutex
 
 func (ts *TasksRPC) CreateChildTaskUtil(ctx context.Context, userName string, parentTaskID string) (string, error) {
+	lock.Lock()
+	defer lock.Unlock()
+	fmt.Println(" ******** Child creation is called ", parentTaskID)
 	var parentTask *tmodel.Task
 	var childTask *tmodel.Task
 	var taskURI string
@@ -925,8 +929,10 @@ func (ts *TasksRPC) CreateChildTaskUtil(ctx context.Context, userName string, pa
 	// Store the updated task in to In Memory DB
 	ts.UpdateTaskQueue(childTask)
 	// Add the child/sub task id in to ChildTaskIDs(array) of the parent task
+	fmt.Println(" ************ Parent update ", time.Now())
 	parentTask.ChildTaskIDs = append(parentTask.ChildTaskIDs, childTaskID)
 	// Update the parent task in to In Memory DB
+	time.Sleep(2 * time.Second)
 	ts.UpdateTaskQueue(parentTask)
 	return "/redfish/v1/TaskService/Tasks/" + childTaskID, err
 }
