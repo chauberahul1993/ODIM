@@ -148,6 +148,7 @@ func (e *ExternalInterfaces) CreateEventSubscription(ctx context.Context, taskID
 			}
 			if i <= len(originResources) {
 				percentComplete = int32((i*100)/len(originResources) - 1)
+				fmt.Println(" ************ Step 3.1  ", percentComplete, resp.StatusCode)
 				if resp.StatusCode == 0 {
 					resp.StatusCode = http.StatusAccepted
 				}
