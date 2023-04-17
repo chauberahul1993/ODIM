@@ -87,6 +87,7 @@ func (e *ExternalInterfaces) CreateEventSubscription(ctx context.Context, taskID
 		percentComplete int32 = 100
 		targetURI             = "/redfish/v1/EventService/Subscriptions"
 	)
+	fmt.Println(" ********** Step 1  Start Subscription Create ")
 	if err = json.Unmarshal(req.PostBody, &postRequest); err != nil {
 		l.LogWithFields(ctx).Error(err.Error())
 		evcommon.GenErrorResponse(err.Error(), errResponse.MalformedJSON, http.StatusBadRequest, []interface{}{}, &resp)
@@ -96,6 +97,7 @@ func (e *ExternalInterfaces) CreateEventSubscription(ctx context.Context, taskID
 	// ValidateRequest input request for create subscription
 	statusCode, statusMessage, messageArgs, validationErr := e.ValidateRequest(ctx, req, postRequest)
 	if validationErr != nil {
+		fmt.Println(" ********** Error at validation ", err)
 		evcommon.GenErrorResponse(validationErr.Error(), statusMessage, statusCode,
 			messageArgs, &resp)
 		l.LogWithFields(ctx).Error(validationErr.Error())
@@ -149,6 +151,7 @@ func (e *ExternalInterfaces) CreateEventSubscription(ctx context.Context, taskID
 				if resp.StatusCode == 0 {
 					resp.StatusCode = http.StatusAccepted
 				}
+				fmt.Println(" ************ Step 3 ", percentComplete, resp.StatusCode)
 				e.UpdateTask(ctx, fillTaskData(taskID, targetURI, string(req.PostBody), resp, common.Running, common.OK, percentComplete, http.MethodPost))
 			}
 		}
@@ -201,7 +204,7 @@ func (e *ExternalInterfaces) CreateEventSubscription(ctx context.Context, taskID
 			}
 		}
 	}
-
+	fmt.Println(" ******* Step 4 ", resp.StatusCode)
 	if len(successfulSubscriptionList) > 0 {
 		subscriptionID := uuid.New().String()
 		var hosts []string
@@ -213,6 +216,7 @@ func (e *ExternalInterfaces) CreateEventSubscription(ctx context.Context, taskID
 		statusCode, statusMessage, messageArgs, err = e.SaveSubscription(ctx, sessionUserName, subscriptionID,
 			hosts, successfulSubscriptionList, postRequest)
 		if err != nil {
+			fmt.Println(" ******* Step 5 Error occurred while saving subscription ", statusCode, err)
 			l.LogWithFields(ctx).Error(err.Error())
 			evcommon.GenErrorResponse(err.Error(), statusMessage, statusCode,
 				messageArgs, &resp)
@@ -225,6 +229,8 @@ func (e *ExternalInterfaces) CreateEventSubscription(ctx context.Context, taskID
 	l.LogWithFields(ctx).Debug("Process Count,", originResourceProcessedCount,
 		" successOriginResourceCount ", len(successfulSubscriptionList))
 	percentComplete = 100
+
+	fmt.Println("********* Step 6 ", resp.StatusCode)
 	if originResourceProcessedCount == len(successfulSubscriptionList) {
 		e.UpdateTask(ctx, fillTaskData(taskID, targetURI, string(req.PostBody), resp, common.Completed, common.OK, percentComplete, http.MethodPost))
 	} else {
