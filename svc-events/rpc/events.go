@@ -377,6 +377,7 @@ func (e *Events) DeleteEventSubscription(ctx context.Context, req *eventsproto.E
 // CreateDefaultEventSubscription defines the operations which handles the RPC request response
 // after computer system restarts ,This will  triggered from   aggregation service whenever a computer system is added
 func (e *Events) CreateDefaultEventSubscription(ctx context.Context, req *eventsproto.DefaultEventSubRequest) (*eventsproto.DefaultEventSubResponse, error) {
+	fmt.Println("Default Subscription add called ************  ")
 	var resp eventsproto.DefaultEventSubResponse
 	ctx = common.GetContextData(ctx)
 	ctx = common.ModifyContext(ctx, common.EventService, podName)
