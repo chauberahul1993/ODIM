@@ -1282,7 +1282,7 @@ func (ts *TasksRPC) updateTaskToCompleted(task *tmodel.Task) {
 func (ts *TasksRPC) ProcessTaskEvents(ctx context.Context, data interface{}) bool {
 	event := data.(dmtf.EventRecord)
 	var taskID string
-
+	fmt.Printf("******  Event Data %+v \n\n ", event)
 	if len(event.MessageArgs) == 0 {
 		l.LogWithFields(ctx).Error("task id is not present in the task event." +
 			"skipping the task update")
@@ -1297,7 +1297,8 @@ func (ts *TasksRPC) ProcessTaskEvents(ctx context.Context, data interface{}) boo
 		l.LogWithFields(ctx).Error("error while processing task event :", err.Error())
 		return false
 	}
-
+	fmt.Printf("******111  Event Data %+v \n\n ", pluginTask)
+	fmt.Printf("******222  Event Data %+v \n\n ", taskID)
 	messageID := event.MessageID
 	var message string
 	if strings.HasPrefix(messageID, common.TaskEventType) {

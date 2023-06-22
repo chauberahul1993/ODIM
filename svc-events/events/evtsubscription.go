@@ -439,6 +439,8 @@ func (e *ExternalInterfaces) SaveSubscriptionOnDevice(ctx context.Context, origi
 		pluginTaskInfo.PluginIP = response.Header.Get(common.XForwardedFor)
 		services.SavePluginTaskInfo(ctx, pluginTaskInfo.PluginIP, plugin.IP,
 			subTaskID, pluginTaskInfo.Location)
+		fmt.Println(" **********  Event Location 11 ", pluginTaskInfo.Location)
+		fmt.Printf(" ************** Subtask %s\n ", subTaskID)
 	} else if response.StatusCode != http.StatusCreated {
 		body, err := ioutil.ReadAll(response.Body)
 		if err != nil {
