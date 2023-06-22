@@ -433,6 +433,8 @@ func (e *ExternalInterfaces) SaveSubscriptionOnDevice(ctx context.Context, origi
 	}
 	defer response.Body.Close()
 	l.LogWithFields(ctx).Debug("Subscription Response StatusCode: " + strconv.Itoa(int(response.StatusCode)))
+	fmt.Println(" ********* Create default check is ", response.StatusCode == http.StatusAccepted, resp.StatusCode)
+	fmt.Println("************ ", subTaskID != FillInSubTaskID, subTaskID, FillInSubTaskID)
 
 	if response.StatusCode == http.StatusAccepted && subTaskID != FillInSubTaskID {
 		pluginTaskInfo.Location = response.Header.Get("Location")
