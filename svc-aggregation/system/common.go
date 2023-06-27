@@ -1475,6 +1475,7 @@ func (e *ExternalInterface) getIndividualTelemetryInfo(ctx context.Context, task
 }
 
 func (e *ExternalInterface) getTeleInfo(ctx context.Context, taskID string, progress, alottedWork int32, req getResourceRequest) int32 {
+	fmt.Println(" Get Telemetry info **** ")
 	resourceName := getResourceName(req.OID, false)
 	body, _, getResponse, err := contactPlugin(ctx, req, "error while trying to get "+resourceName+" details: ")
 	if err != nil {
@@ -1531,7 +1532,11 @@ func (e *ExternalInterface) createWildCard(resourceData, resourceName, oid strin
 	if err != nil {
 		return "", err
 	}
-	data, _ := e.GetResource(context.TODO(), resourceName, oid)
+	fmt.Println("*** 1111 Resource Name ", resourceName, oid)
+	data, rerr := e.GetResource(context.TODO(), resourceName, oid)
+	if rerr != nil {
+		return "", err
+	}
 	return formWildCard(data, resourceDataMap)
 }
 
@@ -1542,7 +1547,8 @@ func formWildCard(dbData string, resourceDataMap map[string]interface{}) (string
 	var systemID, chassisID string
 	var wildCards []WildCard
 	var dbMetricProperties []interface{}
-
+	fmt.Printf("**** 222 Db   %s \n *** \n ", resourceDataMap)
+	fmt.Printf("**** 3333 Telemetry info  %+v \n *** \n ", resourceDataMap)
 	if len(dbData) < 1 {
 		wildCards = getEmptyWildCard()
 	} else {
