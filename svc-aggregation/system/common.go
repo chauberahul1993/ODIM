@@ -1547,8 +1547,7 @@ func formWildCard(dbData string, resourceDataMap map[string]interface{}) (string
 	var systemID, chassisID string
 	var wildCards []WildCard
 	var dbMetricProperties []interface{}
-	fmt.Printf("**** 222 Db   %s \n *** \n ", resourceDataMap)
-	fmt.Printf("**** 3333 Telemetry info  %+v \n *** \n ", resourceDataMap)
+
 	if len(dbData) < 1 {
 		wildCards = getEmptyWildCard()
 	} else {
@@ -1563,6 +1562,8 @@ func formWildCard(dbData string, resourceDataMap map[string]interface{}) (string
 		wildCards = getWildCard(dbDataMap["Wildcards"].([]interface{}))
 		dbMetricProperties = dbDataMap["MetricProperties"].([]interface{})
 	}
+	fmt.Printf("**** 222 Db   %s \n *** \n ", dbData)
+	fmt.Printf("**** 3333 Telemetry info  %+v \n *** \n ", resourceDataMap)
 	metricProperties, isExists := resourceDataMap["MetricProperties"].([]interface{})
 	if isExists {
 		for _, mProperty := range metricProperties {
