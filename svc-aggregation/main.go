@@ -15,6 +15,7 @@ package main
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 
 	"github.com/sirupsen/logrus"
@@ -107,7 +108,7 @@ func main() {
 	// }
 
 	// go p.RediscoverResources()
-
+	go addProfiler()
 	agcommon.ConfigFilePath = os.Getenv("CONFIG_FILE_PATH")
 	if agcommon.ConfigFilePath == "" {
 		log.Fatal("error: no value get the environment variable CONFIG_FILE_PATH")
@@ -119,4 +120,10 @@ func main() {
 	if err := services.ODIMService.Run(); err != nil {
 		log.Fatal("failed to run a service: " + err.Error())
 	}
+}
+
+// only for profiling, remove in pr raise
+func addProfiler() {
+	fmt.Println("")
+	fmt.Println("**** Profiler started ***** ", http.ListenAndServe("localhost:6060", nil))
 }
