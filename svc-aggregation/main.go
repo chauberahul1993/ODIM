@@ -40,6 +40,7 @@ type Schema struct {
 }
 
 func main() {
+	fmt.Println("Image is updated ********* ")
 	// setting up the logging framework
 	hostName := os.Getenv("HOST_NAME")
 	podName := os.Getenv("POD_NAME")
