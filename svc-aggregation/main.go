@@ -16,6 +16,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	_ "net/http/pprof"
 	"os"
 
 	"github.com/sirupsen/logrus"
@@ -125,6 +126,6 @@ func main() {
 
 // only for profiling, remove in pr raise
 func addProfiler() {
-	fmt.Println("")
+	fmt.Println("///////////// *******  ")
 	fmt.Println("**** Profiler started ***** ", http.ListenAndServe("localhost:6060", nil))
 }
