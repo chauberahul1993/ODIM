@@ -618,11 +618,12 @@ func (h *respHolder) getAllRootInfo(ctx context.Context, taskID string, progress
 	if resourceMembers != nil {
 		// Loop through all the resource members collection and discover all of them
 		for _, object := range resourceMembers.([]interface{}) {
-			fmt.Printf(" 000 Collection %+v \n", object)
 			estimatedWork := alottedWork / int32(len(resourceMembers.([]interface{})))
 			oDataID := object.(map[string]interface{})["@odata.id"].(string)
 			oDataID = strings.TrimSuffix(oDataID, "/")
 			req.OID = oDataID
+			fmt.Printf(" 000 Collection %+v \n", object, progress)
+			fmt.Println(" **** Estimated ", estimatedWork)
 			progress = h.getIndividualInfo(ctx, taskID, progress, estimatedWork, req, resourceList)
 		}
 	}

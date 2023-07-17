@@ -22,6 +22,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/ODIM-Project/ODIM/lib-utilities/common"
 	"github.com/ODIM-Project/ODIM/lib-utilities/config"
@@ -162,7 +163,9 @@ func (e *ExternalInterface) RediscoverSystemInventory(ctx context.Context, devic
 
 	} else {
 		l.LogWithFields(ctx).Debugf("get system info request data for %s: %s", req.OID, string(req.Data))
+		t := time.Now()
 		_, _, progress, _ = h.getSystemInfo(ctx, "", progress, systemsEstimatedWork, req)
+		fmt.Println("**** Time taken ", time.Since(t))
 		h.InventoryData = make(map[string]interface{})
 		//rediscovering the Chassis Information
 		req.OID = "/redfish/v1/Chassis"
@@ -173,7 +176,6 @@ func (e *ExternalInterface) RediscoverSystemInventory(ctx context.Context, devic
 		managerEstimatedWork := int32(15)
 		progress = h.getAllRootInfo(ctx, "", progress, managerEstimatedWork, req, config.Data.AddComputeSkipResources.SkipResourceListUnderManager)
 		agmodel.SaveBMCInventory(h.InventoryData)
-
 	}
 
 	var responseBody = map[string]string{
@@ -194,7 +196,7 @@ func (e *ExternalInterface) RediscoverSystemInventory(ctx context.Context, devic
 // On success nil
 // On Failure Non nil
 func (e *ExternalInterface) RediscoverResources() error {
-	// First check if the redicovery requires.
+	// First check if the rediscovery requires.
 	// InMemory DB is just fine most of the times.
 	// Try to get all the systems from InMemory DB, if the collection is not empty
 	// then InMemory DB is just fine, so no need for resource inventory rediscovery
