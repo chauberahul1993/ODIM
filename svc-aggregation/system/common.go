@@ -589,6 +589,7 @@ func isFileExist(existingFiles []string, substr string) bool {
 
 func (h *respHolder) getAllRootInfo(ctx context.Context, taskID string, progress int32, alottedWork int32, req getResourceRequest, resourceList []string) int32 {
 	resourceName := req.OID
+	fmt.Println(" ******** Root resource is ", resourceName)
 	body, _, getResponse, err := contactPlugin(ctx, req, "error while trying to get the"+resourceName+"collection details: ")
 	if err != nil {
 		h.lock.Lock()
@@ -622,7 +623,7 @@ func (h *respHolder) getAllRootInfo(ctx context.Context, taskID string, progress
 			oDataID := object.(map[string]interface{})["@odata.id"].(string)
 			oDataID = strings.TrimSuffix(oDataID, "/")
 			req.OID = oDataID
-			fmt.Printf(" 000 Collection %+v \n", object, progress)
+			fmt.Printf(" 000 Collection %+v %d\n", object, progress)
 			fmt.Println(" **** Estimated ", estimatedWork)
 			progress = h.getIndividualInfo(ctx, taskID, progress, estimatedWork, req, resourceList)
 		}
@@ -631,6 +632,7 @@ func (h *respHolder) getAllRootInfo(ctx context.Context, taskID string, progress
 }
 
 func (h *respHolder) getSystemInfo(ctx context.Context, taskID string, progress int32, alottedWork int32, req getResourceRequest) (string, string, int32, error) {
+	t := time.Now()
 	var computeSystemID, oidKey string
 	body, _, getResponse, err := contactPlugin(ctx, req, "error while trying to get system collection details: ")
 	if err != nil {
@@ -645,7 +647,7 @@ func (h *respHolder) getSystemInfo(ctx context.Context, taskID string, progress 
 		h.lock.Unlock()
 		return computeSystemID, oidKey, progress, err
 	}
-
+	fmt.Println("  1111 Time taken is ", time.Since(t))
 	var computeSystem map[string]interface{}
 	err = json.Unmarshal(body, &computeSystem)
 
@@ -658,11 +660,12 @@ func (h *respHolder) getSystemInfo(ctx context.Context, taskID string, progress 
 		return computeSystemID, oidKey, progress, err
 
 	}
+	fmt.Println("  2222 Time taken is ", time.Since(t))
 	oid := computeSystem["@odata.id"].(string)
 	computeSystemID = computeSystem["Id"].(string)
 	computeSystemUUID := computeSystem["UUID"].(string)
 	oidKey = keyFormation(oid, computeSystemID, req.DeviceUUID)
-
+	fmt.Println("  3333 Time taken is ", time.Since(t), req.UpdateFlag)
 	if !req.UpdateFlag {
 		indexList, err := agmodel.GetString("UUID", computeSystemUUID)
 		if err != nil {
@@ -684,15 +687,17 @@ func (h *respHolder) getSystemInfo(ctx context.Context, taskID string, progress 
 		}
 
 	}
+	fmt.Println("  4444 Time taken is ", time.Since(t))
 	updatedResourceData := updateResourceDataWithUUID(string(body), req.DeviceUUID)
-
+	fmt.Println("  5555 Time taken is ", time.Since(t))
 	h.InventoryData["ComputerSystem:"+oidKey] = updatedResourceData
 	h.TraversedLinks[req.OID] = true
 	h.SystemURL = append(h.SystemURL, oidKey)
 	var retrievalLinks = make(map[string]bool)
 	getLinks(computeSystem, retrievalLinks, false)
+	fmt.Println("  6666 Time taken is ", time.Since(t))
 	removeRetrievalLinks(retrievalLinks, oid, config.Data.AddComputeSkipResources.SkipResourceListUnderSystem, h.TraversedLinks)
-
+	fmt.Println("  7777 Time taken is ", time.Since(t))
 	req.SystemID = computeSystemID
 	req.ParentOID = oid
 
@@ -705,7 +710,7 @@ func (h *respHolder) getSystemInfo(ctx context.Context, taskID string, progress 
 	}
 	json.Unmarshal([]byte(updatedResourceData), &computeSystem)
 	err = agmodel.SaveBMCInventory(h.InventoryData)
-
+	fmt.Println("  8888 Time taken is ", time.Since(t))
 	if err != nil {
 		h.lock.Lock()
 		h.ErrorMessage = "error while trying to save data: " + err.Error()
@@ -715,7 +720,7 @@ func (h *respHolder) getSystemInfo(ctx context.Context, taskID string, progress 
 		return computeSystemID, oidKey, progress, err
 	}
 	searchForm := createServerSearchIndex(ctx, computeSystem, oidKey, req.DeviceUUID)
-
+	fmt.Println("  9999 Time taken is ", time.Since(t))
 	//save the   search form here
 
 	if req.UpdateFlag {
@@ -723,7 +728,7 @@ func (h *respHolder) getSystemInfo(ctx context.Context, taskID string, progress 
 	} else {
 		err = agmodel.SaveIndex(searchForm, oidKey, computeSystemUUID, req.BMCAddress)
 	}
-
+	fmt.Println("  1010 Time taken is ", time.Since(t))
 	if err != nil {
 		h.ErrorMessage = "error while trying save index values: " + err.Error()
 		h.StatusMessage = response.InternalError
