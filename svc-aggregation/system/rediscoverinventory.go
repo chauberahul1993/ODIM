@@ -371,7 +371,7 @@ func deleteResourceResetInfo(ctx context.Context, pattern string) {
 	}
 }
 
-// deleteSubordinateResource will delete all the subordinate resources assosiated with the pattern
+// deleteSubordinateResource will delete all the subordinate resources associated with the pattern
 func deleteSubordinateResource(ctx context.Context, deviceUUID string) {
 	var deleteKeys []string
 	l.LogWithFields(ctx).Info("Initiated removal of subordinate resource for the BMC with ID " +

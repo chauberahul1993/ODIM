@@ -618,6 +618,7 @@ func (h *respHolder) getAllRootInfo(ctx context.Context, taskID string, progress
 	if resourceMembers != nil {
 		// Loop through all the resource members collection and discover all of them
 		for _, object := range resourceMembers.([]interface{}) {
+			fmt.Printf(" 000 Collection %+v \n", object)
 			estimatedWork := alottedWork / int32(len(resourceMembers.([]interface{})))
 			oDataID := object.(map[string]interface{})["@odata.id"].(string)
 			oDataID = strings.TrimSuffix(oDataID, "/")
@@ -929,6 +930,7 @@ func (h *respHolder) getIndividualInfo(ctx context.Context, taskID string, progr
 	req.SystemID = resourceID
 	req.ParentOID = oid
 	for resourceOID, oemFlag := range retrievalLinks {
+		fmt.Println("****  22222 Individual ", resourceOID, oemFlag)
 		estimatedWork := alottedWork / int32(len(retrievalLinks))
 		resourceOID = strings.TrimSuffix(resourceOID, "/")
 		req.OID = resourceOID
@@ -1004,7 +1006,8 @@ func (h *respHolder) getResourceDetails(ctx context.Context, taskID string, prog
 	getLinks(resourceData, retrievalLinks, req.OemFlag)
 	/* Loop through  Collection members and discover all of them*/
 	for oid, oemFlag := range retrievalLinks {
-		// skipping the Retrieval if oid mathches the parent oid
+		fmt.Println(" 111 Links ", oid, oemFlag)
+		// skipping the Retrieval if oid matches the parent oid
 		if checkRetrieval(oid, req.OID, h.TraversedLinks) {
 			estimatedWork := alottedWork / int32(len(retrievalLinks))
 			childReq := req
