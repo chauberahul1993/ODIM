@@ -706,6 +706,8 @@ func (h *respHolder) getSystemInfo(ctx context.Context, taskID string, progress 
 		resourceOID = strings.TrimSuffix(resourceOID, "/")
 		req.OID = resourceOID
 		req.OemFlag = oemFlag
+		//progress = h.getResourceDetails(ctx, taskID, progress, estimatedWork, req)
+		fmt.Println("********** Work is ", progress, estimatedWork)
 		go h.getResourceDetails(ctx, taskID, progress, estimatedWork, req)
 	}
 	json.Unmarshal([]byte(updatedResourceData), &computeSystem)
