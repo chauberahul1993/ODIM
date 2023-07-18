@@ -700,16 +700,32 @@ func (h *respHolder) getSystemInfo(ctx context.Context, taskID string, progress 
 	fmt.Println("  7777 Time taken is ", time.Since(t))
 	req.SystemID = computeSystemID
 	req.ParentOID = oid
+	jobs := make(chan processStatus, len(retrievalLinks))
+	results := make(chan int32, len(retrievalLinks))
+
+	for w := 1; w <= 5; w++ {
+		go h.worker(ctx, taskID, progress, alottedWork/int32(len(retrievalLinks)), req, jobs, results)
+	}
 
 	for resourceOID, oemFlag := range retrievalLinks {
-		estimatedWork := alottedWork / int32(len(retrievalLinks))
 		resourceOID = strings.TrimSuffix(resourceOID, "/")
-		req.OID = resourceOID
-		req.OemFlag = oemFlag
-		progress = h.getResourceDetails(ctx, taskID, progress, estimatedWork, req)
-		fmt.Println("********** Work is ", progress, estimatedWork)
+		// req.OID = resourceOID
+		// req.OemFlag = oemFlag
+		status := processStatus{isOEM: oemFlag, OID: resourceOID}
+		jobs <- status
+
+		// progress = h.getResourceDetails(ctx, taskID, progress, estimatedWork, req)
+		// fmt.Println("********** Work is ", progress, estimatedWork)
+
 		// go h.getResourceDetails(ctx, taskID, progress, estimatedWork, req)
 	}
+	close(jobs)
+	for a := 1; a <= len(retrievalLinks); a++ {
+
+		progress = <-results
+		fmt.Println("Response received ")
+	}
+	fmt.Println(" ************** Done *************** ")
 	json.Unmarshal([]byte(updatedResourceData), &computeSystem)
 	err = agmodel.SaveBMCInventory(h.InventoryData)
 	fmt.Println("  8888 Time taken is ", time.Since(t))
@@ -1722,4 +1738,20 @@ func (e *ExternalInterface) monitorPluginTask(ctx context.Context, subTaskChanne
 		}
 	}
 	return monitorTaskData.getResponse, nil
+}
+func (h *respHolder) worker(ctx context.Context, taskID string, progress int32, alottedWork int32, req getResourceRequest, jobs <-chan processStatus, results chan<- int) {
+	fmt.Println("Worker is started ")
+	for j := range jobs {
+		fmt.Println(" Url ", j.OID, j.isOEM)
+		req.OID = j.OID
+		req.OemFlag = j.isOEM
+		progress = h.getResourceDetails(ctx, taskID, progress, alottedWork, req)
+		results <- int(progress)
+	}
+
+}
+
+type processStatus struct {
+	OID   string
+	isOEM bool
 }
