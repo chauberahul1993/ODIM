@@ -701,10 +701,9 @@ func (h *respHolder) getSystemInfo(ctx context.Context, taskID string, progress 
 	req.SystemID = computeSystemID
 	req.ParentOID = oid
 	jobs := make(chan getResourceRequest, len(retrievalLinks))
-	results := make(chan int32, len(retrievalLinks))
 	fmt.Println("Process start *********** ", len(retrievalLinks))
 	for w := 1; w <= len(retrievalLinks); w++ {
-		go h.worker(w, ctx, taskID, progress, alottedWork/int32(len(retrievalLinks)), jobs, results)
+		go h.worker(w, ctx, taskID, progress, alottedWork/int32(len(retrievalLinks)), jobs)
 	}
 
 	for resourceOID, oemFlag := range retrievalLinks {
@@ -712,17 +711,11 @@ func (h *respHolder) getSystemInfo(ctx context.Context, taskID string, progress 
 		req.OID = resourceOID
 		req.OemFlag = oemFlag
 		jobs <- req
-
 		// progress = h.getResourceDetails(ctx, taskID, progress, estimatedWork, req)
 		// fmt.Println("********** Work is ", progress, estimatedWork)
-
 		// go h.getResourceDetails(ctx, taskID, progress, estimatedWork, req)
 	}
 	close(jobs)
-	for a := 1; a <= len(retrievalLinks); a++ {
-		progress = <-results
-		fmt.Println("Response received ", progress)
-	}
 	fmt.Println(" ************** Done *************** ")
 	json.Unmarshal([]byte(updatedResourceData), &computeSystem)
 	err = agmodel.SaveBMCInventory(h.InventoryData)
@@ -1028,14 +1021,13 @@ func (h *respHolder) getResourceDetails(ctx context.Context, taskID string, prog
 	getLinks(resourceData, retrievalLinks, req.OemFlag)
 
 	jobs := make(chan getResourceRequest, len(retrievalLinks))
-	results := make(chan int32, len(retrievalLinks))
 	fmt.Println("Process start *********** ", len(retrievalLinks))
 	for w := 1; w <= len(retrievalLinks); w++ {
-		go h.worker(w, ctx, taskID, progress, alottedWork/int32(len(retrievalLinks)), jobs, results)
+		go h.worker(w, ctx, taskID, progress, alottedWork/int32(len(retrievalLinks)), jobs)
 	}
 	/* Loop through  Collection members and discover all of them*/
 	for oid, oemFlag := range retrievalLinks {
-		fmt.Println("*** 111 Links ", oid, oemFlag, len(retrievalLinks))
+		fmt.Println("*** child worked  111 Links ", oid, oemFlag, len(retrievalLinks))
 		// skipping the Retrieval if oid matches the parent oid
 		if checkRetrieval(oid, req.OID, h.TraversedLinks) {
 			childReq := req
@@ -1050,10 +1042,10 @@ func (h *respHolder) getResourceDetails(ctx context.Context, taskID string, prog
 		}
 	}
 	close(jobs)
-	for a := 1; a <= len(retrievalLinks); a++ {
-		progress = <-results
-		fmt.Println("Response received 1111 ", progress)
-	}
+	// for a := 1; a <= len(retrievalLinks); a++ {
+	// 	progress = <-results
+	// 	fmt.Println("Response received 1111 ", progress)
+	// }
 	fmt.Println(" ************** Done  1111*************** ")
 
 	fmt.Println(" Get Link time taken ****** ", time.Since(t))
@@ -1754,11 +1746,10 @@ func (e *ExternalInterface) monitorPluginTask(ctx context.Context, subTaskChanne
 	}
 	return monitorTaskData.getResponse, nil
 }
-func (h *respHolder) worker(id int, ctx context.Context, taskID string, progress int32, alottedWork int32, jobs <-chan getResourceRequest, results chan<- int32) {
+func (h *respHolder) worker(id int, ctx context.Context, taskID string, progress int32, alottedWork int32, jobs <-chan getResourceRequest) {
 	fmt.Println("Worker is started ")
 	for j := range jobs {
 		progress = h.getResourceDetails(ctx, taskID, progress, alottedWork, j)
-		results <- int32(progress)
 	}
 
 }
