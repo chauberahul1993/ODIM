@@ -702,8 +702,8 @@ func (h *respHolder) getSystemInfo(ctx context.Context, taskID string, progress 
 	req.ParentOID = oid
 	jobs := make(chan processStatus, len(retrievalLinks))
 	results := make(chan int32, len(retrievalLinks))
-
-	for w := 1; w <= 50; w++ {
+	fmt.Println("Process start *********** ", len(retrievalLinks))
+	for w := 1; w <= len(retrievalLinks); w++ {
 		go h.worker(w, ctx, taskID, progress, alottedWork/int32(len(retrievalLinks)), req, jobs, results)
 	}
 
@@ -723,7 +723,7 @@ func (h *respHolder) getSystemInfo(ctx context.Context, taskID string, progress 
 	for a := 1; a <= len(retrievalLinks); a++ {
 
 		progress = <-results
-		fmt.Println("Response received ")
+		fmt.Println("Response received ", progress)
 	}
 	fmt.Println(" ************** Done *************** ")
 	json.Unmarshal([]byte(updatedResourceData), &computeSystem)
