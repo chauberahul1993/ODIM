@@ -700,19 +700,18 @@ func (h *respHolder) getSystemInfo(ctx context.Context, taskID string, progress 
 	fmt.Println("  7777 Time taken is ", time.Since(t))
 	req.SystemID = computeSystemID
 	req.ParentOID = oid
-	jobs := make(chan processStatus, len(retrievalLinks))
+	jobs := make(chan getResourceRequest, len(retrievalLinks))
 	results := make(chan int32, len(retrievalLinks))
 	fmt.Println("Process start *********** ", len(retrievalLinks))
 	for w := 1; w <= len(retrievalLinks); w++ {
-		go h.worker(w, ctx, taskID, progress, alottedWork/int32(len(retrievalLinks)), req, jobs, results)
+		go h.worker(w, ctx, taskID, progress, alottedWork/int32(len(retrievalLinks)), jobs, results)
 	}
 
 	for resourceOID, oemFlag := range retrievalLinks {
 		resourceOID = strings.TrimSuffix(resourceOID, "/")
-		// req.OID = resourceOID
-		// req.OemFlag = oemFlag
-		status := processStatus{isOEM: oemFlag, OID: resourceOID}
-		jobs <- status
+		req.OID = resourceOID
+		req.OemFlag = oemFlag
+		jobs <- req
 
 		// progress = h.getResourceDetails(ctx, taskID, progress, estimatedWork, req)
 		// fmt.Println("********** Work is ", progress, estimatedWork)
@@ -1028,22 +1027,37 @@ func (h *respHolder) getResourceDetails(ctx context.Context, taskID string, prog
 	t := time.Now()
 	getLinks(resourceData, retrievalLinks, req.OemFlag)
 
-	fmt.Println(" Get Link time taken ****** ", time.Since(t))
+	jobs := make(chan getResourceRequest, len(retrievalLinks))
+	results := make(chan int32, len(retrievalLinks))
+	fmt.Println("Process start *********** ", len(retrievalLinks))
+	for w := 1; w <= len(retrievalLinks); w++ {
+		go h.worker(w, ctx, taskID, progress, alottedWork/int32(len(retrievalLinks)), jobs, results)
+	}
 	/* Loop through  Collection members and discover all of them*/
 	for oid, oemFlag := range retrievalLinks {
 		fmt.Println("*** 111 Links ", oid, oemFlag, len(retrievalLinks))
 		// skipping the Retrieval if oid matches the parent oid
 		if checkRetrieval(oid, req.OID, h.TraversedLinks) {
-			estimatedWork := alottedWork / int32(len(retrievalLinks))
 			childReq := req
 			oid = strings.TrimSuffix(oid, "/")
 			childReq.OID = oid
 			childReq.ParentOID = req.OID
 			childReq.OemFlag = oemFlag
-			progress = h.getResourceDetails(ctx, taskID, progress, estimatedWork, childReq)
+			// progress = h.getResourceDetails(ctx, taskID, progress, estimatedWork, childReq)
+			// status := processStatus{isOEM: oemFlag, OID: oid, ParentOid: req.OID}
+			jobs <- childReq
+
 		}
 	}
-	fmt.Println(" Get Link time taken * 1111 ***** ", time.Since(t))
+	close(jobs)
+	for a := 1; a <= len(retrievalLinks); a++ {
+		progress = <-results
+		fmt.Println("Response received 1111 ", progress)
+	}
+	fmt.Println(" ************** Done  1111*************** ")
+
+	fmt.Println(" Get Link time taken ****** ", time.Since(t))
+
 	progress = progress + alottedWork
 	return progress
 }
@@ -1129,7 +1143,6 @@ func removeRetrievalLinks(retrievalLinks map[string]bool, parentoid string, reso
 			}
 		}
 	}
-	return
 }
 
 func callPlugin(ctx context.Context, req getResourceRequest) (*http.Response, error) {
@@ -1741,19 +1754,11 @@ func (e *ExternalInterface) monitorPluginTask(ctx context.Context, subTaskChanne
 	}
 	return monitorTaskData.getResponse, nil
 }
-func (h *respHolder) worker(id int, ctx context.Context, taskID string, progress int32, alottedWork int32, req getResourceRequest, jobs <-chan processStatus, results chan<- int32) {
+func (h *respHolder) worker(id int, ctx context.Context, taskID string, progress int32, alottedWork int32, jobs <-chan getResourceRequest, results chan<- int32) {
 	fmt.Println("Worker is started ")
 	for j := range jobs {
-		fmt.Println(" Url ", id, j.OID, j.isOEM)
-		req.OID = j.OID
-		req.OemFlag = j.isOEM
-		progress = h.getResourceDetails(ctx, taskID, progress, alottedWork, req)
+		progress = h.getResourceDetails(ctx, taskID, progress, alottedWork, j)
 		results <- int32(progress)
 	}
 
-}
-
-type processStatus struct {
-	OID   string
-	isOEM bool
 }
