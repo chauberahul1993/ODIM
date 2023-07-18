@@ -721,7 +721,6 @@ func (h *respHolder) getSystemInfo(ctx context.Context, taskID string, progress 
 	}
 	close(jobs)
 	for a := 1; a <= len(retrievalLinks); a++ {
-
 		progress = <-results
 		fmt.Println("Response received ", progress)
 	}
@@ -1026,11 +1025,13 @@ func (h *respHolder) getResourceDetails(ctx context.Context, taskID string, prog
 
 	h.InventoryData[resourceName+":"+oidKey] = updatedResourceData
 	var retrievalLinks = make(map[string]bool)
-
+	t := time.Now()
 	getLinks(resourceData, retrievalLinks, req.OemFlag)
+
+	fmt.Println(" Get Link time taken ****** ", time.Since(t))
 	/* Loop through  Collection members and discover all of them*/
 	for oid, oemFlag := range retrievalLinks {
-		fmt.Println(" 111 Links ", oid, oemFlag)
+		fmt.Println("*** 111 Links ", oid, oemFlag, len(retrievalLinks))
 		// skipping the Retrieval if oid matches the parent oid
 		if checkRetrieval(oid, req.OID, h.TraversedLinks) {
 			estimatedWork := alottedWork / int32(len(retrievalLinks))
@@ -1042,6 +1043,7 @@ func (h *respHolder) getResourceDetails(ctx context.Context, taskID string, prog
 			progress = h.getResourceDetails(ctx, taskID, progress, estimatedWork, childReq)
 		}
 	}
+	fmt.Println(" Get Link time taken * 1111 ***** ", time.Since(t))
 	progress = progress + alottedWork
 	return progress
 }
