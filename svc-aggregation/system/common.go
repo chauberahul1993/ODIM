@@ -703,8 +703,8 @@ func (h *respHolder) getSystemInfo(ctx context.Context, taskID string, progress 
 	jobs := make(chan processStatus, len(retrievalLinks))
 	results := make(chan int32, len(retrievalLinks))
 
-	for w := 1; w <= 5; w++ {
-		go h.worker(ctx, taskID, progress, alottedWork/int32(len(retrievalLinks)), req, jobs, results)
+	for w := 1; w <= 50; w++ {
+		go h.worker(w, ctx, taskID, progress, alottedWork/int32(len(retrievalLinks)), req, jobs, results)
 	}
 
 	for resourceOID, oemFlag := range retrievalLinks {
@@ -1739,10 +1739,10 @@ func (e *ExternalInterface) monitorPluginTask(ctx context.Context, subTaskChanne
 	}
 	return monitorTaskData.getResponse, nil
 }
-func (h *respHolder) worker(ctx context.Context, taskID string, progress int32, alottedWork int32, req getResourceRequest, jobs <-chan processStatus, results chan<- int32) {
+func (h *respHolder) worker(id int, ctx context.Context, taskID string, progress int32, alottedWork int32, req getResourceRequest, jobs <-chan processStatus, results chan<- int32) {
 	fmt.Println("Worker is started ")
 	for j := range jobs {
-		fmt.Println(" Url ", j.OID, j.isOEM)
+		fmt.Println(" Url ", id, j.OID, j.isOEM)
 		req.OID = j.OID
 		req.OemFlag = j.isOEM
 		progress = h.getResourceDetails(ctx, taskID, progress, alottedWork, req)
