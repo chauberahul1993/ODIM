@@ -149,6 +149,7 @@ type respHolder struct {
 	PluginResponse string
 	TraversedLinks map[string]bool
 	InventoryData  map[string]interface{}
+	TraversedLock  sync.Mutex
 }
 
 // AddResourceRequest is payload of adding a  resource
@@ -956,7 +957,9 @@ func (h *respHolder) getIndividualInfo(ctx context.Context, taskID string, progr
 }
 
 func (h *respHolder) getResourceDetails(ctx context.Context, taskID string, progress int32, alottedWork int32, req getResourceRequest) int32 {
+	h.lock.Lock()
 	h.TraversedLinks[req.OID] = true
+	h.lock.Unlock()
 	body, _, getResponse, err := contactPlugin(ctx, req, "error while trying to get the "+req.OID+" details: ")
 	if err != nil {
 		h.lock.Lock()
