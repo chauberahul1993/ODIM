@@ -126,6 +126,11 @@ func (e *ExternalInterfaces) PublishEventsToDestination(ctx context.Context, dat
 	eventMap := make(map[string][]common.Event)
 
 	for index, inEvent := range message.Events {
+		fmt.Printf(" **** Event data is %+v \n ", inEvent)
+		if inEvent.OriginOfCondition == nil || inEvent.OriginOfCondition.Oid == "" {
+			fmt.Println("******************** No origin of condition ")
+			inEvent.OriginOfCondition.Oid = ""
+		}
 		subscriptions := getSubscriptions(inEvent.OriginOfCondition.Oid, systemID, host)
 		for _, sub := range subscriptions {
 			if filterEventsToBeForwarded(ctx, sub, inEvent, sub.OriginResources) {
