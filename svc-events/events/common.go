@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"path"
 	"runtime"
 	"strings"
 	"time"
@@ -495,4 +496,14 @@ func isHostPresentInEventForward(hosts []string, hostIP string) bool {
 		rear--
 	}
 	return false
+}
+func removeDuplicateSystems(input []string) (result []string) {
+	uniqueList := make(map[string]string)
+	for _, url := range input {
+		uniqueList[path.Base(url)] = url
+	}
+	for _, url := range uniqueList {
+		result = append(result, url)
+	}
+	return
 }

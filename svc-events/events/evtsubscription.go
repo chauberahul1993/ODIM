@@ -134,6 +134,8 @@ func (e *ExternalInterfaces) CreateEventSubscription(ctx context.Context, taskID
 			"/redfish/v1/TaskService/Tasks",
 		}
 	}
+	uniqueOriginResource := removeDuplicateSystems(originResources)
+	fmt.Println("******** 111 ************** ", uniqueOriginResource)
 	var collectionList = make([]string, 0)
 	subTaskChan := make(chan int32, len(originResources))
 	taskCollectionWG.Add(1)
@@ -149,8 +151,8 @@ func (e *ExternalInterfaces) CreateEventSubscription(ctx context.Context, taskID
 			if statusCode > bubbleUpStatusCode {
 				bubbleUpStatusCode = statusCode
 			}
-			if i <= len(originResources) && statusCode != http.StatusAccepted {
-				percentComplete = int32((i / len(originResources)) * 100)
+			if i <= len(uniqueOriginResource) && statusCode != http.StatusAccepted {
+				percentComplete = int32((i / len(uniqueOriginResource)) * 100)
 				if resp.StatusCode == 0 {
 					resp.StatusCode = http.StatusAccepted
 				}
@@ -159,7 +161,7 @@ func (e *ExternalInterfaces) CreateEventSubscription(ctx context.Context, taskID
 		}
 	}()
 	var isServerAdded = false
-	for _, origin := range originResources {
+	for _, origin := range uniqueOriginResource {
 		_, err := getUUID(origin)
 		if err != nil {
 			collection, collectionName, collectionFlag, aggregateResource, isAggregate, _ := e.checkCollection(origin)
