@@ -137,7 +137,7 @@ func (e *ExternalInterfaces) CreateEventSubscription(ctx context.Context, taskID
 	uniqueOriginResource := removeDuplicateSystems(originResources)
 	fmt.Println("******** 111 ************** ", uniqueOriginResource)
 	var collectionList = make([]string, 0)
-	subTaskChan := make(chan int32, len(originResources))
+	subTaskChan := make(chan int32, len(uniqueOriginResource))
 	taskCollectionWG.Add(1)
 	bubbleUpStatusCode := int32(http.StatusCreated)
 	go func() {
@@ -238,7 +238,7 @@ func (e *ExternalInterfaces) CreateEventSubscription(ctx context.Context, taskID
 			hosts = []string{}
 		}
 		statusCode, statusMessage, messageArgs, err = e.SaveSubscription(ctx, sessionUserName, subscriptionID,
-			hosts, successfulSubscriptionList, postRequest)
+			hosts, addOdataIDfromOriginResources(originResources), postRequest)
 		if err != nil {
 			l.LogWithFields(ctx).Error(err.Error())
 			evcommon.GenErrorResponse(err.Error(), statusMessage, statusCode,

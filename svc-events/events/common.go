@@ -137,6 +137,15 @@ func removeOdataIDfromOriginResources(originResources []model.Link) []string {
 	return originRes
 }
 
+// this function is for to create array of originofresources without odata id
+func addOdataIDfromOriginResources(originResources []string) []model.Link {
+	var originRes []model.Link
+	for _, origin := range originResources {
+		originRes = append(originRes, model.Link{Oid: origin})
+	}
+	return originRes
+}
+
 // remove duplicate elements in string slice.
 // Takes string slice and length, and updates the same with new values
 func removeDuplicatesFromSlice(slc *[]string) {
