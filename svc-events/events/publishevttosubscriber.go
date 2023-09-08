@@ -146,9 +146,12 @@ func (e *ExternalInterfaces) PublishEventsToDestination(ctx context.Context, dat
 				flag = true
 			}
 		} else if strings.EqualFold("ResourceAdded", message.Events[0].EventType) || strings.EqualFold("ResourceRemoved", message.Events[0].EventType) {
+			fmt.Println("Rediscovery **************** ", message.Events[0].EventType, message.Events[0].OriginOfCondition.Oid)
 			if strings.Contains(message.Events[0].OriginOfCondition.Oid, "Volumes") {
 				s := strings.Split(message.Events[0].OriginOfCondition.Oid, "/")
 				storageURI := fmt.Sprintf("/%s/%s/%s/%s/%s/", s[1], s[2], s[3], s[4], s[5])
+				fmt.Println("Rediscovery 22222222222  ", message.Events[0].EventType, deviceUUID, systemID)
+
 				go rediscoverSystemInventory(ctx, deviceUUID, storageURI)
 				flag = true
 			}

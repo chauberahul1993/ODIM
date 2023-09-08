@@ -156,6 +156,8 @@ func (e *ExternalInterface) RediscoverSystemInventory(ctx context.Context, devic
 	h.InventoryData = make(map[string]interface{})
 	progress := int32(100)
 	systemsEstimatedWork := int32(75)
+
+	fmt.Println("***********  Aggregation ", systemURL, deviceUUID, strings.Contains(systemURL, "/Storage"))
 	if strings.Contains(systemURL, "/Storage") {
 		l.LogWithFields(ctx).Debugf("get storage info request data for %s: %s", req.OID, string(req.Data))
 		_, progress, _ = h.getStorageInfo(ctx, progress, systemsEstimatedWork, req)
