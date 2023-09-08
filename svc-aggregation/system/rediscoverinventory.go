@@ -47,6 +47,7 @@ func (e *ExternalInterface) RediscoverSystemInventory(ctx context.Context, devic
 	var resp response.RPC
 	systemURL = strings.TrimSuffix(systemURL, "/")
 	data := strings.Split(systemURL, "/")
+	temp := systemURL
 	// Getting the SystemID from system url
 	if len(data) <= 0 {
 		genError(ctx, "invalid data ", &resp, http.StatusInternalServerError, errors.InternalError, map[string]string{
@@ -115,6 +116,7 @@ func (e *ExternalInterface) RediscoverSystemInventory(ctx context.Context, devic
 		}
 
 	}
+	fmt.Println()
 	// check whether delete operation for the system is initiated
 	if strings.Contains(systemURL, "/Storage") {
 		systemURL = strings.Replace(systemURL, "/Storage", "", -1)
@@ -157,8 +159,8 @@ func (e *ExternalInterface) RediscoverSystemInventory(ctx context.Context, devic
 	progress := int32(100)
 	systemsEstimatedWork := int32(75)
 
-	fmt.Println("***********  Aggregation ", systemURL, deviceUUID, strings.Contains(systemURL, "/Storage"))
-	if strings.Contains(systemURL, "/Storage") {
+	fmt.Println("***********  Aggregation ", systemURL, deviceUUID, strings.Contains(temp, "/Storage"), temp)
+	if strings.Contains(temp, "/Storage") {
 		l.LogWithFields(ctx).Debugf("get storage info request data for %s: %s", req.OID, string(req.Data))
 		_, progress, _ = h.getStorageInfo(ctx, progress, systemsEstimatedWork, req)
 

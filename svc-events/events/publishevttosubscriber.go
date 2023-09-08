@@ -151,7 +151,7 @@ func (e *ExternalInterfaces) PublishEventsToDestination(ctx context.Context, dat
 				s := strings.Split(message.Events[0].OriginOfCondition.Oid, "/")
 				storageURI := fmt.Sprintf("/%s/%s/%s/%s/%s/", s[1], s[2], s[3], s[4], s[5])
 				fmt.Println("Rediscovery 22222222222  ", message.Events[0].EventType, deviceUUID, systemID)
-
+				fmt.Println("Rediscovery 33333  ", storageURI, s)
 				go rediscoverSystemInventory(ctx, deviceUUID, storageURI)
 				flag = true
 			}
